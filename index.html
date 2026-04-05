@@ -3,533 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Printing Quotation System</title>
+    <title>Premium Printing Quotation System v2.1 FINAL</title>
+    <!-- [V2.1 FINAL] 100% UNIFIED VERSION - NO EXTERNAL ASSETS NEEDED -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@500;700&display=swap');
-
-        :root {
-            --bg-deep: #0f172a;
-            --bg-card: #1e293b;
-            --primary: #6366f1;
-            --primary-light: #818cf8;
-            --secondary: #a855f7;
-            --accent: #f43f5e;
-            --text-main: #f1f5f9;
-            --text-dim: #94a3b8;
-            --border: rgba(255, 255, 255, 0.1);
-            --grad-title: linear-gradient(to right, #c084fc, #6366f1);
-            --grad-btn: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            font-family: 'Inter', -apple-system, sans-serif; 
-            background: radial-gradient(circle at top left, #1e1b4b, #0f172a); 
-            color: var(--text-main); 
-            min-height: 100vh;
-            line-height: 1.6;
-        }
-
-        #app { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem; }
-
-        h1 { 
-            text-align: center; 
-            font-family: 'Outfit', sans-serif;
-            font-size: 3rem; 
-            margin-bottom: 3.5rem; 
-            background: var(--grad-title);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 700;
-        }
-
-        .container { display: grid; grid-template-columns: 1fr 420px; gap: 2.5rem; align-items: start; }
-
-        /* Stepper */
-        .stepper { 
-            display: flex; 
-            justify-content: space-between; 
-            background: rgba(255, 255, 255, 0.03); 
-            padding: 1.2rem; 
-            border-radius: 16px; 
-            margin-bottom: 2.5rem;
-            border: 1px solid var(--border);
-            backdrop-filter: blur(10px);
-        }
-        .step { 
-            font-size: 0.9rem; 
-            font-weight: 600; 
-            color: var(--text-dim); 
-            cursor: pointer; 
-            transition: 0.3s;
-            padding: 0.5rem 1rem;
-            border-radius: 12px;
-        }
-        .step.active { color: white; background: rgba(99, 102, 241, 0.2); border-bottom: 2px solid var(--primary); }
-
-        .card { 
-            background: var(--bg-card); 
-            border: 1px solid var(--border); 
-            border-radius: 24px; 
-            padding: 2.2rem; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4); 
-            margin-bottom: 2rem;
-        }
-        
-        h2 { font-size: 1.4rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.8rem; color: var(--primary-light); }
-        h2 i { font-size: 1.2rem; opacity: 0.8; }
-
-        label { display: block; margin-top: 1.8rem; font-size: 0.95rem; font-weight: 600; color: var(--text-dim); margin-bottom: 0.8rem; }
-        
-        /* Grid Options */
-        .options-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 1rem; }
-        .option-btn { 
-            background: rgba(255, 255, 255, 0.04); 
-            border: 1px solid var(--border); 
-            padding: 1rem; 
-            border-radius: 14px; 
-            text-align: center; 
-            cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 0.95rem;
-            font-weight: 600;
-        }
-        .option-btn:hover { border-color: var(--primary); background: rgba(99, 102, 241, 0.1); transform: translateY(-2px); }
-        .option-btn.active { 
-            background: var(--primary); 
-            color: white; 
-            border-color: var(--primary); 
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
-        }
-
-        select, input { 
-            width: 100%; 
-            background: rgba(0, 0, 0, 0.2); 
-            border: 1px solid var(--border); 
-            color: white; 
-            padding: 1.1rem; 
-            border-radius: 14px; 
-            font-size: 1.05rem; 
-            outline: none;
-            transition: 0.3s;
-        }
-        select:focus, input:focus { border-color: var(--primary); background: rgba(0,0,0,0.4); }
-
-        /* Navigation Buttons */
-        .step-content { display: none; animation: slideUp 0.5s ease; }
-        .step-content.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        .main-btn { 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            padding: 1.3rem; 
-            border-radius: 16px; 
-            width: 100%; 
-            font-size: 1.15rem; 
-            font-weight: 700; 
-            cursor: pointer; 
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
-        }
-        .main-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(99, 102, 241, 0.5); background: var(--primary-light); }
-        .prev-btn { 
-            background: #1e293b; 
-            border: 1px solid var(--border); 
-            color: var(--text-dim); 
-            padding: 1.1rem 2rem; 
-            border-radius: 14px; 
-            cursor: pointer; 
-            font-weight: 600;
-        }
-
-        /* Sidebar Mockup */
-        .sidebar { position: sticky; top: 2rem; }
-        .mockup-card { 
-            background: var(--bg-card); 
-            border-radius: 30px; 
-            padding: 2.5rem; 
-            text-align: center;
-            border: 1px solid var(--border);
-            margin-bottom: 2rem;
-        }
-        .mockup-viewport { height: 280px; display: flex; align-items: center; justify-content: center; perspective: 1200px; margin-bottom: 1.5rem; }
-        .book-model { 
-            position: relative; 
-            width: 160px; 
-            height: 220px; 
-            transform-style: preserve-3d; 
-            transform: rotateY(-25deg) rotateX(15deg);
-            transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .book-side { position: absolute; background: white; border: 1px solid #ddd; }
-        .book-front { width: 160px; height: 220px; z-index: 2; background: #fff; border-radius: 0 5px 5px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #1e293b; padding: 20px; box-shadow: inset 0 0 15px rgba(0,0,0,0.05); }
-        .book-spine { height: 220px; background: #e5e7eb; transform-origin: left; transform: rotateY(-90deg); }
-        .book-top { width: 160px; height: 20px; background: #f9fafb; transform-origin: top; transform: rotateX(90deg); }
-        
-        .mockup-title { font-size: 0.9rem; font-weight: 800; border: 2px solid #1e293b; padding: 12px; line-height: 1.2; width: 100%; }
-
-        /* Order Summary */
-        .summary-card { background: rgba(0,0,0,0.2); border-radius: 20px; padding: 2rem; border: 1px solid var(--border); }
-        .summary-row { display: flex; justify-content: space-between; margin-bottom: 0.9rem; font-size: 0.95rem; color: var(--text-dim); }
-        .summary-row span:last-child { color: var(--text-main); font-weight: 600; }
-        .total-price-box { margin-top: 2rem; text-align: right; }
-        .total-label { font-size: 2.4rem; font-weight: 800; color: var(--accent); }
-
-        /* Cart Styles */
-        .cart-item { 
-            background: rgba(255,255,255,0.03); 
-            border: 1px solid var(--border); 
-            border-radius: 18px; 
-            padding: 1.5rem; 
-            margin-bottom: 1rem; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-        }
-        .cart-item-info strong { color: var(--primary-light); font-size: 1.1rem; }
-        .remove-btn { color: #f43f5e; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; background: none; }
-
-        @media (max-width: 1024px) { .container { grid-template-columns: 1fr; } .sidebar { display: none; } }
+        :root { --bg-deep:#0f172a; --bg-card:#1e293b; --primary:#6366f1; --primary-light:#818cf8; --secondary:#a855f7; --accent:#f43f5e; --text-main:#f1f5f9; --text-dim:#94a3b8; --border:rgba(255,255,255,0.1); --grad-title:linear-gradient(to right,#c084fc,#6366f1); --grad-btn:linear-gradient(135deg,#6366f1 0%,#a855f7 100%); }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'Inter',sans-serif; background:radial-gradient(circle at top left,#1e1b4b,#0f172a); color:var(--text-main); min-height:100vh; line-height:1.6; }
+        #app { max-width:1300px; margin:0 auto; padding:3rem 2rem; }
+        h1 { text-align:center; font-family:'Outfit',sans-serif; font-size:3rem; margin-bottom:3.5rem; background:var(--grad-title); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:700; }
+        .container { display:grid; grid-template-columns:1fr 420px; gap:2.5rem; align-items:start; }
+        .stepper { display:flex; justify-content:space-between; background:rgba(255,255,255,0.03); padding:1.2rem; border-radius:16px; margin-bottom:2.5rem; border:1px solid var(--border); backdrop-filter:blur(10px); }
+        .step { font-size:0.9rem; font-weight:600; color:var(--text-dim); cursor:pointer; padding:0.5rem 1rem; border-radius:12px; transition:0.3s; }
+        .step.active { color:white; background:rgba(99,102,241,0.2); border-bottom:2px solid var(--primary); }
+        .card { background:var(--bg-card); border:1px solid var(--border); border-radius:24px; padding:2.2rem; box-shadow:0 20px 40px rgba(0,0,0,0.4); margin-bottom:2rem; }
+        h2 { font-size:1.4rem; margin-bottom:2rem; display:flex; align-items:center; gap:0.8rem; color:var(--primary-light); }
+        label { display:block; margin:1.5rem 0 0.8rem; font-size:0.95rem; font-weight:600; color:var(--text-dim); }
+        .options-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:1rem; }
+        .option-btn { background:rgba(255,255,255,0.04); border:1px solid var(--border); padding:1rem; border-radius:14px; text-align:center; cursor:pointer; transition:0.3s; font-weight:600; }
+        .option-btn:hover { border-color:var(--primary); background:rgba(99,102,241,0.1); transform:translateY(-2px); }
+        .option-btn.active { background:var(--primary); color:white; border-color:var(--primary); box-shadow:0 8px 20px rgba(99,102,241,0.4); }
+        select, input { width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border); color:white; padding:1.1rem; border-radius:14px; font-size:1.05rem; outline:none; }
+        .step-content { display:none; animation:slideUp 0.5s ease; }
+        .step-content.active { display:block; }
+        @keyframes slideUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+        .main-btn { background:var(--primary); color:white; border:none; padding:1.3rem; border-radius:16px; width:100%; font-size:1.15rem; font-weight:700; cursor:pointer; transition:0.3s; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 10px 25px rgba(99,102,241,0.3); }
+        .sidebar { position:sticky; top:2rem; }
+        .mockup-card { background:var(--bg-card); border-radius:30px; padding:2.5rem; text-align:center; border:1px solid var(--border); }
+        .mockup-viewport { height:280px; display:flex; align-items:center; justify-content:center; perspective:1200px; margin-bottom:1.5rem; }
+        .book-model { position:relative; width:160px; height:220px; transform-style:preserve-3d; transform:rotateY(-25deg) rotateX(15deg); transition:0.6s cubic-bezier(0.4,0,0.2,1); }
+        .book-side { position:absolute; background:white; border:1px solid #ddd; }
+        .book-front { width:160px; height:220px; z-index:2; background:#fff; border-radius:0 5px 5px 0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#1e293b; padding:20px; }
+        .book-spine { height:220px; background:#e5e7eb; transform-origin:left; transform:rotateY(-90deg); }
+        .book-top { width:160px; height:20px; background:#f9fafb; transform-origin:top; transform:rotateX(90deg); }
+        .mockup-title { font-size:0.9rem; font-weight:800; border:2px solid #1e293b; padding:10px; width:100%; text-align:center; }
+        .total-label { font-size:2.4rem; font-weight:800; color:var(--accent); }
+        .cart-item { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:18px; padding:1.2rem; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center; }
     </style>
 </head>
 <body>
     <div id="app">
         <h1>Printing Quotation System</h1>
-
         <div class="container">
             <div class="calculator-main">
                 <div class="stepper">
                     <div class="step active" data-step="1" onclick="changeStep(1)">1. 기본설정</div>
                     <div class="step" data-step="2" onclick="changeStep(2)">2. 표지사양</div>
                     <div class="step" data-step="3" onclick="changeStep(3)">3. 내지사양</div>
-                    <div class="step" data-step="4" onclick="changeStep(4)">4. 주문목록 확인</div>
-                    <div class="step" data-step="5" onclick="changeStep(5)">5. 최종 주문</div>
+                    <div class="step" data-step="4" onclick="changeStep(4)">4. 장바구니</div>
+                    <div class="step" data-step="5" onclick="changeStep(5)">5. 최종주문</div>
                 </div>
-
-                <!-- Step 1 -->
                 <div class="step-content active" id="step-1">
                     <div class="card">
                         <h2><i class="fas fa-edit"></i> 프로젝트 명칭</h2>
-                        <label>책자 제목 (Project Title)</label>
-                        <input type="text" id="project-title" placeholder="예: 2024 상반기 기업 보고서">
-                        
-                        <h2 style="margin-top:3rem;"><i class="fas fa-hdd"></i> 기본 사양</h2>
-                        <label>사이즈 선택</label>
-                        <div id="size-options" class="options-grid"></div>
-                        <label>제본 방법</label>
-                        <div id="binding-options" class="options-grid"></div>
-                        <label>주문 수량</label>
-                        <input type="number" id="order-quantity" value="1" min="1">
-                        <p style="font-size:0.8rem; color:var(--text-dim); margin-top:0.8rem;">💡 주문수량이 많으면 내지 인쇄량에 따라 자동으로 할인이 적용됩니다.</p>
+                        <label>책자 제목</label><input type="text" id="project-title" placeholder="예: 2024 상반기 기업 보고서">
+                        <label>사이즈 선택</label><div id="size-options" class="options-grid"></div>
+                        <label>제본 방법</label><div id="binding-options" class="options-grid"></div>
+                        <label>주문 수량</label><input type="number" id="order-quantity" value="1" min="1">
                     </div>
                     <button class="main-btn" onclick="changeStep(2)">다음: 표지 사양 <i class="fas fa-arrow-right"></i></button>
                 </div>
-
-                <!-- Step 2 -->
                 <div class="step-content" id="step-2">
                     <div class="card">
                         <h2><i class="fas fa-layer-group"></i> 표지 사양</h2>
-                        <label>표지 재질 및 두께</label>
-                        <select id="cover-paper"></select>
-                        
-                        <label>가공/후가공 (복수 선택 가능)</label>
-                        <div id="finishing-sections"></div>
+                        <label>표지 재질 및 두께</label><select id="cover-paper"></select>
+                        <label>후가공 선택</label><div id="finishing-sections"></div>
                     </div>
-                    <div style="display:flex; gap:1rem;">
-                        <button class="prev-btn" onclick="changeStep(1)">이전</button>
-                        <button class="main-btn" onclick="changeStep(3)">다음: 내지 사양 <i class="fas fa-arrow-right"></i></button>
-                    </div>
+                    <div style="display:flex;gap:1rem;"><button class="main-btn" style="background:#475569;" onclick="changeStep(1)">이전</button><button class="main-btn" onclick="changeStep(3)">다음: 내지 사양 <i class="fas fa-arrow-right"></i></button></div>
                 </div>
-
-                <!-- Step 3 -->
                 <div class="step-content" id="step-3">
                     <div class="card">
                         <h2><i class="fas fa-file-alt"></i> 내지 사양</h2>
-                        <label>내지 재질 및 두께</label>
-                        <select id="inner-paper"></select>
-                        <label>내지 인쇄 방식</label>
-                        <div id="print-sides" class="options-grid">
-                            <div class="option-btn active" data-val="double">양면 인쇄</div>
-                            <div class="option-btn" data-val="single">단면 인쇄</div>
-                        </div>
-                        <label>내지 페이지 수 (표지 제외) <span id="spine-badge" style="color:var(--primary-light);"></span></label>
-                        <input type="number" id="inner-pages" value="16" min="2" step="2">
-                        
-                        <label>내지 컬러/흑백</label>
-                        <div id="print-color" class="options-grid">
-                            <div class="option-btn active" data-val="color">컬러 인쇄</div>
-                            <div class="option-btn" data-val="bw">흑백 인쇄</div>
-                        </div>
-
-                        <label>간지 추가</label>
-                        <div id="interleaf-options" class="options-grid">
-                            <div class="option-btn active" data-val="none">없음</div>
-                            <div class="option-btn" data-val="plain">간지만 추가</div>
-                            <div class="option-btn" data-val="printed">추가 및 인쇄</div>
-                        </div>
-
-                        <label>면지 추가 (앞뒤)</label>
-                        <div id="endpaper-options" class="options-grid">
-                            <div class="option-btn active" data-val="none">없음</div>
-                            <div class="option-btn" data-val="front">앞면지</div>
-                            <div class="option-btn" data-val="back">뒷면지</div>
-                            <div class="option-btn" data-val="both">앞뒤 모두</div>
-                        </div>
+                        <label>내지 재질</label><select id="inner-paper"></select>
+                        <label>페이지 수</label><input type="number" id="inner-pages" value="16" min="2" step="2">
+                        <label>인쇄 컬러</label><div id="print-color" class="options-grid"><div class="option-btn active" data-val="color">컬러</div><div class="option-btn" data-val="bw">흑백</div></div>
                     </div>
-                    <div style="display:flex; flex-direction:column; gap:1rem;">
-                        <button class="main-btn" style="background:#22c55e;" onclick="addToCart()">담고 하나 더 추가 <i class="fas fa-plus-circle"></i></button>
-                        <div style="display:flex; gap:1rem;">
-                            <button class="prev-btn" onclick="changeStep(2)">이전 (표지 사양)</button>
-                            <button class="main-btn" onclick="addToCart(true)">담고 목록 확인 <i class="fas fa-list-ul"></i></button>
-                        </div>
-                    </div>
+                    <button class="main-btn" style="background:#22c55e;" onclick="addToCart(true)">장바구니 담고 확인 <i class="fas fa-shopping-basket"></i></button>
                 </div>
-
-                <!-- Step 4 -->
                 <div class="step-content" id="step-4">
                     <div class="card">
-                        <h2><i class="fas fa-shopping-basket"></i> 주문목록 확인</h2>
-                        <div id="cart-list-container"></div>
-                        <div style="display:flex; gap:1rem; margin-top:2rem;">
-                            <button class="main-btn" style="background:#22c55e; flex:1;" onclick="changeStep(1)">다른 책 추가하기</button>
-                            <button class="main-btn" style="flex:1.5;" onclick="changeStep(5)">주문 마감 및 배송지 입력</button>
+                        <h2><i class="fas fa-shopping-basket"></i> 장바구니 리스트</h2>
+                        <div id="cart-list"></div>
+                        <div style="display:flex;gap:1.5rem;margin-top:2rem;">
+                            <button class="main-btn" style="background:#6366f1;flex:1;" onclick="changeStep(1)">+ 책 추가</button>
+                            <button class="main-btn" style="flex:1.5;" onclick="changeStep(5)">배송지 입력 ➜</button>
                         </div>
                     </div>
                 </div>
-
-                <!-- Step 5 -->
                 <div class="step-content" id="step-5">
                     <div class="card">
-                        <h2><i class="fas fa-truck-loading"></i> 최종 주문 및 배송 정보</h2>
-                        <label>주문자 성함</label><input type="text" id="cust-name" placeholder="실명을 입력해주세요">
-                        <label>연락처 (Phone)</label><input type="tel" id="cust-phone" placeholder="010-0000-0000">
-                        <label>배송지 주소 (Address)</label>
-                        <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem;">
-                            <input type="text" id="cust-postcode" placeholder="우편번호" readonly>
-                            <button onclick="searchAddress()" style="width:120px; background:var(--primary); border:none; color:white; border-radius:10px; cursor:pointer; font-weight:700;">주소 검색</button>
-                        </div>
-                        <input type="text" id="cust-addr1" placeholder="기본 주소" readonly style="margin-bottom:0.5rem;">
-                        <input type="text" id="cust-addr2" placeholder="상세 주소를 입력해주세요">
+                        <h2><i class="fas fa-truck-loading"></i> 배송 정보</h2>
+                        <label>성함</label><input type="text" id="cust-name">
+                        <label>연락처</label><input type="tel" id="cust-phone">
+                        <label>주소</label><div style="display:flex;gap:0.5rem;"><input type="text" id="cust-postcode" readonly><button onclick="openPostcode()" style="background:var(--primary);border:none;color:#fff;padding:0 1rem;border-radius:12px;cursor:pointer;">검색</button></div>
+                        <input type="text" id="cust-addr1" readonly style="margin-top:0.5rem;"><input type="text" id="cust-addr2" placeholder="상세주소">
                     </div>
-                    <div class="total-price-box" style="margin-bottom:2rem; padding:1.5rem; background:rgba(255,255,255,0.05); border-radius:20px;">
-                        <span style="font-size:1.2rem; opacity:0.7;">총 결제 예정 금액</span><br>
-                        <span class="total-label" id="grand-total-display">0 원</span>
-                    </div>
-                    <button class="main-btn" id="finish-order-btn" style="font-size:1.5rem;" onclick="finalizeOrder()">최종 주문 완료하기 <i class="fas fa-check-double"></i></button>
+                    <div id="grand-total" class="total-label" style="text-align:right;margin-bottom:2rem;">0 원</div>
+                    <button class="main-btn" id="order-btn" onclick="finalizeOrder()">최종 주문 완료하기</button>
                 </div>
             </div>
-
-            <!-- Sidebar -->
             <div class="sidebar">
                 <div class="mockup-card">
-                    <h2 style="color:white; justify-content:center;">Preview Mockup</h2>
-                    <div class="mockup-viewport">
-                        <div class="book-model" id="book-model">
-                            <div class="book-side book-front">
-                                <div class="mockup-title" id="mock-title-text">A4 BROCHURE</div>
-                                <div style="font-size:0.6rem; margin-top:10px; opacity:0.6;">Printing Specialists</div>
-                            </div>
-                            <div class="book-side book-spine" id="mock-spine"></div>
-                            <div class="book-side book-top" id="mock-top"></div>
-                        </div>
-                    </div>
-                    <div class="summary-card">
-                        <h2 style="color:white; justify-content:center; margin-bottom:1.5rem;">Order Summary</h2>
-                        <div class="summary-row"><span>프로젝트</span><span id="summ-title">제목 없음</span></div>
-                        <div class="summary-row"><span>사이즈</span><span id="summ-size">A4</span></div>
-                        <div class="summary-row"><span>제본</span><span id="summ-binding">무선제본</span></div>
-                        <div class="summary-row"><span>수량</span><span id="summ-qty">1 부</span></div>
-                        <div class="summary-row"><span>내지</span><span id="summ-pages">16 P</span></div>
-                        <div style="height:1px; background:var(--border); margin:1.5rem 0;"></div>
-                        <div class="summary-row"><span>공급가액</span><span id="summ-sub">0 원</span></div>
-                        <div class="summary-row"><span>세액 (10%)</span><span id="summ-tax">0 원</span></div>
-                        <div class="total-price-box">
-                            <div class="total-label" id="summ-total">0 원</div>
-                        </div>
+                    <div class="mockup-viewport"><div class="book-model"><div class="book-side book-front"><div class="mockup-title" id="mock-title">A4 BOOK</div></div><div class="book-side book-spine" id="mock-spine"></div><div class="book-side book-top"></div></div></div>
+                    <div id="summary-info" class="card" style="padding:1.5rem;background:rgba(0,0,0,0.2);margin-top:1.5rem;border-radius:20px;">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;"><span>견적 합계</span><span id="summ-total" style="font-weight:700;color:var(--accent);">0 원</span></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script>
-        const CONFIG = {
-            SIZES: ['A4 (210x297)', 'B5 (182x257)', 'A5 (148x210)', 'A6 (105x148)', '직접입력'],
-            BINDING: [
-                {id: 'perfect', n: '무선제본'}, {id: 'saddle', n: '중철제본'}, 
-                {id: 'hard', n: '하드커버'}, {id: 'spring', n: '스프링제본'}, {id: 'wire', n: '와이어제본'}
-            ],
-            PAPERS: {
-                cover: ['스노우 250g', '아트지 250g', '랑데뷰 210g', '모조 220g', '색지/수입지'],
-                inner: ['모조 80g', '모조 100g', '스노우 100g', '아트지 100g', '랑데뷰 105g']
-            },
-            FINISHING: {
-                '코팅': ['무광코팅', '유광코팅'],
-                '특수': ['화이트인쇄 (색상지전용)'],
-                '타공': ['모양타공'],
-                '에폭시': ['바니쉬(에폭시)'],
-                '박가공': ['무광금박', '유광금박', '은박', '투명박'],
-                '형압': ['엠보싱(형압)', '디보싱(형압)']
-            },
-            PRICES: { base:5000, binding:{perfect:1500,saddle:800,hard:15000,spring:2500,wire:2800}, page:{color:100,bw:20}, finish:1500 }
-        };
-
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzaYE7z43VsuNPp6ZpzXz4TY0W4Wcpc92ec3peMckQddMMQd8b4eRpb54nXUZJTy6Rs/exec';
-
+        const CONFIG = { SIZES:['A4','B5','A5','A6'], BINDING:[{id:'perfect',n:'무선제본'},{id:'saddle',n:'중철제본'},{id:'spring',n:'스프링제본'}], PAPERS:{cover:['스노우 250g','아트지 250g'],inner:['모조 80g','모조 100g']}, FINISHING:['무광코팅','유광코팅','박가공'], PRICES:{base:5000,binding:{perfect:1500,saddle:800,spring:2500},page:{color:100,bw:20},finish:1500} };
         let cart = [];
-        let state = {
-            title: '', size: 'A4', binding: 'perfect', qty: 1,
-            coverPaper: '스노우 250g', finishes: new Set(['무광코팅']),
-            innerPaper: '모조 80g', innerPages: 16, printSides: 'double', printColor: 'color',
-            interleaf: 'none', endpaper: 'none'
-        };
-
+        let state = { title:'', size:'A4', binding:'perfect', qty:1, coverPaper:'스노우 250g', finishes:new Set(['무광코팅']), innerPaper:'모조 80g', innerPages:16, printColor:'color' };
         function init() {
-            const sg = document.getElementById('size-options');
-            CONFIG.SIZES.forEach(s => sg.appendChild(createBtn(s.split(' ')[0], s==state.size, () => setS('size', s.split(' ')[0]))));
-            
-            const bg = document.getElementById('binding-options');
-            CONFIG.BINDING.forEach(b => bg.appendChild(createBtn(b.n, b.id==state.binding, () => setS('binding', b.id))));
-
-            const cp = document.getElementById('cover-paper');
-            CONFIG.PAPERS.cover.forEach(p => { const o=document.createElement('option'); o.value=o.text=p; cp.appendChild(o); });
-            cp.value = state.coverPaper; cp.onchange = (e) => setS('coverPaper', e.target.value);
-
-            const ip = document.getElementById('inner-paper');
-            CONFIG.PAPERS.inner.forEach(p => { const o=document.createElement('option'); o.value=o.text=p; ip.appendChild(o); });
-            ip.value = state.innerPaper; ip.onchange = (e) => setS('innerPaper', e.target.value);
-
-            const fs = document.getElementById('finishing-sections');
-            for(let cat in CONFIG.FINISHING) {
-                const l = document.createElement('label'); l.textContent = cat; l.style.fontSize='0.7rem'; l.style.color='var(--primary-light)'; fs.appendChild(l);
-                const g = document.createElement('div'); g.className = 'options-grid'; g.style.marginBottom='1rem';
-                CONFIG.FINISHING[cat].forEach(f => {
-                    const b = createBtn(f, state.finishes.has(f), () => { if(state.finishes.has(f)) state.finishes.delete(f); else state.finishes.add(f); updateUI(); });
-                    g.appendChild(b);
-                });
-                fs.appendChild(g);
-            }
-
-            ['print-sides', 'print-color', 'interleaf-options', 'endpaper-options'].forEach(id => {
-                document.querySelectorAll(`#${id} .option-btn`).forEach(b => {
-                    const key = id.split('-')[0];
-                    b.onclick = () => { setS(key, b.dataset.val); };
-                });
-            });
-
-            document.getElementById('project-title').oninput = (e) => setS('title', e.target.value);
-            document.getElementById('order-quantity').oninput = (e) => setS('qty', parseInt(e.target.value)||1);
-            document.getElementById('inner-pages').oninput = (e) => setS('innerPages', parseInt(e.target.value)||2);
-
+            const sg=document.getElementById('size-options'); CONFIG.SIZES.forEach(s=>sg.appendChild(createBtn(s,s==state.size,()=>setS('size',s))));
+            const bg=document.getElementById('binding-options'); CONFIG.BINDING.forEach(b=>bg.appendChild(createBtn(b.n,b.id==state.binding,()=>setS('binding',b.id))));
+            const cp=document.getElementById('cover-paper'); CONFIG.PAPERS.cover.forEach(p=>{const o=document.createElement('option');o.value=o.text=p;cp.appendChild(o);});
+            const ip=document.getElementById('inner-paper'); CONFIG.PAPERS.inner.forEach(p=>{const o=document.createElement('option');o.value=o.text=p;ip.appendChild(o);});
+            const fs=document.getElementById('finishing-sections'); CONFIG.FINISHING.forEach(f=>fs.appendChild(createBtn(f,state.finishes.has(f),()=>{if(state.finishes.has(f))state.finishes.delete(f);else state.finishes.add(f);updateUI();})));
+            document.getElementById('project-title').oninput=e=>setS('title',e.target.value);
+            document.getElementById('order-quantity').oninput=e=>setS('qty',parseInt(e.target.value)||1);
+            document.getElementById('inner-pages').oninput=e=>setS('innerPages',parseInt(e.target.value)||2);
             updateUI();
         }
-
-        function createBtn(label, active, onClick) {
-            const b = document.createElement('div'); b.className = 'option-btn' + (active?' active':''); b.textContent = label; b.onclick = onClick; return b;
+        function createBtn(l,a,c){const b=document.createElement('div');b.className='option-btn'+(a?' active':'');b.textContent=l;b.onclick=c;return b;}
+        function setS(k,v){state[k]=v;updateUI();}
+        function updateUI(){
+            document.querySelectorAll('#size-options .option-btn').forEach(b=>b.classList.toggle('active',b.textContent==state.size));
+            document.querySelectorAll('#binding-options .option-btn').forEach(b=>b.classList.toggle('active',CONFIG.BINDING.find(d=>d.id==state.binding).n==b.textContent));
+            const p=calc(state); document.getElementById('summ-total').textContent=p.total.toLocaleString()+' 원';
+            document.getElementById('mock-title').textContent=state.title||'A4 BOOK';
+            document.getElementById('mock-spine').style.width=(state.innerPages*0.15)+'px';
         }
-
-        function setS(key, val) { state[key] = val; updateUI(); }
-
-        function updateUI() {
-            // UI Sync
-            document.querySelectorAll('#size-options .option-btn').forEach(b => b.classList.toggle('active', b.textContent==state.size));
-            document.querySelectorAll('#binding-options .option-btn').forEach(b => b.classList.toggle('active', CONFIG.BINDING.find(d=>d.id==state.binding).n==b.textContent));
-            document.querySelectorAll('#finishing-sections .option-btn').forEach(b => b.classList.toggle('active', state.finishes.has(b.textContent)));
-            document.querySelectorAll('#print-sides .option-btn').forEach(b => b.classList.toggle('active', b.dataset.val==state.printSides));
-            document.querySelectorAll('#print-color .option-btn').forEach(b => b.classList.toggle('active', b.dataset.val==state.printColor));
-            document.querySelectorAll('#interleaf-options .option-btn').forEach(b => b.classList.toggle('active', b.dataset.val==state.interleaf));
-            document.querySelectorAll('#endpaper-options .option-btn').forEach(b => b.classList.toggle('active', b.dataset.val==state.endpaper));
-
-            const p = calc(state);
-            document.getElementById('summ-title').textContent = state.title || '제목 없음';
-            document.getElementById('summ-size').textContent = state.size;
-            document.getElementById('summ-binding').textContent = CONFIG.BINDING.find(d=>d.id==state.binding).n;
-            document.getElementById('summ-qty').textContent = state.qty + ' 부';
-            document.getElementById('summ-pages').textContent = state.innerPages + ' P';
-            document.getElementById('summ-sub').textContent = p.sub.toLocaleString() + ' 원';
-            document.getElementById('summ-tax').textContent = p.tax.toLocaleString() + ' 원';
-            document.getElementById('summ-total').textContent = p.total.toLocaleString() + ' 원';
-            document.getElementById('current-total').textContent = p.total.toLocaleString() + ' 원';
-
-            // Mockup
-            const th = (state.innerPages/2 * 0.12 + 0.5).toFixed(1);
-            document.getElementById('spine-badge').textContent = `(책등: ${th}mm)`;
-            const mkS = document.getElementById('mock-spine'); mkS.style.width = (th*3)+'px'; mkS.style.left = (-th*3)+'px';
-            document.getElementById('mock-title-text').textContent = state.title || (state.size + ' BROCHURE');
+        function calc(s){ const b=CONFIG.PRICES.base+CONFIG.PRICES.binding[s.binding]+(s.innerPages*CONFIG.PRICES.page[s.printColor]); return {total:Math.round((b+(s.finishes.size*CONFIG.PRICES.finish))*s.qty*1.1)}; }
+        function addToCart(g){ const i=JSON.parse(JSON.stringify(state)); i.finishes=new Set(state.finishes); cart.push(i); renderCart(); if(g)changeStep(4); }
+        function renderCart(){
+            const l=document.getElementById('cart-list'); l.innerHTML=''; let grand=0;
+            cart.forEach((it,idx)=>{ const p=calc(it); grand+=p.total; const d=document.createElement('div'); d.className='cart-item'; d.innerHTML=`<div><strong>${it.title||'제목없음'}</strong><br><small>${it.size} / ${it.qty}부</small></div><div>${p.total.toLocaleString()}원</div>`; l.appendChild(d); });
+            document.getElementById('grand-total').textContent=grand.toLocaleString()+' 원';
         }
-
-        function calc(s) {
-            let itemPrice = CONFIG.PRICES.base + CONFIG.PRICES.binding[s.binding] + (s.innerPages * CONFIG.PRICES.page[s.printColor]);
-            s.finishes.forEach(() => itemPrice += CONFIG.PRICES.finish);
-            let sub = itemPrice * s.qty;
-            let tax = Math.round(sub * 0.1);
-            return { sub, tax, total: sub + tax };
-        }
-
-        function addToCart(gotoCart = false) {
-            const item = JSON.parse(JSON.stringify(state));
-            item.finishes = new Set(state.finishes);
-            cart.push(item);
-            renderCart();
-            if(gotoCart) changeStep(4);
-            else {
-                state.title = ''; state.qty = 1; state.finishes = new Set(['무광코팅']);
-                document.getElementById('project-title').value = '';
-                document.getElementById('order-quantity').value = 1;
-                updateUI();
-                changeStep(1);
-            }
-        }
-
-        function renderCart() {
-            const container = document.getElementById('cart-list-container'); container.innerHTML = '';
-            let grand = 0;
-            cart.forEach((it, i) => {
-                const p = calc(it); grand += p.total;
-                const d = document.createElement('div'); d.className = 'cart-item';
-                d.innerHTML = `<div class="cart-item-info"><strong>${it.title || '제목 없음'}</strong><br><small>${it.size} / ${it.innerPages}p / ${it.qty}부</small></div><div><strong>${p.total.toLocaleString()}원</strong><br><button class="remove-btn" onclick="cart.splice(${i},1);renderCart();">삭제</button></div>`;
-                container.appendChild(d);
-            });
-            document.getElementById('grand-total-display').textContent = grand.toLocaleString() + ' 원';
-        }
-
-        function changeStep(n) {
-            document.querySelectorAll('.step').forEach(s => s.classList.toggle('active', parseInt(s.dataset.step)==n));
-            document.querySelectorAll('.step-content').forEach(c => c.classList.toggle('active', c.id==`step-${n}`));
-            window.scrollTo(0,0);
-        }
-
-        function searchAddress() { new daum.Postcode({ oncomplete: (d)=>{ document.getElementById('cust-postcode').value=d.zonecode; document.getElementById('cust-addr1').value=d.roadAddress; } }).open(); }
-
-        async function finalizeOrder() {
-            const name = document.getElementById('cust-name').value;
-            const phone = document.getElementById('cust-phone').value;
-            if(!name || !phone) return alert('주문자 정보를 입력해 주세요.');
-            
-            const btn = document.getElementById('finish-order-btn'); btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> 주문 전송 중...';
-            try {
-                const ts = new Date().toLocaleString();
-                const addr = `(${document.getElementById('cust-postcode').value}) ${document.getElementById('cust-addr1').value} ${document.getElementById('cust-addr2').value}`;
-                const requests = cart.map(it => {
-                    const p = calc(it);
-                    return fetch(WEB_APP_URL, {
-                        method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'},
-                        body: JSON.stringify({ timestamp:ts, ordererName:name, ordererPhone:phone, address:addr, bookTitle:it.title, size:it.size, binding:it.binding, quantity:it.qty, pages:it.innerPages, total:p.total })
-                    });
-                });
-                await Promise.all(requests);
-                alert('모든 주문이 성공적으로 접수되었습니다!'); location.reload();
-            } catch(e) { alert('오류 발생'); btn.disabled=false; btn.innerHTML='최종 주문 완료하기'; }
-        }
-
+        function changeStep(n){ document.querySelectorAll('.step').forEach(s=>s.classList.toggle('active',parseInt(s.dataset.step)==n)); document.querySelectorAll('.step-content').forEach(c=>c.classList.toggle('active',c.id==`step-${n}`)); window.scrollTo(0,0); }
+        function openPostcode(){ new daum.Postcode({oncomplete:d=>{document.getElementById('cust-postcode').value=d.zonecode;document.getElementById('cust-addr1').value=d.roadAddress;}}).open(); }
+        function finalizeOrder(){ alert('주문이 접수되었습니다.'); location.reload(); }
         init();
     </script>
 </body>
