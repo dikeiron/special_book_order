@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>고급 책자/브로슈어 견적시스템</title>
     <meta name="description" content="표지부터 내지까지 커스텀 가능한 전문적인 인쇄물 견적 및 주문 시스템">
-  <link rel="stylesheet" href="./style.css">
-  <script type="module" crossorigin src="/assets/index-Cg8Fe3hJ.js"></script>
+    <script type="module" src="./main.js"></script>
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
     <div id="app">
@@ -34,7 +34,6 @@
                         </div>
 
                         <h2 style="margin-top: 2rem;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open"><path d="M20 16.5A2.5 2.5 0 0 0 17.5 14H7.5A2.5 2.5 0 0 0 5 16.5V19a1 1 0 0 1-1 1h16a1 1 0 0 0 1-1v-2.5Z"/><path d="M5 20V5h12.5A2.5 2.5 0 0 1 20 7.5V14"/><path d="M5 5V3a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v2.5"/></svg> 기본 사양</h2>
-                        
                         <div class="form-group">
                             <label>사이즈 선택</label>
                             <div id="size-options" class="options-grid"></div>
@@ -43,19 +42,13 @@
                                 <input type="number" id="custom-height" placeholder="세로 (mm)">
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label>제본 방법</label>
                             <div id="binding-options" class="options-grid"></div>
-                            <p id="saddle-warning" class="warning" style="display: none;">💡 중철제본은 내지 페이지가 4의 배수여야 합니다.</p>
                         </div>
-
                         <div class="form-group">
                             <label>주문 수량</label>
                             <input type="number" id="quantity" value="1" min="1">
-                            <p class="info-text" style="font-size: 0.75rem; color: var(--primary); margin-top: 5px; opacity: 0.9;">
-                                💡 주문수량이 많으면 내지 인쇄량에 따라 자동으로 할인이 적용됩니다.
-                            </p>
                         </div>
                     </section>
                     <div class="step-actions">
@@ -67,12 +60,10 @@
                 <div class="step-content" id="step-2">
                     <section class="card">
                         <h2><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg> 표지 사양</h2>
-                        
                         <div class="form-group">
                             <label>표지 재질 및 두께</label>
                             <select id="cover-material"></select>
                         </div>
-
                         <div class="form-group">
                             <label>가공/후가공 (복수 선택 가능)</label>
                             <div id="finishing-options" class="options-grid"></div>
@@ -88,12 +79,10 @@
                 <div class="step-content" id="step-3">
                     <section class="card">
                         <h2><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg> 내지 사양</h2>
-                        
                         <div class="form-group">
                             <label>내지 재질 및 두께</label>
                             <select id="inner-material"></select>
                         </div>
-
                         <div class="form-group">
                             <label>내지 인쇄 방식</label>
                             <div id="print-sides" class="options-grid">
@@ -101,43 +90,15 @@
                                 <div class="option-btn" data-value="single">단면 인쇄</div>
                             </div>
                         </div>
-
                         <div class="form-group">
-                            <label>내지 페이지 수 (표지 제외) <span id="spine-width-display" style="color: var(--primary); font-weight: 600; margin-left: 10px;"></span></label>
+                            <label>내지 페이지 수</label>
                             <input type="number" id="inner-pages" value="16" min="2" step="2">
                         </div>
-
                         <div class="form-group">
                             <label>내지 컬러/흑백</label>
                             <div id="print-color" class="options-grid">
                                 <div class="option-btn active" data-value="color">컬러 인쇄</div>
                                 <div class="option-btn" data-value="bw">흑백 인쇄</div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>간지 추가</label>
-                            <div id="interleaf-mode" class="options-grid">
-                                <div class="option-btn active" data-value="none">없음</div>
-                                <div class="option-btn" data-value="plain">간지만 추가</div>
-                                <div class="option-btn" data-value="printed">추가 및 인쇄</div>
-                            </div>
-                            
-                            <div id="interleaf-details" class="interleaf-controls" style="display: none;">
-                                <label>간지 추가 매수</label>
-                                <input type="number" id="interleaf-count" value="1" min="1">
-                                <label style="margin-top: 0.5rem;">삽입 페이지 (콤마 구분, 예: 4, 12)</label>
-                                <input type="text" id="interleaf-positions" placeholder="예: 4, 12">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>면지 추가 (앞뒤)</label>
-                            <div id="endpaper-mode" class="options-grid">
-                                <div class="option-btn active" data-value="none">없음</div>
-                                <div class="option-btn" data-value="front">앞면지</div>
-                                <div class="option-btn" data-value="back">뒷면지</div>
-                                <div class="option-btn" data-value="both">앞뒤 모두</div>
                             </div>
                         </div>
                     </section>
@@ -150,108 +111,57 @@
                     </div>
                 </div>
 
-                <!-- 4. Book Summary & Cart -->
+                <!-- 4. Order List Confirmation -->
                 <div class="step-content" id="step-4">
                     <section class="card">
                         <h2><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg> 주문목록 확인</h2>
-                        
-                        <div id="cart-list" class="cart-scroll-area">
-                            <!-- 여기에 담긴 책들이 보여집니다 -->
-                        </div>
-
+                        <div id="cart-list" class="cart-scroll-area"></div>
                         <div style="margin-top: 2rem; display: flex; gap: 1rem;">
-                            <button type="button" id="add-more-books-btn" style="flex: 1; background: #22c55e; color: white; border: none; padding: 1rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                                <i class="fas fa-plus"></i> 다른 책 추가하기
-                            </button>
-                            <button type="button" id="go-to-shipping-btn" style="flex: 1; background: var(--primary); color: white; border: none; padding: 1rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                                주문 마감 및 배송지 입력 <i class="fas fa-arrow-right"></i>
-                            </button>
+                            <button type="button" id="add-more-books-btn" class="next-btn" style="background:#22c55e; flex:1;">다른 책 추가하기</button>
+                            <button type="button" id="go-to-shipping-btn" class="next-btn" style="flex:1;">주문 마감 및 배송지 입력 ➜</button>
                         </div>
                     </section>
                 </div>
 
-                <!-- 5. Shipping & Final Order -->
+                <!-- 5. Final Order & Shipping -->
                 <div class="step-content" id="step-5">
                     <section class="card">
-                        <h2><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-truck"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><circle cx="7" cy="18" r="2"/><path d="M9 18h6"/><circle cx="17" cy="18" r="2"/><path d="M19 18h2a1 1 0 0 0 1-1v-5l-3-4h-5v10Z"/></svg> 최종 주문 및 배송 정보</h2>
-                        
-                        <div class="form-group">
-                            <label>주문자 성함</label>
-                            <input type="text" id="orderer-name" placeholder="실명을 입력해주세요">
-                        </div>
-
-                        <div class="form-group">
-                            <label>연락처 (Phone)</label>
-                            <input type="tel" id="orderer-phone" placeholder="010-0000-0000">
-                        </div>
-
+                        <h2>최종 주문 및 배송 정보</h2>
+                        <div class="form-group"><label>주문자 성함</label><input type="text" id="orderer-name"></div>
+                        <div class="form-group"><label>연락처 (Phone)</label><input type="tel" id="orderer-phone"></div>
                         <div class="form-group">
                             <label>배송지 주소 (Address)</label>
-                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                <input type="text" id="postcode" placeholder="우편번호" style="flex: 1;" readonly>
-                                <button type="button" id="search-address-btn" style="background: var(--primary); border: none; color: white; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer;">주소 검색</button>
+                            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                <input type="text" id="postcode" placeholder="우편번호" readonly style="flex: 1;">
+                                <button type="button" id="search-address-btn" style="padding:0 20px; background:#64748b; color:white; border:none; border-radius:6px;">주소 검색</button>
                             </div>
-                            <input type="text" id="delivery-address" placeholder="기본 주소" style="margin-bottom: 0.5rem;" readonly>
-                            <input type="text" id="delivery-address-detail" placeholder="상세 주소를 입력해주세요">
+                            <input type="text" id="delivery-address" placeholder="기본 주소" readonly style="margin-bottom: 8px;">
+                            <input type="text" id="delivery-address-detail" placeholder="상세 주소">
                         </div>
                     </section>
                     <div class="step-actions">
-                        <button type="button" class="prev-btn" onclick="changeStep(4)">⬅ 이전 (책 목록)</button>
+                        <button type="button" class="prev-btn" onclick="changeStep(4)">⬅ 이전</button>
+                        <button type="button" id="order-btn" class="next-btn" style="background:#ef4444;">최종 주문하기 ➜</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Panel: Sticky Summary -->
-            <div class="sidebar">
-                <!-- 3D Mockup Preview -->
-                <div class="card mockup-sidebar-card">
-                    <h3 class="summary-title" style="margin-bottom: 2rem;">Preview Mockup</h3>
-                    <div id="book-mockup" class="mockup-viewport">
-                        <div class="book" id="main-book">
-                            <div class="side front">
-                                <div class="cover-design">
-                                    <div class="title-box">
-                                        <span id="mockup-label">A4 BROCHURE</span>
-                                    </div>
-                                    <div id="foil-effect" class="foil-layer" style="display: none;"></div>
-                                    <p style="font-size: 0.6rem; opacity: 0.8;">Printing Specialists</p>
-                                </div>
-                            </div>
-                            <div class="side spine" id="book-spine"></div>
-                            <div class="side top"></div>
-                            <div class="side left-rings" id="binding-rings"></div>
-                        </div>
+            <!-- Right Panel -->
+            <aside class="calculator-sidebar">
+                <section class="card sticky">
+                    <h2>실시간 요약 및 견적</h2>
+                    <div id="summary-content" class="summary-list"></div>
+                    <div class="order-box">
+                        <div class="price-row"><span>소계</span><span id="subtotal">0원</span></div>
+                        <div class="price-row"><span>부과세(10%)</span><span id="tax">0원</span></div>
+                        <div class="total-row"><span>최종 금액</span><span id="total-amount">0원</span></div>
                     </div>
-                </div>
-
-                <div class="card">
-                    <h3 class="summary-title">Order Summary</h3>
-                    
-                    <div id="summary-content">
-                        <!-- Dynamic Summary Items -->
-                    </div>
-
-                    <div class="price-divider"></div>
-                    
-                    <div class="summary-item">
-                        <span>공급가액</span>
-                        <span id="subtotal">0 원</span>
-                    </div>
-                    <div class="summary-item">
-                        <span>세액 (10%)</span>
-                        <span id="tax">0 원</span>
-                    </div>
-                    <div class="total-price" id="total-amount">0 원</div>
-
-                    <button class="submit-btn" id="order-btn">견적 저장 및 주문하기</button>
-                    <p style="font-size: 0.75rem; text-align: center; color: var(--text-dim); margin-top: 1rem;">
-                        관리자 시트 자동 저장 및 결제 링크 생성
-                    </p>
-                </div>
-            </div>
+                    <h3 style="margin-top:2rem;">Preview Mockup</h3>
+                    <div id="mockup-container"></div>
+                </section>
+            </aside>
         </main>
     </div>
-
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </body>
 </html>

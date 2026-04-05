@@ -1,0 +1,64 @@
+:root {
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --secondary: #10b981;
+  --bg: #0f172a;
+  --card-bg: #1e293b;
+  --text: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: #334155;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Pretendard', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+#app { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+h1 { font-size: 2.5rem; text-align: center; margin-bottom: 2rem; color: var(--primary); }
+
+.container { display: flex; gap: 2rem; }
+.calculator-form { flex: 2; display: flex; flex-direction: column; gap: 1.5rem; }
+.calculator-sidebar { flex: 1; }
+
+.stepper { display: flex; justify-content: space-between; margin-bottom: 1.5rem; background: var(--card-bg); padding: 1rem; border-radius: 12px; }
+.step { opacity: 0.5; padding: 0.5rem 1rem; cursor: pointer; }
+.step.active { opacity: 1; color: var(--primary); font-weight: 800; border-bottom: 2px solid var(--primary); }
+
+.card { background: var(--card-bg); padding: 2rem; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+.card h2 { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; font-size: 1.25rem; }
+
+.form-group { margin-bottom: 1.5rem; }
+.form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.875rem; }
+
+input, select {
+  width: 100%; padding: 0.75rem; border-radius: 8px; background: var(--bg); border: 1px solid var(--border);
+  color: var(--text); font-size: 1rem;
+}
+
+.options-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; }
+.option-btn {
+  padding: 0.75rem; text-align: center; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 0.9rem;
+}
+.option-btn:hover { border-color: var(--primary); }
+.option-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+
+.next-btn {
+  width: 100%; padding: 1rem; border: none; border-radius: 12px; background: var(--primary);
+  color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer;
+}
+.next-btn:hover { background: var(--primary-hover); }
+
+.total-row { font-size: 1.5rem; font-weight: 800; color: var(--secondary); margin-top: 1rem; display: flex; justify-content: space-between; }
+
+.cart-item {
+  padding: 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .container { flex-direction: column; }
+}

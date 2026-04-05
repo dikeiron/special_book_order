@@ -69,204 +69,76 @@ function createOptionBtn(label, value, isActive, onClick) {
 }
 
 function getCoverCategory(materialName) {
-  const match = PAPER_SPECS.cover.find(c => materialName.startsWith(c.type));
-  return match ? match.category : 'Common';
+  if (materialName.includes('랑데뷰') || materialName.includes('아르떼')) return 'premium';
+  if (materialName.includes('스노우') || materialName.includes('아트')) return 'snow-art';
+  return 'standard';
 }
 
-function findPaperSpec(part, materialName) {
-    if (!materialName) return null;
-    return PAPER_SPECS[part].find(p => materialName.startsWith(p.type));
+function calculatePrice(itemState) {
+  const sizeSpec = SIZES.find(s => s.name === itemState.size) || SIZES[0];
+  const paperCount = itemState.innerPrintSides === 'double' ? Math.ceil(itemState.innerPages / 2) : itemState.innerPages;
+  const isPremium = itemState.innerMaterial.includes('랑데뷰') || itemState.innerMaterial.includes('아르떼');
+  const paperPrice = isPremium ? PRICING.premiumPaper : PRICING.standardPaper;
+  const printPrice = itemState.innerPrintColor === 'color' ? PRICING.colorPrint : PRICING.bwPrint;
+  
+  let unitPrice = (paperCount * (paperPrice + printPrice)) + 1500;
+  if (itemState.binding === 'saddle') unitPrice *= 0.8;
+  if (itemState.binding === 'wire') unitPrice += 1000;
+  
+  const discount = Math.min(0.4, (itemState.quantity / 500) * 0.2);
+  const discountedPrice = Math.round(unitPrice * (1 - discount));
+  
+  const subtotal = discountedPrice * itemState.quantity;
+  const tax = Math.round(subtotal * 0.1);
+  return { subtotal, tax, total: subtotal + tax };
 }
 
-function calculateSpineWidth() {
-  const coverSpec = findPaperSpec('cover', state.coverMaterial);
-  const innerSpec = findPaperSpec('inner', state.innerMaterial);
-
-  let innerTotalThickness = 0;
-  let totalSheets = 0;
-  if (innerSpec) {
-    const weightMatch = state.innerMaterial.match(/\d+/);
-    const weight = weightMatch ? parseInt(weightMatch[0]) : 80;
-    const perSheet = innerSpec.thickness[weight] || 0.12;
-    totalSheets = state.innerPrintSides === 'single' ? state.innerPages : Math.ceil(state.innerPages / 2);
-    innerTotalThickness = totalSheets * perSheet;
-  }
-
-  let coverTotalThickness = 0;
-  if (coverSpec) {
-    const weightMatch = state.coverMaterial.match(/\d+/);
-    const weight = weightMatch ? parseInt(weightMatch[0]) : 250;
-    coverTotalThickness = (coverSpec.thickness[weight] || 0.3) * 2;
-  }
-
-  return {
-    width: (innerTotalThickness + coverTotalThickness).toFixed(1),
-    sheets: totalSheets
-  };
-}
-
-function calculatePrice(book = state) {
-  let subtotal = PRICING.base;
-
-  subtotal += PRICING.binding[book.binding] || 0;
-  const coverCat = getCoverCategory(book.coverMaterial);
-  subtotal += PRICING.paper[coverCat] || 500;
-
-  book.coverFinishing.forEach(f => {
-    if (f.includes('박')) subtotal += PRICING.finishing.foil;
-    if (f.includes('에폭시')) subtotal += PRICING.finishing.varnish;
-    if (f.includes('타공')) subtotal += PRICING.finishing.punching;
-    if (f.includes('코팅')) subtotal += PRICING.finishing.coating;
-    if (f.includes('형압')) subtotal += PRICING.finishing.embossing;
-    if (f.includes('화이트')) subtotal += PRICING.finishing.whitePrint;
+function changeStep(stepNum) {
+  document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+  document.getElementById('step-' + stepNum).classList.add('active');
+  document.querySelectorAll('.step').forEach(el => {
+    el.classList.remove('active');
+    if (parseInt(el.dataset.step) === stepNum) el.classList.add('active');
   });
-
-  let basePagePrice = book.innerPrintColor === 'bw' ? 20 : 100;
-  subtotal += book.innerPages * basePagePrice;
-
-  if (book.interleafMode !== 'none') {
-    subtotal += book.interleafCount * (book.interleafMode === 'printed' ? 500 : 200);
-  }
-
-  if (book.endpaperMode !== 'none') {
-    const pages = book.endpaperMode === 'both' ? 2 : 1;
-    subtotal += pages * 400;
-  }
-
-  const totalPagesPrinted = book.quantity * book.innerPages;
-  let discountRate = 0;
-  if (totalPagesPrinted >= 50000) discountRate = 0.25;
-  else if (totalPagesPrinted >= 10000) discountRate = 0.15;
-  else if (totalPagesPrinted >= 3000) discountRate = 0.05;
-
-  const subtotalBeforeDiscount = subtotal * book.quantity;
-  const discountAmount = Math.floor(subtotalBeforeDiscount * discountRate);
-  const finalSubtotal = subtotalBeforeDiscount - discountAmount;
-
-  const tax = Math.round(finalSubtotal * 0.1);
-  const total = finalSubtotal + tax;
-
-  return { subtotal: finalSubtotal, tax, total, discountAmount, discountRate, totalPagesPrinted };
+  window.scrollTo(0, 0);
 }
 
-// --- UI Sync Functions ---
-function renderOptions() {
-  sizeGrid.innerHTML = '';
-  SIZES.forEach(s => {
-    const btn = createOptionBtn(s.name, s.name, s.name === state.size, (val) => {
-      state.size = val;
-      document.getElementById('custom-size-fields').style.display = val === '직접입력' ? 'grid' : 'none';
+function renderCart() {
+  cartListContainer.innerHTML = '';
+  if (cart.length === 0) {
+    cartListContainer.innerHTML = '<p style="text-align:center; padding: 2rem; opacity:0.6;">아직 담긴 책자가 없습니다.</p>';
+    return;
+  }
+  cart.forEach((book, idx) => {
+    const pi = calculatePrice(book);
+    const div = document.createElement('div');
+    div.className = 'cart-item';
+    div.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <strong style="color:var(--primary); font-size:1.1rem;">${book.bookTitle || '미지정 책자'}</strong><br>
+          <small>${book.size} / ${BINDING_METHODS.find(b => b.id === book.binding).name} / ${book.innerPages}p / ${book.quantity}부</small>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-weight:700;">${pi.total.toLocaleString()}원</div>
+          <button class="remove-cart-btn" data-index="${idx}" style="background:none; border:none; color:#ef4444; font-size:0.8rem; cursor:pointer; padding:5px;">삭제</button>
+        </div>
+      </div>
+    `;
+    div.querySelector('.remove-cart-btn').addEventListener('click', (e) => {
+      cart.splice(idx, 1);
+      renderCart();
       updateUI();
     });
-    sizeGrid.appendChild(btn);
+    cartListContainer.appendChild(div);
   });
-
-  bindingGrid.innerHTML = '';
-  BINDING_METHODS.forEach(b => {
-    const btn = createOptionBtn(b.name, b.id, b.id === state.binding, (val) => {
-      state.binding = val;
-      document.getElementById('saddle-warning').style.display = val === 'saddle' ? 'block' : 'none';
-      updateUI();
-    });
-    bindingGrid.appendChild(btn);
-  });
-
-  coverMaterialSelect.innerHTML = '';
-  PAPER_SPECS.cover.forEach(c => {
-    c.weights.forEach(w => {
-      const option = document.createElement('option');
-      option.value = `${c.type} ${w}g`;
-      option.textContent = `${c.type} ${w}g`;
-      coverMaterialSelect.appendChild(option);
-    });
-  });
-
-  finishingGrid.innerHTML = '';
-  const GROUP_NAMES = { foil: '박가공', varnish: '에폭시', punching: '타공', coating: '코팅', embossing: '형압', whitePrint: '특수' };
-  Object.entries(FINISHING_OPTIONS).forEach(([groupName, options]) => {
-    const header = document.createElement('div');
-    header.className = 'finishing-group-header';
-    header.style.cssText = 'grid-column:1/-1; font-size:0.7rem; color:var(--primary); margin-top:0.5rem;';
-    header.textContent = GROUP_NAMES[groupName] || groupName;
-    finishingGrid.appendChild(header);
-
-    options.forEach(opt => {
-      if (opt === '없음') return;
-      const btn = createOptionBtn(opt, opt, state.coverFinishing.has(opt), (val) => {
-        if (state.coverFinishing.has(val)) {
-          state.coverFinishing.delete(val);
-        } else {
-          // --- Mutual Exclusivity for Coating (Matt/Gloss) ---
-          if (val === '무광코팅') state.coverFinishing.delete('유광코팅');
-          if (val === '유광코팅') state.coverFinishing.delete('무광코팅');
-          
-          state.coverFinishing.add(val);
-        }
-        updateUI();
-      });
-      finishingGrid.appendChild(btn);
-    });
-  });
-
-  innerMaterialSelect.innerHTML = '';
-  PAPER_SPECS.inner.forEach(c => {
-    c.weights.forEach(w => {
-      const option = document.createElement('option');
-      option.value = `${c.type} ${w}g`;
-      option.textContent = `${c.type} ${w}g`;
-      innerMaterialSelect.appendChild(option);
-    });
-  });
-}
-
-function updateSelections() {
-  // Update grids
-  Array.from(sizeGrid.children).forEach(btn => btn.classList.toggle('active', btn.dataset.value === state.size));
-  Array.from(bindingGrid.children).forEach(btn => btn.classList.toggle('active', btn.dataset.value === state.binding));
-  Array.from(finishingGrid.children).forEach(btn => {
-    if (btn.dataset.value) btn.classList.toggle('active', state.coverFinishing.has(btn.dataset.value));
-  });
-  Array.from(printSidesGrid.children).forEach(btn => btn.classList.toggle('active', btn.dataset.value === state.innerPrintSides));
-  Array.from(printColorGrid.children).forEach(btn => btn.classList.toggle('active', btn.dataset.value === state.innerPrintColor));
-  Array.from(interleafModeGrid.children).forEach(btn => btn.classList.toggle('active', btn.dataset.value === state.interleafMode));
-  Array.from(endpaperModeGrid.children).forEach(btn => btn.classList.toggle('active', btn.dataset.value === state.endpaperMode));
-
-  coverMaterialSelect.value = state.coverMaterial;
-  innerMaterialSelect.value = state.innerMaterial;
-}
-
-function updateUI() {
-  updateSelections();
-  updateMockup();
-  updateSummary();
-}
-
-function updateMockup() {
-  const spine = document.getElementById('book-spine');
-  const top = document.querySelector('.side.top');
-  const front = document.querySelector('.side.front');
-  const label = document.getElementById('mockup-label');
-
-  const spineData = calculateSpineWidth();
-  const spineDisplay = document.getElementById('spine-width-display');
-  if (spineDisplay) spineDisplay.textContent = `(책등: ${spineData.width}mm)`;
-
-  const visualThickness = Math.max(3, spineData.width * 3);
-  spine.style.width = visualThickness + 'px';
-  spine.style.left = -visualThickness + 'px';
-  top.style.height = visualThickness + 'px';
-  top.style.top = -visualThickness + 'px';
-  front.style.transform = `translateZ(${visualThickness / 2}px)`;
-
-  label.textContent = state.bookTitle || (state.size + ' BROCHURE');
 }
 
 function updateSummary() {
-  const priceInfo = calculatePrice(state);
   const summaryContent = document.getElementById('summary-content');
-  if (!summaryContent) return;
   summaryContent.innerHTML = '';
-
+  const pi = calculatePrice(state);
+  
   const items = [
     { label: '프로젝트', value: state.bookTitle || '제목 없음' },
     { label: '사이즈', value: state.size },
@@ -275,119 +147,106 @@ function updateSummary() {
     { label: '내지', value: state.innerPages.toLocaleString() + ' P' }
   ];
 
-  items.forEach(it => {
+  items.forEach(item => {
     const div = document.createElement('div');
     div.className = 'summary-item';
-    div.innerHTML = `<span>${it.label}</span><span>${it.value}</span>`;
+    div.innerHTML = `<span>${item.label}</span><span>${item.value}</span>`;
     summaryContent.appendChild(div);
   });
 
-  subtotalEl.textContent = priceInfo.subtotal.toLocaleString() + ' 원';
-  taxEl.textContent = priceInfo.tax.toLocaleString() + ' 원';
-  totalEl.textContent = priceInfo.total.toLocaleString() + ' 원';
-
-  updateGrandTotal();
+  subtotalEl.textContent = pi.subtotal.toLocaleString() + '원';
+  taxEl.textContent = pi.tax.toLocaleString() + '원';
+  totalEl.textContent = pi.total.toLocaleString() + '원';
 }
 
-function updateGrandTotal() {
-  let grandtotal = 0;
-  cart.forEach(item => { grandtotal += calculatePrice(item).total; });
-  const finalPriceBox = document.getElementById('final-price-summary');
-  if (finalPriceBox) {
-    const sub = Math.round(grandtotal / 1.1);
-    const tax = grandtotal - sub;
-    finalPriceBox.innerHTML = `
-      총 공급가액: ${sub.toLocaleString()}원 / 부가세: ${tax.toLocaleString()}원<br>
-      <strong style="color:var(--primary); font-size:1.8rem;">최종 합계: ${grandtotal.toLocaleString()}원</strong>
-    `;
-  }
+function updateUI() {
+  updateSummary();
+  const pi = calculatePrice(state);
+  const mockupContainer = document.getElementById('mockup-container');
+  mockupContainer.innerHTML = `
+    <div style="padding:1.5rem; text-align:center; background:#f8fafc; border-radius:12px; border:2px dashed #cbd5e1;">
+      <h4 style="margin-bottom:10px; color:var(--primary);">${state.bookTitle || '나만의 책'}</h4>
+      <div style="font-size:0.8rem; line-height:1.6;">
+        ${state.size} / ${BINDING_METHODS.find(b => b.id === state.binding).name}<br>
+        표지: ${state.coverMaterial} (${Array.from(state.coverFinishing).join(', ')})<br>
+        내지: ${state.innerMaterial} (${state.innerPages}p)
+      </div>
+      <div style="margin-top:15px; font-weight:800; font-size:1.2rem; color:var(--secondary);">
+        1권당 ${Math.round(pi.total / state.quantity).toLocaleString()}원
+      </div>
+    </div>
+  `;
 }
-
-function renderCart() {
-  cartListContainer.innerHTML = '';
-  if (cart.length === 0) {
-    cartListContainer.innerHTML = '<p style="text-align:center; padding:3rem; opacity:0.5;">장바구니가 비어있습니다.</p>';
-    return;
-  }
-  cart.forEach((book, index) => {
-    const pi = calculatePrice(book);
-    const div = document.createElement('div');
-    div.className = 'card cart-item';
-    div.style.marginBottom = '1rem';
-    div.style.padding = '1rem';
-    div.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-                <strong style="color:var(--primary);">${book.bookTitle || '미지정 책자'}</strong><br>
-                <small>${book.size} / ${BINDING_METHODS.find(b => b.id === book.binding).name} / ${book.innerPages}p / ${book.quantity}부</small>
-            </div>
-            <div style="text-align:right;">
-                <strong>${pi.total.toLocaleString()}원</strong><br>
-                <button onclick="removeFromCart(${index})" style="background:none; border:none; color:#ff6b6b; cursor:pointer;">[삭제]</button>
-            </div>
-        </div>
-    `;
-    cartListContainer.appendChild(div);
-  });
-}
-
-window.removeFromCart = (index) => {
-  cart.splice(index, 1);
-  renderCart();
-  updateGrandTotal();
-};
-
-window.changeStep = (stepNumber) => {
-  document.querySelectorAll('.step').forEach(s => s.classList.toggle('active', parseInt(s.dataset.step) === stepNumber));
-  document.querySelectorAll('.step-content').forEach(c => c.classList.toggle('active', c.id === `step-${stepNumber}`));
-  window.scrollTo(0, 0);
-};
 
 // --- Initialization ---
 function init() {
-  renderOptions();
-  
-  // 1. 초기값 동기화 (사전에 정의한 '스노우 250g', '무광코팅' 등)
-  if (!state.coverMaterial) state.coverMaterial = coverMaterialSelect.value;
-  if (!state.innerMaterial) state.innerMaterial = innerMaterialSelect.value;
-  
-  coverMaterialSelect.value = state.coverMaterial;
-  innerMaterialSelect.value = state.innerMaterial;
+  // 1. Render Options
+  sizeGrid.innerHTML = '';
+  SIZES.forEach(s => {
+    const btn = createOptionBtn(s.name, s.name, state.size === s.name, (val) => {
+      state.size = val;
+      document.getElementById('custom-size-fields').style.display = val === '직접입력' ? 'grid' : 'none';
+      init();
+      updateUI();
+    });
+    sizeGrid.appendChild(btn);
+  });
 
-  // 2. 리스너 등록 (동일)
+  bindingGrid.innerHTML = '';
+  BINDING_METHODS.forEach(b => {
+    const btn = createOptionBtn(b.name, b.id, state.binding === b.id, (val) => {
+      state.binding = val;
+      init();
+      updateUI();
+    });
+    bindingGrid.appendChild(btn);
+  });
+
+  coverMaterialSelect.innerHTML = PAPER_SPECS.map(p => `<option value="${p.name}" ${state.coverMaterial === p.name ? 'selected' : ''}>${p.name}</option>`).join('');
   coverMaterialSelect.addEventListener('change', (e) => { state.coverMaterial = e.target.value; updateUI(); });
-  innerMaterialSelect.addEventListener('change', (e) => { state.innerMaterial = e.target.value; updateUI(); });
-  printSidesGrid.addEventListener('click', (e) => { if (e.target.dataset.value) { state.innerPrintSides = e.target.dataset.value; updateUI(); } });
-  printColorGrid.addEventListener('click', (e) => { if (e.target.dataset.value) { state.innerPrintColor = e.target.dataset.value; updateUI(); } });
-  interleafModeGrid.addEventListener('click', (e) => { if (e.target.dataset.value) { 
-      state.interleafMode = e.target.dataset.value; 
-      interleafDetails.style.display = state.interleafMode === 'none' ? 'none' : 'block';
-      updateUI(); 
-  }});
-  endpaperModeGrid.addEventListener('click', (e) => { if (e.target.dataset.value) { state.endpaperMode = e.target.dataset.value; updateUI(); } });
 
+  finishingGrid.innerHTML = '';
+  const finishingOptions = FINISHING_OPTIONS;
+  finishingOptions.forEach(opt => {
+    if (opt === '없음') return;
+    const btn = createOptionBtn(opt, opt, state.coverFinishing.has(opt), (val) => {
+      if (state.coverFinishing.has(val)) {
+        state.coverFinishing.delete(val);
+      } else {
+        if (val === '무광코팅') state.coverFinishing.delete('유광코팅');
+        if (val === '유광코팅') state.coverFinishing.delete('무광코팅');
+        state.coverFinishing.add(val);
+      }
+      updateUI();
+    });
+    finishingGrid.appendChild(btn);
+  });
+
+  innerMaterialSelect.innerHTML = PAPER_SPECS.map(p => `<option value="${p.name}" ${state.innerMaterial === p.name ? 'selected' : ''}>${p.name}</option>`).join('');
+  innerMaterialSelect.addEventListener('change', (e) => { state.innerMaterial = e.target.value; updateUI(); });
+
+  // 2. Event Listeners
+  titleInput.addEventListener('input', (e) => { state.bookTitle = e.target.value; updateUI(); });
   quantityInput.addEventListener('input', (e) => { state.quantity = parseInt(e.target.value) || 1; updateUI(); });
   innerPagesInput.addEventListener('input', (e) => { state.innerPages = parseInt(e.target.value) || 2; updateUI(); });
-  titleInput.addEventListener('input', (e) => { state.bookTitle = e.target.value; updateUI(); });
 
-  phoneInput.addEventListener('input', (e) => {
-    let val = e.target.value.replace(/[^0-9]/g, '');
-    if (val.length > 3 && val.length <= 7) val = val.slice(0, 3) + '-' + val.slice(3);
-    else if (val.length > 7) val = val.slice(0, 3) + '-' + val.slice(3, 7) + '-' + val.slice(7, 11);
-    e.target.value = val;
+  document.querySelectorAll('#print-sides .option-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.innerPrintSides = btn.dataset.value;
+      document.querySelectorAll('#print-sides .option-btn').forEach(b => b.classList.toggle('active', b === btn));
+      updateUI();
+    });
   });
 
-  searchAddressBtn.addEventListener('click', () => {
-    new daum.Postcode({
-      oncomplete: function(data) {
-        postcodeInput.value = data.zonecode;
-        addrInput.value = data.address;
-        addrDetailInput.focus();
-      }
-    }).open();
+  document.querySelectorAll('#print-color .option-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.innerPrintColor = btn.dataset.value;
+      document.querySelectorAll('#print-color .option-btn').forEach(b => b.classList.toggle('active', b === btn));
+      updateUI();
+    });
   });
 
-  // 3. 장바구니/추가구매 액션 리스너
+  // 3. Cart & Navigation
   function resetBookState() {
     state = { ...state, bookTitle: '', quantity: 1, innerPages: 16, coverFinishing: new Set(['무광코팅']) };
     titleInput.value = '';
@@ -397,8 +256,7 @@ function init() {
   }
 
   function addCurrentToCart() {
-    const bookToPush = JSON.parse(JSON.stringify(state));
-    bookToPush.coverFinishing = new Set(state.coverFinishing);
+    const bookToPush = { ...state, coverFinishing: new Set(state.coverFinishing) };
     cart.push(bookToPush);
     renderCart();
   }
@@ -421,57 +279,52 @@ function init() {
   });
 
   goToShippingBtn.addEventListener('click', () => {
-    if (cart.length === 0) return alert('장바구니가 비어있습니다.');
+    if (cart.length === 0) return alert('주문목록이 비어있습니다.');
     changeStep(5);
   });
 
-  // 최종 주문 접수 리스너
+  // 4. Final Order
   document.getElementById('order-btn').addEventListener('click', async () => {
     const name = nameInput.value.trim();
     const phone = phoneInput.value.trim();
+    const address = addrInput.value.trim() + ' ' + addrDetailInput.value.trim();
     if (!name || !phone) return alert('주문자 정보를 입력해주세요.');
 
     const btn = document.getElementById('order-btn');
-    btn.disabled = true;
-    btn.textContent = '주문 전송 중...';
+    btn.disabled = true; btn.textContent = '주문 전송 중...';
 
     try {
       const timestamp = new Date().toLocaleString();
-      const address = `(${postcodeInput.value}) ${addrInput.value} ${addrDetailInput.value}`;
-      
       const promises = cart.map(book => {
         const pi = calculatePrice(book);
         const data = {
-          timestamp,
-          title: book.bookTitle,
-          orderer: name,
-          phone: phone,
-          address,
+          timestamp, title: book.bookTitle, orderer: name, phone: phone, address,
           size: book.size, binding: BINDING_METHODS.find(b => b.id === book.binding).name,
-          quantity: book.quantity, coverMaterial: book.coverMaterial,
-          coverFinishing: Array.from(book.coverFinishing).join(', '),
-          innerMaterial: book.innerMaterial, innerPages: book.innerPages,
-          innerPrintSides: book.innerPrintSides === 'double' ? '양면' : '단면',
-          innerPrintColor: book.innerPrintColor === 'color' ? '컬러' : '흑백',
-          interleaf: book.interleafMode !== 'none' ? `O (${book.interleafCount}매)` : 'X',
-          endpaper: book.endpaperMode !== 'none' ? 'O' : 'X',
-          subtotal: pi.subtotal, tax: pi.tax, total: pi.total
+          quantity: book.quantity, total: pi.total
         };
         return fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
       });
-
       await Promise.all(promises);
-      alert('주문이 접수되었습니다!');
+      alert('주문이 성공적으로 접수되었습니다!');
       location.reload();
     } catch (e) {
-      alert('오류 발생');
+      alert('오류가 발생했습니다. 다시 시도해주세요.');
     } finally {
-      btn.disabled = false;
-      btn.textContent = '최종 주문하기';
+      btn.disabled = false; btn.textContent = '최종 주문하기 ➜';
     }
   });
 
-  // 4. 즉시 실행: 1부 가격 바로 노출 위해 업데이트 강제 실행
+  // 5. Postcode API
+  searchAddressBtn.addEventListener('click', () => {
+    new daum.Postcode({
+      oncomplete: (data) => {
+        postcodeInput.value = data.zonecode;
+        addrInput.value = data.roadAddress;
+        addrDetailInput.focus();
+      }
+    }).open();
+  });
+
   updateUI();
 }
 
