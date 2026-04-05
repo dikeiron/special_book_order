@@ -442,7 +442,11 @@ function init() {
       const promises = cart.map(book => {
         const pi = calculatePrice(book);
         const data = {
-          timestamp, bookTitle: book.bookTitle, ordererName: name, ordererPhone: phone, address,
+          timestamp,
+          title: book.bookTitle,
+          orderer: name,
+          phone: phone,
+          address,
           size: book.size, binding: BINDING_METHODS.find(b => b.id === book.binding).name,
           quantity: book.quantity, coverMaterial: book.coverMaterial,
           coverFinishing: Array.from(book.coverFinishing).join(', '),
