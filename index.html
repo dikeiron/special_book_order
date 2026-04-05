@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>고급 책자/브로슈어 견적시스템 - Premium v2.3</title>
-    <!-- [v2.3] 100% SELF-CONTAINED - CSS & JS INCLUDED -->
+    <title>고급 책자/브로슈어 견적시스템 - Premium v2.4</title>
+    <!-- [v2.4] 100% SELF-CONTAINED - CSS & JS INCLUDED -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* === (1) PREMIUM DESIGN SYSTEM === */
@@ -12,15 +12,20 @@
         :root {
             --bg-deep: #0f172a;
             --bg-card: #1e293b;
+            --bg-card-alt: #1a2236;
             --primary: #6366f1;
             --primary-light: #818cf8;
             --secondary: #a855f7;
             --accent: #f43f5e;
+            --success: #22c55e;
             --text-main: #f1f5f9;
             --text-dim: #94a3b8;
-            --border: rgba(255, 255, 255, 0.1);
+            --text-muted: #64748b;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-light: rgba(255, 255, 255, 0.12);
             --grad-title: linear-gradient(to right, #c084fc, #6366f1);
             --grad-btn: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --grad-btn-green: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,59 +37,230 @@
             overflow-x: hidden;
         }
 
-        #app { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem; }
+        #app { max-width: 1400px; margin: 0 auto; padding: 2.5rem 2rem; }
         h1 { 
             text-align: center; 
             font-family: 'Outfit', sans-serif;
-            font-size: 3rem; 
-            margin-bottom: 3.5rem; 
+            font-size: 2.6rem; 
+            margin-bottom: 2.5rem; 
             background: var(--grad-title);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
-        .container { display: grid; grid-template-columns: 1fr 420px; gap: 2.5rem; align-items: start; }
+        .container { display: grid; grid-template-columns: 1fr 380px; gap: 2rem; align-items: start; }
 
         /* Stepper */
-        .stepper { display: flex; justify-content: space-between; background: rgba(255, 255, 255, 0.03); padding: 1.2rem; border-radius: 16px; margin-bottom: 2.5rem; border: 1px solid var(--border); backdrop-filter: blur(10px); }
-        .step { font-size: 0.9rem; font-weight: 600; color: var(--text-dim); cursor: pointer; padding: 0.5rem 1rem; border-radius: 12px; transition: 0.3s; }
+        .stepper { display: flex; justify-content: space-between; background: rgba(255, 255, 255, 0.03); padding: 0.8rem 1rem; border-radius: 14px; margin-bottom: 2rem; border: 1px solid var(--border); backdrop-filter: blur(10px); gap: 0.3rem; }
+        .step { font-size: 0.82rem; font-weight: 600; color: var(--text-dim); cursor: pointer; padding: 0.5rem 0.8rem; border-radius: 10px; transition: 0.3s; white-space: nowrap; text-align: center; flex: 1; }
+        .step:hover { color: white; background: rgba(99, 102, 241, 0.1); }
         .step.active { color: white; background: rgba(99, 102, 241, 0.2); border-bottom: 2px solid var(--primary); }
 
         /* Card System */
-        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px; padding: 2.2rem; box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin-bottom: 2rem; position: relative; overflow: hidden; }
-        h2 { font-size: 1.4rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.8rem; color: var(--primary-light); }
-        label { display: block; margin: 1.5rem 0 0.8rem; font-size: 0.95rem; font-weight: 600; color: var(--text-dim); }
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 1.5rem; position: relative; overflow: hidden; }
+        h2 { font-size: 1.2rem; margin-bottom: 1.8rem; display: flex; align-items: center; gap: 0.7rem; color: var(--primary-light); }
+        label { display: block; margin: 1.2rem 0 0.6rem; font-size: 0.9rem; font-weight: 600; color: var(--text-dim); }
 
-        .options-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 1rem; }
-        .option-btn { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border); padding: 1rem; border-radius: 14px; text-align: center; cursor: pointer; transition: 0.3s; font-weight: 600; }
+        .options-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.8rem; }
+        .option-btn { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border); padding: 0.85rem 0.5rem; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; font-weight: 600; font-size: 0.9rem; }
         .option-btn:hover { border-color: var(--primary); background: rgba(99, 102, 241, 0.1); transform: translateY(-2px); }
-        .option-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4); }
+        .option-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4); }
 
-        select, input { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: white; padding: 1.1rem; border-radius: 14px; font-size: 1.05rem; outline: none; transition: 0.3s; }
+        select, input[type="text"], input[type="number"], input[type="tel"] { width: 100%; background: rgba(0,0,0,0.25); border: 1px solid var(--border); color: white; padding: 0.9rem 1rem; border-radius: 12px; font-size: 0.95rem; outline: none; transition: 0.3s; font-family: 'Inter', sans-serif; }
         select:focus, input:focus { border-color: var(--primary); background: rgba(0,0,0,0.4); }
+        select { cursor: pointer; }
+        select option { background: var(--bg-card); color: var(--text-main); }
 
-        .main-btn { background: var(--grad-btn); color: white; border: none; padding: 1.3rem; border-radius: 16px; width: 100%; font-size: 1.15rem; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3); }
-        .main-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(99, 102, 241, 0.5); }
+        .main-btn { background: var(--grad-btn); color: white; border: none; padding: 1.1rem; border-radius: 14px; width: 100%; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3); font-family: 'Inter', sans-serif; }
+        .main-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(99, 102, 241, 0.4); }
         .main-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* Sidebar & Sidebar Mockup */
-        .mockup-card { background: var(--bg-card); border-radius: 30px; padding: 2.5rem; border: 1px solid var(--border); margin-bottom: 2rem; text-align: center; }
-        .mockup-viewport { height: 280px; display: flex; align-items: center; justify-content: center; perspective: 1200px; margin-bottom: 1.5rem; }
-        .book-model { position: relative; width: 160px; height: 220px; transform-style: preserve-3d; transform: rotateY(-25deg) rotateX(15deg); transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-group { display: flex; gap: 0.8rem; margin-top: 0.5rem; }
+        .btn-prev { background: #475569 !important; box-shadow: none !important; }
+        .btn-prev:hover { background: #64748b !important; }
+        .btn-green { background: var(--grad-btn-green) !important; box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3) !important; }
+        .btn-green:hover { box-shadow: 0 12px 25px rgba(34, 197, 94, 0.4) !important; }
+
+        /* === SIDEBAR === */
+        .sidebar { position: sticky; top: 2rem; }
+
+        /* Preview Mockup Card */
+        .mockup-card { 
+            background: var(--bg-card); 
+            border-radius: 20px; 
+            padding: 1.5rem; 
+            border: 1px solid var(--border); 
+            margin-bottom: 1.5rem; 
+        }
+        .mockup-card-title { 
+            font-size: 1rem; 
+            font-weight: 700; 
+            color: var(--secondary); 
+            margin-bottom: 1rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+        }
+        .mockup-viewport { 
+            height: 200px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            perspective: 1000px; 
+            background: rgba(0,0,0,0.15); 
+            border-radius: 14px; 
+        }
+        .book-model { position: relative; width: 130px; height: 180px; transform-style: preserve-3d; transform: rotateY(-25deg) rotateX(12deg); transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
         .book-side { position: absolute; background: white; border: 1px solid #ddd; }
-        .book-front { width: 160px; height: 220px; z-index: 2; background: #fff; border-radius: 0 5px 5px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #1e293b; padding: 20px; }
-        .book-spine { height: 220px; background: #e5e7eb; transform-origin: left; transform: rotateY(-90deg); }
-        .book-top { width: 160px; height: 20px; background: #f9fafb; transform-origin: top; transform: rotateX(90deg); }
-        .mockup-title { font-size: 0.9rem; font-weight: 800; border: 2px solid #1e293b; padding: 10px; line-height: 1.2; width: 100%; text-align: center; }
+        .book-front { width: 130px; height: 180px; z-index: 2; background: #fff; border-radius: 0 4px 4px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #1e293b; padding: 15px; }
+        .book-spine { height: 180px; background: #e5e7eb; transform-origin: left; transform: rotateY(-90deg); }
+        .book-top { width: 130px; height: 16px; background: #f9fafb; transform-origin: top; transform: rotateX(90deg); }
+        .mockup-title-text { font-size: 0.7rem; font-weight: 800; border: 1.5px solid #1e293b; padding: 8px; line-height: 1.2; width: 100%; text-align: center; word-break: keep-all; }
 
-        .total-label { font-size: 2.4rem; font-weight: 800; color: var(--accent); }
-        .cart-item { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 18px; padding: 1.2rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
-        .step-content { display: none; animation: slideUp 0.5s ease; }
+        /* Order Summary Card */
+        .summary-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+        .summary-card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .summary-list { list-style: none; padding: 0; }
+        .summary-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0.5rem 0; 
+            border-bottom: 1px solid rgba(255,255,255,0.04); 
+            font-size: 0.85rem;
+        }
+        .summary-row:last-child { border-bottom: none; }
+        .summary-row .label { color: var(--text-dim); font-weight: 500; }
+        .summary-row .value { color: var(--text-main); font-weight: 600; text-align: right; }
+        .summary-divider { 
+            border: none; 
+            border-top: 1px solid var(--border-light); 
+            margin: 0.8rem 0; 
+        }
+        .summary-total-row {
+            display: flex;
+            justify-content: center;
+            align-items: baseline;
+            padding: 0.8rem 0 0.5rem;
+        }
+        .summary-total-price {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent);
+            letter-spacing: -1px;
+        }
+        .summary-total-unit {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-left: 4px;
+        }
+        .summary-btn {
+            background: var(--grad-btn-green);
+            color: white;
+            border: none;
+            padding: 0.9rem;
+            border-radius: 12px;
+            width: 100%;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 0.8rem;
+            box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3);
+            font-family: 'Inter', sans-serif;
+        }
+        .summary-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(34, 197, 94, 0.4); }
+        .summary-note {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.6rem;
+        }
+
+        /* Cart */
+        .cart-item { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 16px; padding: 1.2rem; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
+        .cart-item:hover { border-color: var(--primary); background: rgba(99, 102, 241, 0.05); }
+        .cart-item-info strong { font-size: 0.95rem; }
+        .cart-item-info small { color: var(--text-dim); font-size: 0.8rem; }
+        .cart-item-price { font-weight: 700; color: var(--primary-light); font-size: 0.95rem; }
+        .cart-item-remove { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 1rem; margin-left: 0.8rem; transition: 0.3s; }
+        .cart-item-remove:hover { transform: scale(1.2); }
+
+        .step-content { display: none; animation: slideUp 0.4s ease; }
         .step-content.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        @media (max-width: 1024px) { .container { grid-template-columns: 1fr; } .sidebar { display: none; } }
+        /* Finishing sections */
+        .finish-category { margin-bottom: 1.2rem; }
+        .finish-category:last-child { margin-bottom: 0; }
+        .finish-cat-label { font-size: 0.82rem; font-weight: 700; color: var(--secondary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; }
+        .finish-cat-label i { font-size: 0.75rem; }
+        .finish-cat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+        .finish-cat-grid .option-btn { padding: 0.7rem 0.4rem; font-size: 0.82rem; }
+
+        /* Custom size inputs */
+        .custom-size-group { display: none; gap: 0.8rem; margin-top: 0.8rem; align-items: center; }
+        .custom-size-group.visible { display: flex; }
+        .custom-size-group input { width: auto; flex: 1; }
+        .custom-size-group span { color: var(--text-dim); font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+
+        /* Inner page option sections */
+        .inner-option-section { margin-top: 1.2rem; }
+        .inner-option-section label { margin-top: 0.5rem; }
+
+        /* Interleaf pages input */
+        .interleaf-pages-group { display: none; margin-top: 0.6rem; }
+        .interleaf-pages-group.visible { display: block; }
+        .interleaf-pages-group input { margin-top: 0.3rem; }
+        .interleaf-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem; }
+
+        /* Address group */
+        .addr-search-group { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .addr-search-group input { flex: 1; }
+        .addr-search-btn { background: var(--primary); border: none; color: #fff; padding: 0 1.2rem; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.9rem; white-space: nowrap; transition: 0.3s; }
+        .addr-search-btn:hover { background: var(--primary-light); }
+
+        /* Postcode embed overlay */
+        .postcode-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .postcode-overlay.visible { display: flex; }
+        .postcode-wrap { background: white; border-radius: 16px; overflow: hidden; width: 500px; max-width: 90vw; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .postcode-header { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1rem; background: var(--bg-card); border-bottom: 1px solid var(--border); }
+        .postcode-header span { font-weight: 700; color: var(--text-main); font-size: 0.95rem; }
+        .postcode-close { background: none; border: none; color: var(--text-dim); font-size: 1.3rem; cursor: pointer; padding: 0.3rem; transition: 0.3s; }
+        .postcode-close:hover { color: var(--accent); }
+        #postcode-embed { height: 450px; }
+
+        @media (max-width: 1024px) { 
+            .container { grid-template-columns: 1fr; } 
+            .sidebar { position: static; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; order: -1; }
+        }
+        @media (max-width: 640px) {
+            #app { padding: 1.5rem 1rem; }
+            h1 { font-size: 1.8rem; margin-bottom: 1.5rem; }
+            .sidebar { grid-template-columns: 1fr; }
+            .stepper { overflow-x: auto; }
+            .step { font-size: 0.75rem; padding: 0.4rem 0.5rem; }
+        }
     </style>
 </head>
 <body>
@@ -108,9 +284,15 @@
                         <label>책자 제목 (Project Title)</label>
                         <input type="text" id="project-title" placeholder="예: 2024 상반기 기업 보고서">
                         
-                        <h2 style="margin-top:3rem;"><i class="fas fa-hdd"></i> 기본 사양</h2>
+                        <h2 style="margin-top:2.5rem;"><i class="fas fa-hdd"></i> 기본 사양</h2>
                         <label>사이즈 선택</label>
                         <div id="size-options" class="options-grid"></div>
+                        <div id="custom-size-group" class="custom-size-group">
+                            <input type="number" id="custom-width" placeholder="가로(mm)" min="50" max="1000">
+                            <span>×</span>
+                            <input type="number" id="custom-height" placeholder="세로(mm)" min="50" max="1000">
+                            <span>mm</span>
+                        </div>
                         <label>제본 방법</label>
                         <div id="binding-options" class="options-grid"></div>
                         <label>주문 수량</label>
@@ -124,10 +306,43 @@
                     <div class="card">
                         <h2><i class="fas fa-layer-group"></i> 표지 사양</h2>
                         <label>표지 재질 및 두께</label><select id="cover-paper"></select>
-                        <label>가공/후가공 선택</label><div id="finishing-sections"></div>
+                        
+                        <label style="margin-top:1.5rem;">후가공 선택</label>
+                        <div id="finishing-sections">
+                            <!-- 1. 코팅 -->
+                            <div class="finish-category">
+                                <div class="finish-cat-label"><i class="fas fa-shield-alt"></i> 코팅</div>
+                                <div class="finish-cat-grid" id="finish-coating"></div>
+                            </div>
+                            <!-- 2. 화이트인쇄 -->
+                            <div class="finish-category">
+                                <div class="finish-cat-label"><i class="fas fa-print"></i> 화이트인쇄</div>
+                                <div class="finish-cat-grid" id="finish-whiteprint"></div>
+                            </div>
+                            <!-- 3. 박 -->
+                            <div class="finish-category">
+                                <div class="finish-cat-label"><i class="fas fa-star"></i> 박</div>
+                                <div class="finish-cat-grid" id="finish-foil"></div>
+                            </div>
+                            <!-- 4. 모양타공 -->
+                            <div class="finish-category">
+                                <div class="finish-cat-label"><i class="fas fa-shapes"></i> 모양타공</div>
+                                <div class="finish-cat-grid" id="finish-diecut"></div>
+                            </div>
+                            <!-- 5. 형압 -->
+                            <div class="finish-category">
+                                <div class="finish-cat-label"><i class="fas fa-hand-point-up"></i> 형압</div>
+                                <div class="finish-cat-grid" id="finish-emboss"></div>
+                            </div>
+                            <!-- 6. 기타 -->
+                            <div class="finish-category">
+                                <div class="finish-cat-label"><i class="fas fa-ellipsis-h"></i> 기타</div>
+                                <div class="finish-cat-grid" id="finish-etc"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div style="display:flex; gap:1rem;">
-                        <button class="main-btn" style="background:#475569;" onclick="changeStep(1)">이전</button>
+                    <div class="btn-group">
+                        <button class="main-btn btn-prev" onclick="changeStep(1)"><i class="fas fa-arrow-left"></i> 이전</button>
                         <button class="main-btn" onclick="changeStep(3)">다음: 내지 사양 <i class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
@@ -144,9 +359,33 @@
                             <div class="option-btn active" data-val="color">컬러 인쇄</div>
                             <div class="option-btn" data-val="bw">흑백 인쇄</div>
                         </div>
+                        <label>인쇄 방법</label>
+                        <div id="print-side" class="options-grid">
+                            <div class="option-btn active" data-val="both">양면 인쇄</div>
+                            <div class="option-btn" data-val="single">단면 인쇄</div>
+                        </div>
+                        <label>간지추가</label>
+                        <div id="interleaf" class="options-grid">
+                            <div class="option-btn active" data-val="none">없음</div>
+                            <div class="option-btn" data-val="only">간지만</div>
+                            <div class="option-btn" data-val="print">간지 및 인쇄</div>
+                        </div>
+                        <div id="interleaf-pages-group" class="interleaf-pages-group">
+                            <input type="text" id="interleaf-pages" placeholder="예: 4,10,20 (간지가 들어갈 페이지 번호)">
+                            <div class="interleaf-hint">※ 입력한 페이지 앞에 간지가 추가됩니다. 쉼표(,)로 구분해 주세요.</div>
+                        </div>
+                        <label>면지</label>
+                        <div id="endpaper" class="options-grid">
+                            <div class="option-btn active" data-val="none">없음</div>
+                            <div class="option-btn" data-val="front">앞</div>
+                            <div class="option-btn" data-val="back">뒤</div>
+                            <div class="option-btn" data-val="both">앞뒤 모두</div>
+                        </div>
                     </div>
-                    <button class="main-btn" style="background:#22c55e;" onclick="addToCart(true)">장바구니 담고 확인 <i class="fas fa-shopping-basket"></i></button>
-                    <div style="margin-top:1rem;"><button class="main-btn" style="background:#475569;" onclick="changeStep(2)">이전 단계로</button></div>
+                    <div class="btn-group">
+                        <button class="main-btn btn-prev" onclick="changeStep(2)"><i class="fas fa-arrow-left"></i> 이전</button>
+                        <button class="main-btn btn-green" onclick="addToCart(true)"><i class="fas fa-shopping-basket"></i> 장바구니 담기</button>
+                    </div>
                 </div>
 
                 <!-- Step 4 -->
@@ -154,9 +393,9 @@
                     <div class="card">
                         <h2><i class="fas fa-shopping-basket"></i> 장바구니 목록</h2>
                         <div id="cart-list"></div>
-                        <div style="display:flex; gap:1rem; margin-top:2rem;">
-                            <button class="main-btn" style="background:#6366f1; flex:1;" onclick="changeStep(1)">다른 책 추가하기</button>
-                            <button class="main-btn" style="flex:1.5;" onclick="changeStep(5)">주문 및 배송 정보 입력</button>
+                        <div class="btn-group" style="margin-top:1.5rem;">
+                            <button class="main-btn" style="flex:1;" onclick="changeStep(1)"><i class="fas fa-plus"></i> 다른 책 추가하기</button>
+                            <button class="main-btn btn-green" style="flex:1.5;" onclick="changeStep(5)">주문 및 배송 정보 입력 <i class="fas fa-arrow-right"></i></button>
                         </div>
                     </div>
                 </div>
@@ -166,78 +405,385 @@
                     <div class="card">
                         <h2><i class="fas fa-truck-loading"></i> 배송 및 최종 정보</h2>
                         <label>주문자 성함</label><input type="text" id="cust-name">
-                        <label>연락처</label><input type="tel" id="cust-phone">
+                        <label>연락처</label><input type="tel" id="cust-phone" placeholder="010-0000-0000" maxlength="13">
                         <label>배송 주소</label>
-                        <div style="display:flex; gap:0.5rem;"><input type="text" id="cust-postcode" readonly><button onclick="openPostcode()" style="background:var(--primary);border:none;color:#fff;padding:0 1rem;border-radius:12px;cursor:pointer;">검색</button></div>
-                        <input type="text" id="cust-addr1" readonly style="margin-top:0.5rem;"><input type="text" id="cust-addr2" placeholder="상세주소">
+                        <div class="addr-search-group"><input type="text" id="cust-postcode" placeholder="우편번호"><button class="addr-search-btn" onclick="openPostcode()"><i class="fas fa-search"></i> 검색</button></div>
+                        <input type="text" id="cust-addr1" placeholder="기본 주소 (직접 입력 또는 검색)" style="margin-bottom:0.5rem;">
+                        <input type="text" id="cust-addr2" placeholder="상세주소 입력">
                     </div>
-                    <div id="grand-total-display" class="total-label" style="text-align:right; margin-bottom:2rem;">0 원</div>
-                    <button id="finish-order-btn" class="main-btn" onclick="finalizeOrder()">최종 주문 완료하기 <i class="fas fa-check-double"></i></button>
+
+                    <div id="grand-total-display" class="summary-total-row" style="justify-content:flex-end; margin-bottom:1.5rem;">
+                        <span class="summary-total-price" id="grand-total-val">0</span>
+                        <span class="summary-total-unit">원</span>
+                    </div>
+                    <button id="finish-order-btn" class="main-btn btn-green" onclick="finalizeOrder()"><i class="fas fa-check-double"></i> 최종 주문 완료하기</button>
+                    <p class="summary-note" style="margin-top:0.8rem;">* 주문 접수 후 담당자가 연락드립니다.</p>
                 </div>
             </div>
 
             <!-- Sidebar -->
             <div class="sidebar">
+                <!-- Preview Mockup -->
                 <div class="mockup-card">
+                    <div class="mockup-card-title"><i class="fas fa-eye"></i> Preview Mockup</div>
                     <div class="mockup-viewport">
                         <div class="book-model" id="book-model">
-                            <div class="book-side book-front"><div class="mockup-title" id="mock-title">A4 BOOK</div></div>
+                            <div class="book-side book-front"><div class="mockup-title-text" id="mock-title">A4 BOOK</div></div>
                             <div class="book-side book-spine" id="mock-spine"></div>
                             <div class="book-side book-top"></div>
                         </div>
                     </div>
-                    <div class="summary-card" style="background:rgba(0,0,0,0.2); padding:1.5rem; border-radius:20px;">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;"><span>견적 합계</span><span id="summ-total" style="font-weight:700; color:var(--accent);">0 원</span></div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="summary-card">
+                    <div class="summary-card-title"><i class="fas fa-receipt"></i> Order Summary</div>
+                    <ul class="summary-list">
+                        <li class="summary-row"><span class="label">사이즈</span><span class="value" id="summ-size">A4</span></li>
+                        <li class="summary-row"><span class="label">수량</span><span class="value" id="summ-qty">1부</span></li>
+                        <li class="summary-row"><span class="label">제본방법</span><span class="value" id="summ-binding">무선제본</span></li>
+                        <li class="summary-row"><span class="label">표지용지</span><span class="value" id="summ-cover">스노우 250g</span></li>
+                        <li class="summary-row"><span class="label">내지용지</span><span class="value" id="summ-inner">모조 80g</span></li>
+                        <li class="summary-row"><span class="label">페이지수</span><span class="value" id="summ-pages">16p</span></li>
+                        <li class="summary-row"><span class="label">컬러</span><span class="value" id="summ-color">컬러</span></li>
+                        <li class="summary-row"><span class="label">인쇄방법</span><span class="value" id="summ-side">양면</span></li>
+                        <li class="summary-row"><span class="label">후가공</span><span class="value" id="summ-finish-list" style="font-size:0.78rem;">무광코팅</span></li>
+                        <li class="summary-row"><span class="label">간지추가</span><span class="value" id="summ-interleaf">없음</span></li>
+                        <li class="summary-row"><span class="label">면지</span><span class="value" id="summ-endpaper">없음</span></li>
+                    </ul>
+                    <hr class="summary-divider">
+                    <ul class="summary-list">
+                        <li class="summary-row"><span class="label">기본 단가</span><span class="value" id="summ-base-price">0원</span></li>
+                        <li class="summary-row"><span class="label">페이지 단가</span><span class="value" id="summ-page-price">0원</span></li>
+                        <li class="summary-row"><span class="label">후가공비</span><span class="value" id="summ-finish-price">0원</span></li>
+                        <li class="summary-row"><span class="label">부가세(10%)</span><span class="value" id="summ-tax">0원</span></li>
+                    </ul>
+                    <hr class="summary-divider">
+                    <div class="summary-total-row">
+                        <span class="summary-total-price" id="summ-total">0</span>
+                        <span class="summary-total-unit">원</span>
                     </div>
+                    <button class="summary-btn" onclick="addToCart(true)"><i class="fas fa-shopping-basket"></i> 견적 저장 및 주문하기</button>
+                    <p class="summary-note">* 견적은 실제 가격과 다를 수 있습니다.</p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Postcode Embed Overlay (body 최상위) -->
+    <div id="postcode-overlay" class="postcode-overlay" onclick="closePostcode(event)">
+        <div class="postcode-wrap" onclick="event.stopPropagation()">
+            <div class="postcode-header">
+                <span><i class="fas fa-map-marker-alt"></i> 주소 검색</span>
+                <button class="postcode-close" onclick="closePostcodeForce()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="postcode-embed"></div>
         </div>
     </div>
 
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script>
         const CONFIG = {
-            SIZES: ['A4', 'B5', 'A5'],
-            BINDING: [{id:'perfect',n:'무선제본'},{id:'saddle',n:'중철제본'},{id:'spring',n:'스프링제본'}],
-            PAPERS: { cover:['스노우 250g','아트지 250g'], inner:['모조 80g','모조 100g'] },
-            FINISHING: ['무광코팅','유광코팅','금박'],
-            PRICES: { base:5000, binding:{perfect:1500,saddle:800,spring:2500}, page:{color:100,bw:20}, finish:1500 }
+            SIZES: ['A4', 'B5', 'A5', '사용자 정의'],
+            BINDING: [{id:'perfect',n:'무선제본'},{id:'saddle',n:'중철제본'},{id:'spring',n:'스프링제본'},{id:'wire',n:'와이어제본'},{id:'hardcover',n:'하드커버'}],
+            PAPERS: { 
+                cover:['스노우 250g','스노우 300g','모조 220g','모조 260g','수입지(아티젠) 210g','색상지(에코블랙) 300g','색상지(플라이크 블랙) 240g','색상지(플라이크 블루) 240g','색상지(플라이크 레드) 240g'], 
+                inner:[
+                    {group:'모조', weights:['80g','100g','120g','150g']},
+                    {group:'스노우', weights:['100g','120g','150g','180g']},
+                    {group:'수입지(아르떼)', weights:['90g','105g','130g','160g']},
+                    {group:'수입지(아티젠)', weights:['90g','105g','130g','160g']},
+                    {group:'수입지(랑데뷰)', weights:['90g','105g','130g','160g']}
+                ]
+            },
+            FINISHING: {
+                coating: ['무광코팅','유광코팅'],
+                whiteprint: ['화이트인쇄'],
+                foil: ['유광금박','무광금박','은박','투명박'],
+                diecut: ['모양타공'],
+                emboss: ['엠보싱','디보싱'],
+                etc: ['기타']
+            },
+            PRICES: { base:5000, binding:{perfect:1500,saddle:800,spring:2500,wire:2000,hardcover:5000}, page:{color:100,bw:20}, finish:1500, interleaf:500, endpaper:800 }
         };
 
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzaYE7z43VsuNPp6ZpzXz4TY0W4Wcpc92ec3peMckQddMMQd8b4eRpb54nXUZJTy6Rs/exec';
         let cart = [];
-        let state = { title:'', size:'A4', binding:'perfect', qty:1, coverPaper:'스노우 250g', finishes:new Set(['무광코팅']), innerPaper:'모조 80g', innerPages:16, printColor:'color' };
+        let state = { title:'', size:'A4', customW:'', customH:'', binding:'perfect', qty:1, coverPaper:'스노우 250g', finishes:new Set(['무광코팅']), innerPaper:'모조 80g', innerPages:16, printColor:'color', printSide:'both', interleaf:'none', interleafPages:'', endpaper:'none' };
 
         function init() {
-            const sg=document.getElementById('size-options'); CONFIG.SIZES.forEach(s=>sg.appendChild(createBtn(s,s==state.size,()=>setS('size',s))));
+            // Size buttons
+            const sg=document.getElementById('size-options'); CONFIG.SIZES.forEach(s=>sg.appendChild(createBtn(s,s==state.size,()=>{
+                setS('size',s);
+                toggleCustomSize(s === '사용자 정의');
+            })));
+            // Binding buttons
             const bg=document.getElementById('binding-options'); CONFIG.BINDING.forEach(b=>bg.appendChild(createBtn(b.n,b.id==state.binding,()=>setS('binding',b.id))));
+            // Cover paper
             const cp=document.getElementById('cover-paper'); CONFIG.PAPERS.cover.forEach(p=>{const o=document.createElement('option');o.value=o.text=p;cp.appendChild(o);});
-            const ip=document.getElementById('inner-paper'); CONFIG.PAPERS.inner.forEach(p=>{const o=document.createElement('option');o.value=o.text=p;ip.appendChild(o);});
-            const fs=document.getElementById('finishing-sections'); CONFIG.FINISHING.forEach(f=>fs.appendChild(createBtn(f,state.finishes.has(f),()=>{if(state.finishes.has(f))state.finishes.delete(f);else state.finishes.add(f);updateUI();})));
+            // Inner paper - grouped
+            const ip=document.getElementById('inner-paper');
+            CONFIG.PAPERS.inner.forEach(grp => {
+                const og = document.createElement('optgroup');
+                og.label = grp.group;
+                grp.weights.forEach(w => {
+                    const o = document.createElement('option');
+                    o.value = o.text = grp.group + ' ' + w;
+                    ip.appendChild(o);
+                });
+            });
+            
+            // Finishing categories
+            const finishMap = {
+                'finish-coating': CONFIG.FINISHING.coating,
+                'finish-whiteprint': CONFIG.FINISHING.whiteprint,
+                'finish-foil': CONFIG.FINISHING.foil,
+                'finish-diecut': CONFIG.FINISHING.diecut,
+                'finish-emboss': CONFIG.FINISHING.emboss,
+                'finish-etc': CONFIG.FINISHING.etc
+            };
+            Object.entries(finishMap).forEach(([containerId, items]) => {
+                const container = document.getElementById(containerId);
+                items.forEach(f => container.appendChild(createBtn(f, state.finishes.has(f), () => {
+                    if(state.finishes.has(f)) state.finishes.delete(f); else state.finishes.add(f);
+                    updateUI();
+                })));
+            });
+            
             document.getElementById('project-title').oninput=e=>setS('title',e.target.value);
             document.getElementById('order-quantity').oninput=e=>setS('qty',parseInt(e.target.value)||1);
             document.getElementById('inner-pages').oninput=e=>setS('innerPages',parseInt(e.target.value)||2);
+            document.getElementById('cover-paper').onchange=e=>setS('coverPaper',e.target.value);
+            document.getElementById('inner-paper').onchange=e=>setS('innerPaper',e.target.value);
+            document.getElementById('custom-width').oninput=e=>setS('customW',e.target.value);
+            document.getElementById('custom-height').oninput=e=>setS('customH',e.target.value);
+            document.getElementById('interleaf-pages').oninput=e=>setS('interleafPages',e.target.value);
+            
+            // Print color toggle
+            initToggleGroup('#print-color', 'printColor');
+            // Print side toggle
+            initToggleGroup('#print-side', 'printSide');
+            // Interleaf toggle (allow none)
+            initToggleGroup('#interleaf', 'interleaf', true);
+            // Endpaper toggle (allow none)
+            initToggleGroup('#endpaper', 'endpaper', true);
+            
             updateUI();
         }
+        
+        function initToggleGroup(selector, stateKey, allowNone = false) {
+            document.querySelectorAll(selector + ' .option-btn').forEach(btn => {
+                btn.onclick = () => {
+                    if(allowNone && btn.classList.contains('active') && btn.dataset.val !== 'none') {
+                        // clicking active → set to none
+                        document.querySelectorAll(selector + ' .option-btn').forEach(b=>b.classList.remove('active'));
+                        const noneBtn = document.querySelector(selector + ' .option-btn[data-val="none"]');
+                        if(noneBtn) noneBtn.classList.add('active');
+                        setS(stateKey, 'none');
+                        return;
+                    }
+                    document.querySelectorAll(selector + ' .option-btn').forEach(b=>b.classList.remove('active'));
+                    btn.classList.add('active');
+                    setS(stateKey, btn.dataset.val);
+                };
+            });
+        }
+        
+        function toggleCustomSize(show) {
+            const group = document.getElementById('custom-size-group');
+            if(show) group.classList.add('visible');
+            else group.classList.remove('visible');
+        }
+        
         function createBtn(l,a,c){const b=document.createElement('div');b.className='option-btn'+(a?' active':'');b.textContent=l;b.onclick=c;return b;}
         function setS(k,v){state[k]=v;updateUI();}
+        
         function updateUI(){
             document.querySelectorAll('#size-options .option-btn').forEach(b=>b.classList.toggle('active',b.textContent==state.size));
+            toggleCustomSize(state.size === '사용자 정의');
             document.querySelectorAll('#binding-options .option-btn').forEach(b=>b.classList.toggle('active',CONFIG.BINDING.find(d=>d.id==state.binding).n==b.textContent));
-            const p=calc(state); document.getElementById('summ-total').textContent=p.total.toLocaleString()+' 원';
-            document.getElementById('mock-title').textContent=state.title||'A4 BOOK';
-            document.getElementById('mock-spine').style.width=(state.innerPages*0.15)+'px';
+            document.querySelectorAll('#finishing-sections .option-btn').forEach(b=>{
+                const f = b.textContent;
+                b.classList.toggle('active', state.finishes.has(f));
+            });
+            
+            const p = calc(state);
+            
+            // Update mockup
+            document.getElementById('mock-title').textContent = state.title || 'A4 BOOK';
+            document.getElementById('mock-spine').style.width = (state.innerPages * 0.15) + 'px';
+            
+            // Update summary card
+            const bindName = CONFIG.BINDING.find(b=>b.id==state.binding).n;
+            document.getElementById('summ-size').textContent = state.size === '사용자 정의' && state.customW && state.customH ? state.customW + '×' + state.customH + 'mm' : state.size;
+            document.getElementById('summ-qty').textContent = state.qty + '부';
+            document.getElementById('summ-binding').textContent = bindName;
+            document.getElementById('summ-cover').textContent = state.coverPaper;
+            document.getElementById('summ-inner').textContent = state.innerPaper;
+            document.getElementById('summ-pages').textContent = state.innerPages + 'p';
+            document.getElementById('summ-color').textContent = state.printColor === 'color' ? '컬러' : '흑백';
+            document.getElementById('summ-side').textContent = state.printSide === 'both' ? '양면' : '단면';
+            
+            // Finish list
+            const finishArr = Array.from(state.finishes);
+            document.getElementById('summ-finish-list').textContent = finishArr.length > 0 ? finishArr.join(', ') : '없음';
+            
+            // Interleaf & Endpaper
+            const interleafPagesArr = state.interleafPages ? state.interleafPages.split(',').map(s=>s.trim()).filter(s=>s) : [];
+            const interleafMap = {none:'없음', only:'간지만', print:'간지+인쇄'};
+            let interleafDisplay = interleafMap[state.interleaf] || '없음';
+            if(state.interleaf !== 'none' && interleafPagesArr.length > 0) {
+                interleafDisplay += ' (p.' + interleafPagesArr.join(',') + ')';
+            }
+            document.getElementById('summ-interleaf').textContent = interleafDisplay;
+            
+            // Toggle interleaf pages input
+            const ilGroup = document.getElementById('interleaf-pages-group');
+            if(state.interleaf !== 'none') ilGroup.classList.add('visible');
+            else ilGroup.classList.remove('visible');
+            
+            const endpaperMap = {none:'없음', front:'앞', back:'뒤', both:'앞뒤'};
+            document.getElementById('summ-endpaper').textContent = endpaperMap[state.endpaper] || '없음';
+            
+            document.getElementById('summ-base-price').textContent = p.basePrice.toLocaleString() + '원';
+            document.getElementById('summ-page-price').textContent = p.pagePrice.toLocaleString() + '원';
+            document.getElementById('summ-finish-price').textContent = p.finishPrice.toLocaleString() + '원';
+            document.getElementById('summ-tax').textContent = p.tax.toLocaleString() + '원';
+            document.getElementById('summ-total').textContent = p.total.toLocaleString();
         }
-        function calc(s){ const b=CONFIG.PRICES.base+CONFIG.PRICES.binding[s.binding]+(s.innerPages*CONFIG.PRICES.page[s.printColor]); return {total:Math.round((b+(s.finishes.size*CONFIG.PRICES.finish))*s.qty*1.1)}; }
-        function addToCart(g){ const i=JSON.parse(JSON.stringify(state)); i.finishes=new Set(state.finishes); cart.push(i); renderCart(); if(g)changeStep(4); }
+        
+        function calc(s){ 
+            const basePrice = CONFIG.PRICES.base + CONFIG.PRICES.binding[s.binding];
+            const pageMul = s.printSide === 'both' ? 1 : 0.7;
+            const pagePrice = Math.round(s.innerPages * CONFIG.PRICES.page[s.printColor] * pageMul);
+            const finishPrice = s.finishes.size * CONFIG.PRICES.finish;
+            const interleafCount = s.interleaf !== 'none' && s.interleafPages ? s.interleafPages.split(',').map(x=>x.trim()).filter(x=>x).length : 0;
+            const interleafPrice = interleafCount > 0 ? CONFIG.PRICES.interleaf * interleafCount * (s.interleaf === 'print' ? 2 : 1) : 0;
+            const endpaperPrice = s.endpaper !== 'none' ? CONFIG.PRICES.endpaper * (s.endpaper === 'both' ? 2 : 1) : 0;
+            const subtotal = (basePrice + pagePrice + finishPrice + interleafPrice + endpaperPrice) * s.qty;
+            const tax = Math.round(subtotal * 0.1);
+            const total = subtotal + tax;
+            return { basePrice, pagePrice, finishPrice: finishPrice + interleafPrice + endpaperPrice, tax, total };
+        }
+        
+        function addToCart(g){ 
+            const i = JSON.parse(JSON.stringify(state)); 
+            i.finishes = new Set(state.finishes);
+            i.printSide = state.printSide;
+            i.interleaf = state.interleaf;
+            i.interleafPages = state.interleafPages;
+            i.endpaper = state.endpaper;
+            cart.push(i); 
+            renderCart(); 
+            if(g) changeStep(4); 
+        }
+        
+        function removeFromCart(idx) {
+            cart.splice(idx, 1);
+            renderCart();
+        }
+        
         function renderCart(){
-            const l=document.getElementById('cart-list'); l.innerHTML=''; let grand=0;
-            cart.forEach((it,idx)=>{ const p=calc(it); grand+=p.total; const d=document.createElement('div'); d.className='cart-item'; d.innerHTML=`<div><strong>${it.title||'제목없음'}</strong><br><small>${it.size} / ${it.qty}부</small></div><div>${p.total.toLocaleString()}원</div>`; l.appendChild(d); });
-            document.getElementById('grand-total-display').textContent = grand.toLocaleString() + ' 원';
+            const l = document.getElementById('cart-list'); 
+            l.innerHTML = ''; 
+            let grand = 0;
+            if (cart.length === 0) {
+                l.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--text-dim);">장바구니가 비어있습니다.</div>';
+            }
+            cart.forEach((it,idx) => { 
+                const p = calc(it); 
+                grand += p.total; 
+                const bindName = CONFIG.BINDING.find(b=>b.id==it.binding).n;
+                const d = document.createElement('div'); 
+                d.className = 'cart-item'; 
+                d.innerHTML = `
+                    <div class="cart-item-info">
+                        <strong>${it.title||'제목없음'}</strong><br>
+                        <small>${it.size} / ${bindName} / ${it.qty}부 / ${it.innerPages}p</small>
+                    </div>
+                    <div style="display:flex;align-items:center;">
+                        <span class="cart-item-price">${p.total.toLocaleString()}원</span>
+                        <button class="cart-item-remove" onclick="removeFromCart(${idx})" title="삭제"><i class="fas fa-trash-alt"></i></button>
+                    </div>`; 
+                l.appendChild(d); 
+            });
+            const gtv = document.getElementById('grand-total-val');
+            if(gtv) gtv.textContent = grand.toLocaleString();
         }
-        function changeStep(n){ document.querySelectorAll('.step').forEach(s=>s.classList.toggle('active',parseInt(s.dataset.step)==n)); document.querySelectorAll('.step-content').forEach(c=>c.classList.toggle('active',c.id==`step-${n}`)); window.scrollTo(0,0); }
-        function openPostcode(){ new daum.Postcode({oncomplete:d=>{document.getElementById('cust-postcode').value=d.zonecode;document.getElementById('cust-addr1').value=d.roadAddress;}}).open(); }
+        
+        function changeStep(n){ 
+            document.querySelectorAll('.step').forEach(s=>s.classList.toggle('active',parseInt(s.dataset.step)==n)); 
+            document.querySelectorAll('.step-content').forEach(c=>c.classList.toggle('active',c.id==`step-${n}`)); 
+            window.scrollTo({top:0, behavior:'smooth'}); 
+        }
+        
+        function openPostcode(){ 
+            const overlay = document.getElementById('postcode-overlay');
+            const embedEl = document.getElementById('postcode-embed');
+            
+            // Daum API 로드 확인
+            if(typeof daum === 'undefined' || typeof daum.Postcode === 'undefined') {
+                alert('주소 검색 API를 로드할 수 없습니다.\n\n[해결방법]\n1. 인터넷 연결을 확인해 주세요.\n2. http://localhost 또는 웹서버에서 열어주세요.\n   (file:// 에서는 제한될 수 있습니다)\n3. 주소를 직접 입력해 주세요.');
+                return;
+            }
+            
+            // 이전 내용 제거 & 오버레이 표시
+            embedEl.innerHTML = '';
+            overlay.classList.add('visible');
+            
+            // 오버레이가 렌더링된 후 embed 실행
+            setTimeout(function() {
+                try {
+                    new daum.Postcode({
+                        oncomplete: function(data) {
+                            var addr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+                            if(!addr) addr = data.roadAddress || data.jibunAddress || data.address;
+                            document.getElementById('cust-postcode').value = data.zonecode || '';
+                            document.getElementById('cust-addr1').value = addr || '';
+                            overlay.classList.remove('visible');
+                            document.getElementById('cust-addr2').focus();
+                        },
+                        onclose: function(state) {
+                            if(state === 'FORCE_CLOSE' || state === 'COMPLETE_CLOSE') {
+                                overlay.classList.remove('visible');
+                            }
+                        },
+                        width: '100%',
+                        height: '100%'
+                    }).embed(embedEl);
+                } catch(err) {
+                    overlay.classList.remove('visible');
+                    alert('주소 검색 실행 중 오류가 발생했습니다.\n주소를 직접 입력해 주세요.');
+                    console.error('Postcode error:', err);
+                }
+            }, 150);
+        }
+        function closePostcode(e) {
+            if(e.target.id === 'postcode-overlay') {
+                document.getElementById('postcode-overlay').classList.remove('visible');
+            }
+        }
+        function closePostcodeForce() {
+            document.getElementById('postcode-overlay').classList.remove('visible');
+        }
+        
+        // 전화번호 자동 포맷팅
+        function formatPhone(val) {
+            const nums = val.replace(/[^0-9]/g, '');
+            if(nums.length <= 3) return nums;
+            if(nums.length <= 7) return nums.slice(0,3) + '-' + nums.slice(3);
+            return nums.slice(0,3) + '-' + nums.slice(3,7) + '-' + nums.slice(7,11);
+        }
+        document.getElementById('cust-phone').addEventListener('input', function(e) {
+            const cursor = this.selectionStart;
+            const before = this.value.length;
+            this.value = formatPhone(this.value);
+            const after = this.value.length;
+            this.setSelectionRange(cursor + (after - before), cursor + (after - before));
+        });
+        
         async function finalizeOrder(){ alert('주문이 접수되었습니다!'); location.reload(); }
+        
         init();
     </script>
 </body>
