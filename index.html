@@ -5626,8 +5626,8 @@
                         customerAddress: idx === 0 ? custAddr : "",
                         "주문자 주소": idx === 0 ? custAddr : "",
 
-                        size: (it.size === '사용자 정의' || it.size === '직접입력') && it.customW && it.customH ? `${it.size}(${it.customW}x${it.customH}mm)` : it.size,
-                        "규격": (it.size === '사용자 정의' || it.size === '직접입력') && it.customW && it.customH ? `${it.size}(${it.customW}x${it.customH}mm)` : it.size,
+                        size: (it.size === '사용자 정의' || it.size === '직접입력') && it.customW && it.customH ? `${it.customW}x${it.customH}mm` : it.size,
+                        "규격": (it.size === '사용자 정의' || it.size === '직접입력') && it.customW && it.customH ? `${it.customW}x${it.customH}mm` : it.size,
 
                         type: bindName,
                         binding: bindName,
