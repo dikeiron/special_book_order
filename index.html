@@ -2969,6 +2969,14 @@
                     state.innerPages = checkedPages;
                     document.getElementById('inner-pages').value = checkedPages;
                 }
+                // 하드커버 선택 시, 표지용지 자동 선택 로직
+                if (v === 'hardcover') {
+                    const hcPaper = CONFIG.PAPERS.cover.find(p => p.includes('하드커버'));
+                    if (hcPaper) {
+                        state.coverPaper = hcPaper;
+                        document.getElementById('cover-paper').value = hcPaper;
+                    }
+                }
             } else if (k === 'printSide') {
                 const checkedPages = checkPageLimit(state.innerPages, state.binding, v);
                 if (checkedPages !== state.innerPages) {
