@@ -2985,6 +2985,21 @@
                 }
             }
             state[k] = v; 
+
+            // 제본방식, 인쇄컬러, 내지용지 변경 시 기본 페이지 수 자동 적용
+            if (k === 'binding' || k === 'printColor' || k === 'innerPaper') {
+                let bindingObj = null;
+                if (dynamicConfig && dynamicConfig.BINDING) {
+                    bindingObj = dynamicConfig.BINDING.find(x => x.id === state.binding && x.status === 'active' && x.paper === state.innerPaper);
+                    if (!bindingObj) bindingObj = dynamicConfig.BINDING.find(x => x.id === state.binding && x.status === 'active' && (x.paper === '공통' || !x.paper));
+                }
+                if (bindingObj) {
+                    const baseP = state.printColor === 'color' ? (bindingObj.colorBasePages || 16) : (bindingObj.bwBasePages || 16);
+                    state.innerPages = baseP;
+                    document.getElementById('inner-pages').value = baseP;
+                }
+            }
+
             isCurrentConfigAdded = false; 
             updateUI(); 
         }
