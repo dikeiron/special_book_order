@@ -2976,6 +2976,15 @@
                         state.coverPaper = hcPaper;
                         document.getElementById('cover-paper').value = hcPaper;
                     }
+                } else {
+                    // 하드커버가 아닌 제본을 선택했는데 표지용지가 하드커버 전용지인 경우 초기화
+                    if (state.coverPaper && state.coverPaper.includes('하드커버')) {
+                        const defaultPaper = CONFIG.PAPERS.cover.find(p => !p.includes('하드커버')) || CONFIG.PAPERS.cover[0];
+                        if (defaultPaper) {
+                            state.coverPaper = defaultPaper;
+                            document.getElementById('cover-paper').value = defaultPaper;
+                        }
+                    }
                 }
             } else if (k === 'printSide') {
                 const checkedPages = checkPageLimit(state.innerPages, state.binding, v);
