@@ -1,8 +1,8 @@
-const CACHE_NAME = 'smartorder-v7';
+const CACHE_NAME = 'smartorder-v8';
 const ASSETS = [
   './index.html',
   './manifest.json',
-  './주문폼_제본통합주문.png'
+  './banner.png'
 ];
 
 self.addEventListener('install', (e) => {
