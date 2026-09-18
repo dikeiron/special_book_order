@@ -2713,10 +2713,15 @@
                     
                     // If no data exists and it's not the default local environment, it's an unregistered tenant!
                     if (!data && currentTenantId !== 'default') {
-                        // For standalone usage on custom domain, we bypass the tenant redirection
-                        // and fallback to default config
-                        dynamicConfig = JSON.parse(JSON.stringify(DEFAULT_DYNAMIC_CONFIG));
-                        db.ref(`tenants/${currentTenantId}/printing_config`).set(dynamicConfig);
+                        // For standalone usage on custom domain, we bypass the tenant redirection.
+                        // If we didn't load any local config, fallback to default config.
+                        if (!saved) {
+                            dynamicConfig = JSON.parse(JSON.stringify(DEFAULT_DYNAMIC_CONFIG));
+                            db.ref(`tenants/${currentTenantId}/printing_config`).set(dynamicConfig);
+                        } else {
+                            // Sync the local backup back to Firebase to initialize it
+                            db.ref(`tenants/${currentTenantId}/printing_config`).set(dynamicConfig);
+                        }
                     }
 
                     if (data && data.printing_config) {
