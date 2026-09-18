@@ -2917,6 +2917,19 @@
                 });
             }
 
+            // 초기 로드 시 기본 페이지 수 연동
+            let initBindingObj = null;
+            if (dynamicConfig && dynamicConfig.BINDING) {
+                initBindingObj = dynamicConfig.BINDING.find(x => x.id === state.binding && x.status === 'active' && x.paper === state.innerPaper);
+                if (!initBindingObj) initBindingObj = dynamicConfig.BINDING.find(x => x.id === state.binding && x.status === 'active' && (x.paper === '공통' || !x.paper));
+            }
+            if (initBindingObj && state.innerPages === 16) {
+                const initBaseP = state.printColor === 'color' ? (initBindingObj.colorBasePages || 16) : (initBindingObj.bwBasePages || 16);
+                state.innerPages = initBaseP;
+                const innerPagesInput = document.getElementById('inner-pages');
+                if (innerPagesInput) innerPagesInput.value = initBaseP;
+            }
+
             updateUI();
         }
 
