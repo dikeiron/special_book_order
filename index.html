@@ -3028,17 +3028,28 @@
                 cpSelect.innerHTML = '';
                 CONFIG.PAPERS.cover.forEach(p => {
                     const isHardcoverPaper = p.includes('하드커버');
+                    const isSaddleExclusive = p.includes('중철') || p.includes('동일');
+                    
                     if (state.binding === 'hardcover') {
+                        // 하드커버 제본: 하드커버 전용지만 표시
                         if (isHardcoverPaper) {
                             const o = document.createElement('option'); o.value = o.text = p; cpSelect.appendChild(o);
                         }
-                    } else {
+                    } else if (state.binding === 'saddle') {
+                        // 중철 제본: 일반 표지 + 중철 전용지 표시 (하드커버 제외)
                         if (!isHardcoverPaper) {
+                            const o = document.createElement('option'); o.value = o.text = p; cpSelect.appendChild(o);
+                        }
+                    } else {
+                        // 그 외 제본(무선제본 등): 하드커버 전용지 및 중철 전용지 모두 제외
+                        if (!isHardcoverPaper && !isSaddleExclusive) {
                             const o = document.createElement('option'); o.value = o.text = p; cpSelect.appendChild(o);
                         }
                     }
                 });
+                
                 cpSelect.value = state.coverPaper;
+                // 만약 현재 선택된 종이가 필터링되어 사라졌다면(예: 중철전용 -> 무선제본 변경) 첫 번째 종이로 자동 변경
                 if (!cpSelect.value && cpSelect.options.length > 0) {
                     cpSelect.selectedIndex = 0;
                     state.coverPaper = cpSelect.options[0].value;
