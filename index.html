@@ -3022,6 +3022,29 @@
                 b.classList.toggle('active', state.finishes.has(f));
             });
 
+            // 제본 방식에 따라 표지용지 옵션 필터링
+            const cpSelect = document.getElementById('cover-paper');
+            if (cpSelect) {
+                cpSelect.innerHTML = '';
+                CONFIG.PAPERS.cover.forEach(p => {
+                    const isHardcoverPaper = p.includes('하드커버');
+                    if (state.binding === 'hardcover') {
+                        if (isHardcoverPaper) {
+                            const o = document.createElement('option'); o.value = o.text = p; cpSelect.appendChild(o);
+                        }
+                    } else {
+                        if (!isHardcoverPaper) {
+                            const o = document.createElement('option'); o.value = o.text = p; cpSelect.appendChild(o);
+                        }
+                    }
+                });
+                cpSelect.value = state.coverPaper;
+                if (!cpSelect.value && cpSelect.options.length > 0) {
+                    cpSelect.selectedIndex = 0;
+                    state.coverPaper = cpSelect.options[0].value;
+                }
+            }
+
             const p = calc(state);
 
             // Update mockup
