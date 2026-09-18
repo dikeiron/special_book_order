@@ -2713,14 +2713,10 @@
                     
                     // If no data exists and it's not the default local environment, it's an unregistered tenant!
                     if (!data && currentTenantId !== 'default') {
-                        if (currentTenantId === 'main_landing') {
-                            // 메인 도메인으로 접속 시 안내창 없이 깔끔하게 랜딩(가입) 페이지로 바로 이동
-                            window.location.href = '/signup.html';
-                        } else {
-                            alert('등록되지 않은 인쇄소 주소입니다. 가입 페이지로 이동합니다.');
-                            window.location.href = '/signup.html';
-                        }
-                        return;
+                        // For standalone usage on custom domain, we bypass the tenant redirection
+                        // and fallback to default config
+                        dynamicConfig = JSON.parse(JSON.stringify(DEFAULT_DYNAMIC_CONFIG));
+                        db.ref(`tenants/${currentTenantId}/printing_config`).set(dynamicConfig);
                     }
 
                     if (data && data.printing_config) {
