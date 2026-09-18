@@ -3295,7 +3295,14 @@
                 const groupedMap = new Map();
 
                 data.forEach((ord) => {
-                    const dateFull = getVal(ord, ["주문일시", "주문 일시", "date", "Date"]) || "-";
+                    const tempDate = getVal(ord, ["주문일시", "주문 일시", "date", "Date"]);
+                    const tempTitle = getVal(ord, ["프로젝트 제목", "title", "bookTitle", "장바구니 상세", "장바구니상세"]);
+                    const tempTotal = getVal(ord, ["합계 금액", "합계금액", "합계", "total"]);
+                    
+                    // 완전히 비어있는 유령 행(사용자가 시트에서 텍스트만 지운 행)은 무시합니다.
+                    if (!tempDate && !tempTitle && !tempTotal) return;
+
+                    const dateFull = tempDate || "-";
                     
                     if (!groupedMap.has(dateFull)) {
                         groupedMap.set(dateFull, {
