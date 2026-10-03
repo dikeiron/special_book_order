@@ -2188,9 +2188,14 @@
                                 </div>
                                 <div style="margin-top: 1rem; border-top: 1px dashed var(--border); padding-top: 1rem;">
                                     <label style="font-weight:700; margin-bottom: 0.4rem; display:block; color: #f43f5e;"><i class="fas fa-arrows-alt-h"></i> 가로형 제본 할증 설정</label>
-                                    <span style="font-size: 0.75rem; color: var(--text-dim); display:block; margin-bottom: 0.6rem;">※ 가로가 210mm를 넘거나 가로가 세로보다 길 때 자동 적용됩니다. (중철은 기본 제본비의 2배가 자동 청구됩니다)</span>
+                                    <span style="font-size: 0.75rem; color: var(--text-dim); display:block; margin-bottom: 0.6rem;">※ 가로가 210mm를 넘거나 가로가 세로보다 길 때 자동 적용됩니다.</span>
                                 </div>
                                 <div>
+                                    <label style="font-weight:700; margin-bottom: 0.4rem; display:block;">중철 가로형 할증률 (%)</label>
+                                    <span style="font-size: 0.75rem; color: var(--text-dim); display:block; margin-bottom: 0.4rem;">예: 100 입력 시 기본 제본비의 100%가 추가(총 2배), 50 입력 시 50% 추가</span>
+                                    <input type="number" id="admin-print-price-landscape-saddle" placeholder="예: 100" style="padding: 0.6rem; font-size:0.9rem;" min="0">
+                                </div>
+                                <div style="margin-top: 0.5rem;">
                                     <label style="font-weight:700; margin-bottom: 0.4rem; display:block;">스프링/와이어 가로형 할증 (원)</label>
                                     <input type="number" id="admin-print-price-landscape-spring" placeholder="예: 500" style="padding: 0.6rem; font-size:0.9rem;" min="0">
                                 </div>
@@ -3310,7 +3315,8 @@
             const bindNameStr = bindingObj ? bindingObj.n : '';
             if (isLandscape) {
                 if (bindNameStr.includes('중철')) {
-                    basePrice += bindingPrice; // 중철은 제본비 x2
+                    const saddlePercent = dynamicConfig.PRINT_PRICES?.landscapeSaddle ?? 100;
+                    basePrice += Math.round(bindingPrice * (saddlePercent / 100)); // 중철 % 할증
                 } else if (bindNameStr.includes('스프링') || bindNameStr.includes('와이어')) {
                     basePrice += (dynamicConfig.PRINT_PRICES?.landscapeSpring ?? 500);
                 } else if (bindNameStr.includes('하드커버')) {
@@ -4646,9 +4652,12 @@
         }
 
         function loadPrintPricesEditor() {
-            const p = dynamicConfig.PRINT_PRICES || { interleaf: 500, endpaper: 800, landscapeSpring: 500, landscapeHardcover: 3000 };
+            const p = dynamicConfig.PRINT_PRICES || { interleaf: 500, endpaper: 800, landscapeSpring: 500, landscapeHardcover: 3000, landscapeSaddle: 100 };
             document.getElementById('admin-print-price-interleaf').value = p.interleaf ?? 500;
             document.getElementById('admin-print-price-endpaper').value = p.endpaper ?? 800;
+            
+            const landscapeSaddleInput = document.getElementById('admin-print-price-landscape-saddle');
+            if (landscapeSaddleInput) landscapeSaddleInput.value = p.landscapeSaddle ?? 100;
             
             const landscapeSpringInput = document.getElementById('admin-print-price-landscape-spring');
             if (landscapeSpringInput) landscapeSpringInput.value = p.landscapeSpring ?? 500;
@@ -4725,6 +4734,7 @@
         function savePrintPrices() {
             const interleafPrice = Number(document.getElementById('admin-print-price-interleaf').value) || 0;
             const endpaperPrice = Number(document.getElementById('admin-print-price-endpaper').value) || 0;
+            const landscapeSaddle = Number(document.getElementById('admin-print-price-landscape-saddle')?.value) || 0;
             const landscapeSpring = Number(document.getElementById('admin-print-price-landscape-spring')?.value) || 0;
             const landscapeHardcover = Number(document.getElementById('admin-print-price-landscape-hardcover')?.value) || 0;
 
@@ -4733,6 +4743,7 @@
             }
             dynamicConfig.PRINT_PRICES.interleaf = interleafPrice;
             dynamicConfig.PRINT_PRICES.endpaper = endpaperPrice;
+            dynamicConfig.PRINT_PRICES.landscapeSaddle = landscapeSaddle;
             dynamicConfig.PRINT_PRICES.landscapeSpring = landscapeSpring;
             dynamicConfig.PRINT_PRICES.landscapeHardcover = landscapeHardcover;
 
