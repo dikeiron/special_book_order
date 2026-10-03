@@ -1380,6 +1380,60 @@
             font-size: 0.8rem;
             color: var(--text-dim);
         }
+
+        /* Naver TalkTalk Floating Button */
+        .naver-talk-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            background-color: #03c75a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(3, 199, 90, 0.4);
+            cursor: pointer;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .naver-talk-btn:hover {
+            transform: scale(1.1) translateY(-3px);
+            box-shadow: 0 6px 20px rgba(3, 199, 90, 0.6);
+        }
+        .naver-talk-tooltip {
+            position: absolute;
+            right: 75px;
+            background: #ffffff;
+            color: #333333;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            transform: translateX(10px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .naver-talk-tooltip::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-width: 6px 0 6px 6px;
+            border-style: solid;
+            border-color: transparent transparent transparent #ffffff;
+        }
+        .naver-talk-btn:hover .naver-talk-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+        }
     </style>
 </head>
 
@@ -5958,6 +6012,12 @@
             }
         });
     </script>
+
+    <!-- Naver TalkTalk Floating Button -->
+    <a href="http://talk.naver.com/W4XCUO" target="_blank" class="naver-talk-btn">
+        <div class="naver-talk-tooltip">궁금한 점이 있으신가요?</div>
+        <span style="color:white; font-weight:900; font-size:1.15rem; font-family:'Pretendard', sans-serif; letter-spacing:-0.5px;">톡톡</span>
+    </a>
 
 </body>
 
