@@ -1490,9 +1490,9 @@
                         <label>사이즈 선택</label>
                         <div id="size-options" class="options-grid"></div>
                         <div id="custom-size-group" class="custom-size-group">
-                            <input type="number" id="custom-width" placeholder="가로(mm)" min="50" max="1000">
+                            <input type="number" id="custom-width" placeholder="가로(mm)" min="50" max="300">
                             <span>×</span>
-                            <input type="number" id="custom-height" placeholder="세로(mm)" min="50" max="1000">
+                            <input type="number" id="custom-height" placeholder="세로(mm)" min="50" max="300">
                             <span>mm</span>
                         </div>
                         <label>제본 방법</label>
@@ -2945,8 +2945,24 @@
             document.getElementById('inner-pages').oninput = e => setS('innerPages', parseInt(e.target.value) || 2);
             document.getElementById('cover-paper').onchange = e => setS('coverPaper', e.target.value);
             document.getElementById('inner-paper').onchange = e => setS('innerPaper', e.target.value);
-            document.getElementById('custom-width').oninput = e => setS('customW', e.target.value);
-            document.getElementById('custom-height').oninput = e => setS('customH', e.target.value);
+            document.getElementById('custom-width').oninput = e => {
+                let val = parseInt(e.target.value);
+                if (val > 300) {
+                    alert('가로 최대 규격은 300mm입니다.');
+                    e.target.value = 300;
+                    val = 300;
+                }
+                setS('customW', val || '');
+            };
+            document.getElementById('custom-height').oninput = e => {
+                let val = parseInt(e.target.value);
+                if (val > 300) {
+                    alert('세로 최대 규격은 300mm입니다.');
+                    e.target.value = 300;
+                    val = 300;
+                }
+                setS('customH', val || '');
+            };
             document.getElementById('interleaf-pages').oninput = e => setS('interleafPages', e.target.value);
 
             // Print color toggle
