@@ -1456,6 +1456,12 @@
                         <h2><i class="fas fa-layer-group"></i> 표지 사양</h2>
                         <label>표지 재질 및 두께</label><select id="cover-paper"></select>
 
+                        <label>표지 인쇄</label>
+                        <div id="cover-print-side" class="options-grid">
+                            <div class="option-btn active" data-val="single">단면 인쇄</div>
+                            <div class="option-btn" data-val="both">양면 인쇄 (+1,000원)</div>
+                        </div>
+
                         <label style="margin-top:1.5rem;">후가공 선택</label>
                         <div id="finishing-sections">
                             <!-- 1. 코팅 -->
@@ -2795,7 +2801,7 @@
 
         let ORDER_API_URL = 'https://script.google.com/macros/s/AKfycbxheK9BugFup28vMz-alxTMc8p3DrKn3wkxteS6GDfu70OJMqBt4VdB_9xoDODcIDgz/exec';
         let cart = [];
-        let state = { title: '', size: 'A4', customW: '', customH: '', binding: 'perfect', qty: 1, coverPaper: '스노우 250g', finishes: new Set(['무광코팅']), innerPaper: '모조 80g', innerPages: 16, printColor: 'color', printSide: 'both', interleaf: 'none', interleafPages: '', endpaper: 'none' };
+        let state = { title: '', size: 'A4', customW: '', customH: '', binding: 'perfect', qty: 1, coverPaper: '스노우 250g', coverPrintSide: 'single', finishes: new Set(['무광코팅']), innerPaper: '모조 80g', innerPages: 16, printColor: 'color', printSide: 'both', interleaf: 'none', interleafPages: '', endpaper: 'none' };
 
         function init() {
             if (dynamicConfig && dynamicConfig.ORDER_API_URL) {
@@ -2888,6 +2894,7 @@
             document.getElementById('interleaf-pages').oninput = e => setS('interleafPages', e.target.value);
 
             // Print color toggle
+            initToggleGroup('#cover-print-side', 'coverPrintSide');
             initToggleGroup('#print-color', 'printColor');
             // Print side toggle
             initToggleGroup('#print-side', 'printSide');
@@ -3127,7 +3134,7 @@
             document.getElementById('summ-size').textContent = state.size === '사용자 정의' && state.customW && state.customH ? state.customW + '×' + state.customH + 'mm' : state.size;
             document.getElementById('summ-qty').textContent = state.qty + '부';
             document.getElementById('summ-binding').textContent = bindName;
-            document.getElementById('summ-cover').textContent = state.coverPaper;
+            document.getElementById('summ-cover').textContent = state.coverPaper + (state.coverPrintSide === 'both' ? ' (양면)' : ' (단면)');
             document.getElementById('summ-inner').textContent = state.innerPaper;
             document.getElementById('summ-pages').textContent = state.innerPages + 'p';
             document.getElementById('summ-color').textContent = state.printColor === 'color' ? '컬러' : '흑백';
@@ -3274,6 +3281,9 @@
             if (s.coverPaper && dynamicConfig && dynamicConfig.COVER_PAPERS) {
                 const cPaperObj = dynamicConfig.COVER_PAPERS.find(p => p.name === s.coverPaper);
                 if (cPaperObj) coverPrice = cPaperObj.price || 0;
+            }
+            if (s.coverPrintSide === 'both') {
+                coverPrice += 1000;
             }
 
             const interleafCount = s.interleaf !== 'none' && s.interleafPages ? s.interleafPages.split(',').map(x => x.trim()).filter(x => x).length : 0;
