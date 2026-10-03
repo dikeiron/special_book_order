@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1분 만에 끝내는 인쇄소 자동 세팅 - 스마트오더</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .container { max-width: 500px; width: 100%; padding: 3rem; background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h1 { color: #4f46e5; font-size: 1.8rem; font-weight: 800; text-align: center; margin-bottom: 0.5rem; }
+        p.subtitle { text-align: center; color: #64748b; margin-bottom: 2.5rem; line-height: 1.5; }
+        
+        .form-group { margin-bottom: 1.5rem; position: relative; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #334155; font-size: 0.95rem; }
+        
+        .input-wrapper { display: flex; align-items: center; background: #f1f5f9; border-radius: 8px; border: 2px solid transparent; transition: all 0.2s; overflow: hidden; }
+        .input-wrapper:focus-within { border-color: #4f46e5; background: white; }
+        
+        input { flex: 1; padding: 1rem; border: none; background: transparent; color: #1e293b; font-size: 1rem; outline: none; }
+        .domain-suffix { padding-right: 1rem; color: #94a3b8; font-weight: 600; }
+        
+        button { width: 100%; background: #4f46e5; color: white; border: none; padding: 1.2rem; border-radius: 8px; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: background 0.2s; margin-top: 1rem; }
+        button:hover { background: #4338ca; }
+        button:disabled { background: #94a3b8; cursor: not-allowed; }
+        
+        .status-msg { font-size: 0.85rem; margin-top: 0.5rem; display: none; }
+        .status-msg.error { color: #ef4444; display: block; }
+        .status-msg.success { color: #10b981; display: block; }
+        
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #4f46e5; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>나만의 견적/주문 시스템</h1>
+        <p class="subtitle">복잡한 절차 없이, 단 1분 만에<br>우리 인쇄소 전용 스마트오더를 만들어보세요!</p>
+        
+        <div class="form-group">
+            <label>1. 접속할 웹 주소 (영문/숫자)</label>
+            <div class="input-wrapper" id="id-wrapper">
+                <input type="text" id="shop-id" placeholder="예: fastprint" autocomplete="off" maxlength="20" oninput="checkDuplicate()">
+                <span class="domain-suffix">.podcafe.co.kr</span>
+            </div>
+            <div id="id-status" class="status-msg"></div>
+        </div>
+
+        <div class="form-group">
+            <label>2. 인쇄소 상호명</label>
+            <div class="input-wrapper">
+                <input type="text" id="shop-name" placeholder="고객에게 보여질 상호명 입력" autocomplete="off">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>3. 주문/데이터 접수용 이메일</label>
+            <div class="input-wrapper">
+                <input type="email" id="shop-email" placeholder="예: help@myprint.com" autocomplete="off">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>4. 관리자 비밀번호</label>
+            <div class="input-wrapper">
+                <input type="password" id="admin-pw" placeholder="설정 변경 시 사용할 비밀번호" autocomplete="new-password">
+            </div>
+        </div>
+
+        <button id="submit-btn" onclick="registerShop()">
+            <span id="btn-text">무료로 내 주문 페이지 만들기 <i class="fas fa-rocket"></i></span>
+            <div id="btn-loader" class="loader"></div>
+        </button>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+    <script>
+        let db;
+        let isIdValid = false;
+        let checkTimeout;
+
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDrlfc_QurQuwYaNqoyYd6Hk6bhvBvWsbc",
+            authDomain: "gen-lang-client-0627371489.firebaseapp.com",
+            databaseURL: "https://gen-lang-client-0627371489-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "gen-lang-client-0627371489",
+            storageBucket: "gen-lang-client-0627371489.firebasestorage.app",
+            messagingSenderId: "630202239422",
+            appId: "1:630202239422:web:d6af47b3d3c077344051ef",
+            measurementId: "G-HZTXNG4KZR"
+        };
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+
+        function checkDuplicate() {
+            clearTimeout(checkTimeout);
+            const idInput = document.getElementById('shop-id');
+            const statusEl = document.getElementById('id-status');
+            const wrapper = document.getElementById('id-wrapper');
+            let id = idInput.value.trim().toLowerCase();
+            
+            // Remove special characters
+            id = id.replace(/[^a-z0-9]/g, '');
+            idInput.value = id;
+
+            isIdValid = false;
+            wrapper.style.borderColor = 'transparent';
+
+            if (id.length < 3) {
+                statusEl.className = 'status-msg error';
+                statusEl.textContent = '3자 이상의 영문/숫자를 입력해주세요.';
+                return;
+            }
+
+            // Reserved keywords
+            const reserved = ['www', 'admin', 'super', 'api', 'app', 'default'];
+            if (reserved.includes(id)) {
+                statusEl.className = 'status-msg error';
+                statusEl.textContent = '사용할 수 없는 주소입니다.';
+                return;
+            }
+
+            statusEl.className = 'status-msg';
+            statusEl.textContent = '중복 확인 중...';
+            statusEl.style.display = 'block';
+
+            checkTimeout = setTimeout(() => {
+                db.ref(`tenants/${id}`).once('value').then(snapshot => {
+                    if (snapshot.exists()) {
+                        statusEl.className = 'status-msg error';
+                        statusEl.textContent = '이미 사용 중인 주소입니다. 다른 주소를 입력해주세요.';
+                        wrapper.style.borderColor = '#ef4444';
+                    } else {
+                        statusEl.className = 'status-msg success';
+                        statusEl.textContent = '멋진 주소네요! 바로 사용할 수 있습니다.';
+                        wrapper.style.borderColor = '#10b981';
+                        isIdValid = true;
+                    }
+                });
+            }, 500);
+        }
+
+        async function registerShop() {
+            if (!isIdValid) return alert('사용 가능한 주소를 먼저 확인해주세요.');
+            
+            const id = document.getElementById('shop-id').value.trim();
+            const shopName = document.getElementById('shop-name').value.trim();
+            const password = document.getElementById('admin-pw').value.trim();
+            const email = document.getElementById('shop-email').value.trim();
+
+            if (!shopName) return alert('상호명을 입력해주세요.');
+            if (!email || !email.includes('@')) return alert('올바른 이메일 주소를 입력해주세요.');
+            if (password.length < 4) return alert('비밀번호는 4자리 이상으로 설정해주세요.');
+
+            const btnText = document.getElementById('btn-text');
+            const btnLoader = document.getElementById('btn-loader');
+            const submitBtn = document.getElementById('submit-btn');
+
+            btnText.style.display = 'none';
+            btnLoader.style.display = 'block';
+            submitBtn.disabled = true;
+
+            // Template Config
+            const templateConfig = {
+                ADMIN_PASSWORD: password,
+                STORE_URL: 'https://smartstore.naver.com/',
+                EMAIL: email,
+                GOOGLE_SHEET_URL: '',
+                ORDER_API_URL: 'https://script.google.com/macros/s/AKfycbxheK9BugFup28vMz-alxTMc8p3DrKn3wkxteS6GDfu70OJMqBt4VdB_9xoDODcIDgz/exec',
+                SIZES: [
+                    {name: 'A4', status: 'active'}, 
+                    {name: 'B5', status: 'active'}, 
+                    {name: 'A5', status: 'active'}, 
+                    {name: '사용자 정의', status: 'active'}
+                ],
+                BINDING: [
+                    {id: 'perfect', n: '무선제본', status: 'active', price: 1500},
+                    {id: 'saddle', n: '중철제본', status: 'active', price: 800},
+                    {id: 'spring', n: '스프링제본', status: 'active', price: 2500},
+                    {id: 'wire', n: '와이어제본', status: 'active', price: 2000},
+                    {id: 'hardcover', n: '하드커버', status: 'active', price: 5000}
+                ],
+                COVER_PAPERS: [
+                    { name: '스노우 250g', status: 'active' },
+                    { name: '스노우 300g', status: 'active' },
+                    { name: '모조 220g', status: 'active' },
+                    { name: '모조 260g', status: 'active' }
+                ],
+                INNER_PAPERS: [
+                    { group: '모조', weight: '80g', status: 'active', price: 10 },
+                    { group: '모조', weight: '100g', status: 'active', price: 12 },
+                    { group: '스노우', weight: '100g', status: 'active', price: 12 }
+                ],
+                FINISHING: [
+                    { category: 'coating', name: '무광코팅', status: 'active', price: 500 },
+                    { category: 'coating', name: '유광코팅', status: 'active', price: 500 }
+                ],
+                PRINT_PRICES: { bw_single: 25, bw_both: 15, color_single: 80, color_both: 75, interleaf: 500, endpaper: 800 },
+                VOLUME_DISCOUNTS: [
+                    { min: 10, max: 49, discount: 5 },
+                    { min: 50, max: 99, discount: 10 },
+                    { min: 100, max: 299, discount: 15 },
+                    { min: 300, max: 99999, discount: 20 }
+                ]
+            };
+
+            try {
+                await db.ref(`tenants/${id}`).set({
+                    printing_config: templateConfig,
+                    branding: {
+                        shopName: shopName,
+                        primaryColor: '#4f46e5' // Default purple-indigo theme for new signups
+                    }
+                });
+
+                // Generate redirect URL
+                const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                let redirectUrl = `https://${id}.podcafe.co.kr`;
+                
+                if (isLocalhost) {
+                    redirectUrl = `http://localhost:${window.location.port}/?shop=${id}`;
+                }
+
+                alert('🎉 세팅이 완료되었습니다! 확인을 누르시면 나만의 주문 페이지로 이동합니다.');
+                window.location.href = redirectUrl;
+
+            } catch(e) {
+                alert('생성 중 오류가 발생했습니다.');
+                console.error(e);
+                btnText.style.display = 'block';
+                btnLoader.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

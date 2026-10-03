@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>본사 최고 관리자 - 분양형 스마트오더</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; padding: 2rem; }
+        .container { max-width: 800px; margin: 0 auto; background: #1e293b; padding: 2rem; border-radius: 12px; }
+        h1 { color: #818cf8; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: 0.5rem; color: #94a3b8; }
+        input { width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; margin-bottom: 1rem; }
+        button { background: #6366f1; color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #4f46e5; }
+        .tenant-list { margin-top: 2rem; }
+        .tenant-card { background: #334155; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-chess-king"></i> 본사 통제 센터 (Super Admin)</h1>
+        
+        <!-- Login Section (Simplified for Demo) -->
+        <div id="login-section">
+            <p>본사 마스터 비밀번호를 입력하세요.</p>
+            <input type="password" id="master-pw" placeholder="기본: superadmin123" onkeydown="if(event.key==='Enter') login()">
+            <button onclick="login()">로그인</button>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" style="display: none;">
+            <h3>신규 업체(테넌트) 생성</h3>
+            <div class="form-group">
+                <label>업체 아이디 (서브도메인이 됩니다. 예: aaaa -> aaaa.podcafe.co.kr)</label>
+                <input type="text" id="new-tenant-id" placeholder="영문/숫자 소문자만 입력">
+                <label>상호명</label>
+                <input type="text" id="new-shop-name" placeholder="예: A인쇄소">
+                <label>데이터 접수 이메일</label>
+                <input type="email" id="new-shop-email" placeholder="예: admin@shop.com">
+                <label>초기 관리자 비밀번호</label>
+                <input type="text" id="new-password" placeholder="초기 비밀번호 (업체가 로그인 후 변경 가능)" value="admin1234">
+                <button onclick="createTenant()"><i class="fas fa-plus"></i> 업체 분양하기</button>
+            </div>
+
+            <h3 style="margin-top: 3rem;">현재 분양된 업체 목록</h3>
+            <div id="tenant-list" class="tenant-list">
+                <!-- List will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (Must match the main app's version) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+    <script>
+        // !! 중요: 본 앱의 index.html에 있는 firebaseConfig와 동일하게 맞추어야 합니다 !!
+        // (현재 index.html의 initFirebase 로직을 참고하여 자동화하거나 수동으로 넣습니다)
+        // 데모용 하드코딩 또는 서버에서 주입
+        let db;
+
+        function initDb() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyDrlfc_QurQuwYaNqoyYd6Hk6bhvBvWsbc",
+                authDomain: "gen-lang-client-0627371489.firebaseapp.com",
+                databaseURL: "https://gen-lang-client-0627371489-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "gen-lang-client-0627371489",
+                storageBucket: "gen-lang-client-0627371489.firebasestorage.app",
+                messagingSenderId: "630202239422",
+                appId: "1:630202239422:web:d6af47b3d3c077344051ef",
+                measurementId: "G-HZTXNG4KZR"
+            };
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            loadTenants();
+        }
+
+        function login() {
+            const pw = document.getElementById('master-pw').value;
+            // 본사 비밀번호 (하드코딩 하거나 커스텀 Auth 사용)
+            if(pw === 'superadmin123') {
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('dashboard-section').style.display = 'block';
+                initDb();
+            } else {
+                alert('비밀번호 불일치');
+            }
+        }
+
+        function loadTenants() {
+            db.ref('tenants').on('value', snapshot => {
+                const data = snapshot.val();
+                const list = document.getElementById('tenant-list');
+                list.innerHTML = '';
+                if(data) {
+                    for(const [tenantId, tenantData] of Object.entries(data)) {
+                        const shopName = (tenantData.branding && tenantData.branding.shopName) ? tenantData.branding.shopName : '미설정';
+                        const pw = (tenantData.printing_config && tenantData.printing_config.ADMIN_PASSWORD) ? tenantData.printing_config.ADMIN_PASSWORD : '미설정';
+                        
+                        list.innerHTML += `
+                            <div class="tenant-card">
+                                <div>
+                                    <strong style="font-size: 1.2rem; color: #818cf8;">${tenantId}.podcafe.co.kr</strong>
+                                    <div style="font-size: 0.9rem; color: #cbd5e1; margin-top: 5px;">상호명: ${shopName} | PW: ${pw}</div>
+                                </div>
+                                <button onclick="deleteTenant('${tenantId}')" style="background: #ef4444; padding: 0.5rem 1rem;"><i class="fas fa-trash"></i> 삭제</button>
+                            </div>
+                        `;
+                    }
+                } else {
+                    list.innerHTML = '<p>아직 분양된 업체가 없습니다.</p>';
+                }
+            });
+        }
+
+        function createTenant() {
+            const id = document.getElementById('new-tenant-id').value.trim().toLowerCase();
+            const shopName = document.getElementById('new-shop-name').value.trim();
+            const email = document.getElementById('new-shop-email').value.trim();
+            const password = document.getElementById('new-password').value.trim();
+
+            if(!id || !shopName || !email || !password) return alert('모든 항목을 입력하세요.');
+
+            // 기본 설정 템플릿 복사 (간소화)
+            const templateConfig = {
+                ADMIN_PASSWORD: password,
+                STORE_URL: 'https://smartstore.naver.com/',
+                EMAIL: email,
+                GOOGLE_SHEET_URL: '',
+                ORDER_API_URL: 'https://script.google.com/macros/s/AKfycbxheK9BugFup28vMz-alxTMc8p3DrKn3wkxteS6GDfu70OJMqBt4VdB_9xoDODcIDgz/exec',
+                SIZES: [{name: 'A4', status: 'active'}, {name: 'B5', status: 'active'}],
+                BINDING: [{id: 'perfect', n: '무선제본', status: 'active', price: 1500}],
+                PRINT_PRICES: { bw_single: 25, bw_both: 15, color_single: 80, color_both: 75, interleaf: 500, endpaper: 800 }
+            };
+
+            db.ref(`tenants/${id}`).set({
+                printing_config: templateConfig,
+                branding: {
+                    shopName: shopName,
+                    primaryColor: '#6366f1' // Default primary
+                }
+            }).then(() => {
+                alert('업체가 성공적으로 분양되었습니다!');
+                document.getElementById('new-tenant-id').value = '';
+                document.getElementById('new-shop-name').value = '';
+            });
+        }
+
+        function deleteTenant(id) {
+            if(confirm(`정말로 ${id} 업체를 삭제하시겠습니까? 관련 데이터가 모두 날아갑니다.`)) {
+                db.ref(`tenants/${id}`).remove();
+            }
+        }
+    </script>
+</body>
+</html>
