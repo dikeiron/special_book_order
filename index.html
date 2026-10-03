@@ -1697,6 +1697,8 @@
                     <ul class="summary-list">
                         <li class="summary-row"><span class="label">페이지 단가</span><span class="value"
                                 id="summ-page-price">0원</span></li>
+                        <li class="summary-row"><span class="label">제본비(가공)</span><span class="value"
+                                id="summ-binding-price">0원</span></li>
                         <li class="summary-row"><span class="label">표지 단가</span><span class="value"
                                 id="summ-cover-price">0원</span></li>
                         <li class="summary-row"><span class="label">후가공비</span><span class="value"
@@ -3162,6 +3164,8 @@
             document.getElementById('summ-endpaper').textContent = endpaperMap[state.endpaper] || '없음';
 
             document.getElementById('summ-page-price').textContent = p.pagePrice.toLocaleString() + '원';
+            const bindingPriceEl = document.getElementById('summ-binding-price');
+            if (bindingPriceEl) bindingPriceEl.textContent = (p.basePrice || 0).toLocaleString() + '원';
             const coverPriceEl = document.getElementById('summ-cover-price');
             if (coverPriceEl) coverPriceEl.textContent = (p.coverPrice || 0).toLocaleString() + '원';
             document.getElementById('summ-finish-price').textContent = p.finishPrice.toLocaleString() + '원';
