@@ -3046,6 +3046,23 @@
             document.querySelectorAll('#size-options .option-btn').forEach(b => b.classList.toggle('active', b.textContent == state.size));
             toggleCustomSize(state.size === '사용자 정의');
             document.querySelectorAll('#binding-options .option-btn').forEach(b => b.classList.toggle('active', getBindingName(state.binding) == b.textContent));
+            
+            if (state.binding === 'hardcover' && state.coverPrintSide === 'both') {
+                state.coverPrintSide = 'single';
+            }
+            document.querySelectorAll('#cover-print-side .option-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.val === state.coverPrintSide);
+                if (b.dataset.val === 'both') {
+                    if (state.binding === 'hardcover') {
+                        b.style.opacity = '0.3';
+                        b.style.pointerEvents = 'none';
+                    } else {
+                        b.style.opacity = '1';
+                        b.style.pointerEvents = 'auto';
+                    }
+                }
+            });
+
             document.querySelectorAll('#finishing-sections .option-btn').forEach(b => {
                 const f = b.textContent;
                 b.classList.toggle('active', state.finishes.has(f));
