@@ -394,9 +394,9 @@
         }
 
         .mockup-title-text {
-            font-size: 1.25rem;
+            font-size: 0.85rem;
             font-weight: 900;
-            line-height: 1.15;
+            line-height: 1.25;
             width: 100%;
             text-align: left;
             word-break: keep-all;
@@ -408,8 +408,8 @@
         }
 
         .book-subtitle-text {
-            font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.75);
+            font-size: 0.5rem;
+            color: rgba(255, 255, 255, 0.65);
             font-weight: 600;
             letter-spacing: 1px;
             margin-top: 3px;
@@ -1732,9 +1732,12 @@
                                     <div class="book-cover-size-tag" id="mock-size-tag">A4</div>
                                 </div>
                                 <div class="book-title-wrap">
-                                    <div class="mockup-title-text" id="mock-title">A4</div>
-                                    <div class="book-subtitle-text" id="mock-subtitle">210 × 297 mm</div>
-
+                                    <div class="mockup-title-text" id="mock-title" style="font-size: 1.2rem;">A4</div>
+                                    <div class="book-subtitle-text" id="mock-subtitle"></div>
+                                </div>
+                                <div class="book-cover-footer">
+                                    <span>PODCAFE</span>
+                                </div>
                             </div>
                         </div>
                         <div class="book-pages-block">
@@ -3215,7 +3218,24 @@
 
             const p = calc(state);
 
-            // Removed old mockTitleEl code here, moved down after physW calculation
+            // Update mockup title and subtitle
+            const mockTitleEl = document.getElementById('mock-title');
+            const mockSubtitleEl = document.getElementById('mock-subtitle');
+            
+            let displaySize = state.size;
+            if (state.size === '사용자 정의' || state.size === '직접입력') {
+                displaySize = (state.customW || '?') + ' × ' + (state.customH || '?') + ' mm';
+            }
+
+            if (mockTitleEl) {
+                mockTitleEl.textContent = state.title || displaySize;
+            }
+            if (mockSubtitleEl) {
+                // If user typed a custom title, show the size in the subtitle.
+                // Otherwise, the size is already in the main title, so clear subtitle.
+                mockSubtitleEl.textContent = state.title ? displaySize : 'CUSTOM BOOK';
+            }
+
             const bindName = getBindingName(state.binding);
             const mockBadgeEl = document.getElementById('mock-badge');
             if (mockBadgeEl) mockBadgeEl.textContent = bindName;
@@ -3241,28 +3261,6 @@
                 physW = Number(state.customW) || 210;
                 physH = Number(state.customH) || 297;
             }
-
-            // Update mockup title and subtitle
-            const mockTitleEl = document.getElementById('mock-title');
-            const mockSubtitleEl = document.getElementById('mock-subtitle');
-            
-            let displayTitle = state.size; // Default to 'A4', 'B5'
-            let displaySub = physW + ' × ' + physH + ' mm';
-            
-            if (state.size === '사용자 정의' || state.size === '직접입력') {
-                displayTitle = physW + ' × ' + physH;
-                displaySub = 'CUSTOM SIZE';
-            }
-            
-            if (state.title && state.title.trim() !== '') {
-                displayTitle = state.title;
-                displaySub = (state.size === '사용자 정의' || state.size === '직접입력') 
-                             ? physW + ' × ' + physH + ' mm' 
-                             : state.size + ' (' + physW + ' × ' + physH + ' mm)';
-            }
-
-            if (mockTitleEl) mockTitleEl.textContent = displayTitle;
-            if (mockSubtitleEl) mockSubtitleEl.textContent = displaySub;
 
             const maxDim = Math.max(physW, physH);
             const scale = 220 / (maxDim || 297);
