@@ -3229,11 +3229,18 @@
 
             if (mockTitleEl) {
                 mockTitleEl.textContent = state.title || displaySize;
+                mockTitleEl.style.fontSize = state.title ? '1.1rem' : '1.7rem';
+                mockTitleEl.style.lineHeight = '1.1';
             }
             if (mockSubtitleEl) {
-                // If user typed a custom title, show the size in the subtitle.
-                // Otherwise, the size is already in the main title, so clear subtitle.
-                mockSubtitleEl.textContent = state.title ? displaySize : 'CUSTOM BOOK';
+                if (state.title) {
+                    mockSubtitleEl.textContent = displaySize;
+                    mockSubtitleEl.style.display = 'block';
+                    mockSubtitleEl.style.fontSize = '0.85rem';
+                    mockSubtitleEl.style.color = 'rgba(255,255,255,0.9)';
+                } else {
+                    mockSubtitleEl.style.display = 'none';
+                }
             }
 
             const bindName = getBindingName(state.binding);
