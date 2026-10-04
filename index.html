@@ -1720,6 +1720,33 @@
             <!-- Sidebar -->
             <div class="sidebar">
 
+                <!-- 3D Book Mockup -->
+                <div class="mockup-viewport" id="mockup-viewport" style="margin-bottom: 1.5rem; display: flex; justify-content: center; align-items: center; min-height: 220px; background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border);">
+                    <div class="book-model" id="book-model">
+                        <div class="book-cover-front" id="mock-front">
+                            <div class="book-cover-crease"></div>
+                            <div class="book-cover-paper-texture"></div>
+                            <div class="book-cover-content">
+                                <div class="book-cover-header">
+                                    <div class="book-cover-badge" id="mock-badge">무선제본</div>
+                                    <div class="book-cover-size-tag" id="mock-size-tag">A4</div>
+                                </div>
+                                <div class="book-title-wrap">
+                                    <div class="mockup-title-text" id="mock-title">A4 BOOK</div>
+                                    <div class="book-subtitle-text">CUSTOM BOOK</div>
+                                </div>
+                                <div class="book-cover-footer">
+                                    <span>PODCAFE</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="book-pages-block">
+                            <div class="book-pages-lines"></div>
+                            <div class="book-pages-bottom-edge"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Order Summary -->
                 <div class="summary-card">
                     <div class="summary-card-title"><i class="fas fa-receipt"></i> Order Summary</div>
@@ -3210,31 +3237,80 @@
                 modelEl.style.setProperty('--depth', depthVal + 'px');
             }
 
-            // Dynamically change cover design based on selected cover paper or binding
+            // Calculate proportional dimensions
+            let physW = 210, physH = 297;
+            if (state.size === 'B5') { physW = 182; physH = 257; }
+            else if (state.size === 'A5') { physW = 148; physH = 210; }
+            else if (state.size === 'B6') { physW = 128; physH = 182; }
+            else if (state.size === 'A6') { physW = 105; physH = 148; }
+            else if (state.size === '사용자 정의' || state.size === '직접입력') {
+                physW = Number(state.customW) || 210;
+                physH = Number(state.customH) || 297;
+            }
+
+            const maxDim = Math.max(physW, physH);
+            const scale = 160 / (maxDim || 297);
+            const mockW = Math.round(physW * scale);
+            const mockH = Math.round(physH * scale);
+            
+            const viewportEl = document.querySelector('.mockup-viewport');
+            if (viewportEl) {
+                viewportEl.style.setProperty('--book-width', mockW + 'px');
+                viewportEl.style.setProperty('--book-height', mockH + 'px');
+            }
+
+            const bookBlock = document.querySelector('.book-pages-block');
+            const creaseEl = document.querySelector('.book-cover-crease');
             const frontEl = document.getElementById('mock-front');
+            
+            if (bookBlock && creaseEl && frontEl) {
+                if (bindName.includes('중철')) {
+                    bookBlock.style.display = 'none';
+                    creaseEl.style.display = 'none'; // 중철은 접힌 선이므로 무선제본 홈을 숨김
+                    frontEl.style.borderLeft = 'none';
+                } else if (bindName.includes('스프링') || bindName.includes('와이어')) {
+                    bookBlock.style.display = 'block';
+                    creaseEl.style.display = 'none'; // 스프링 제본
+                    frontEl.style.borderLeft = '6px dashed rgba(0,0,0,0.5)'; // 타공 느낌 
+                } else {
+                    bookBlock.style.display = 'block';
+                    creaseEl.style.display = 'block';
+                    frontEl.style.borderLeft = '3px solid rgba(0,0,0,0.2)';
+                }
+            }
             
             let coverGrad = 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)'; // default violet
 
-            if (state.binding === 'hardcover') {
-                // Royal gold-accented dark leather style for hardcover
-                coverGrad = 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
-                if (frontEl) frontEl.style.border = '2px solid #d97706'; // gold border
-            } else {
-                if (frontEl) frontEl.style.border = 'none';
-                
-                const covPaper = (state.coverPaper || '').toLowerCase();
-                if (covPaper.includes('블랙') || covPaper.includes('에코블랙')) {
-                    coverGrad = 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)';
-                } else if (covPaper.includes('레드')) {
-                    coverGrad = 'linear-gradient(135deg, #ef4444 0%, #991b1b 100%)';
-                } else if (covPaper.includes('블루')) {
-                    coverGrad = 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)';
-                } else if (covPaper.includes('수입지')) {
-                    coverGrad = 'linear-gradient(135deg, #10b981 0%, #065f46 100%)'; // emerald
+            if (frontEl) {
+                if (state.binding === 'hardcover') {
+                    // Royal gold-accented dark leather style for hardcover
+                    coverGrad = 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
+                    frontEl.style.border = '2px solid #d97706'; // gold border
+                } else {
+                    if (bindName.includes('중철') || bindName.includes('스프링') || bindName.includes('와이어')) {
+                        // Keep the borderLeft we just set
+                        frontEl.style.border = 'none'; 
+                        if (bindName.includes('스프링') || bindName.includes('와이어')) {
+                            frontEl.style.borderLeft = '6px dashed rgba(0,0,0,0.5)';
+                        }
+                    } else {
+                        frontEl.style.border = 'none';
+                        frontEl.style.borderLeft = '3px solid rgba(0,0,0,0.2)';
+                    }
+                    
+                    const covPaper = (state.coverPaper || '').toLowerCase();
+                    if (covPaper.includes('블랙') || covPaper.includes('에코블랙')) {
+                        coverGrad = 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)';
+                    } else if (covPaper.includes('레드')) {
+                        coverGrad = 'linear-gradient(135deg, #ef4444 0%, #991b1b 100%)';
+                    } else if (covPaper.includes('블루')) {
+                        coverGrad = 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)';
+                    } else if (covPaper.includes('수입지')) {
+                        coverGrad = 'linear-gradient(135deg, #10b981 0%, #065f46 100%)'; // emerald
+                    }
                 }
+                frontEl.style.background = coverGrad;
             }
-
-            if (frontEl) frontEl.style.background = coverGrad;
 
             // Update summary card
             document.getElementById('summ-size').textContent = state.size === '사용자 정의' && state.customW && state.customH ? state.customW + '×' + state.customH + 'mm' : state.size;
