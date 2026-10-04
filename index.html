@@ -3220,7 +3220,7 @@
 
             // Update mockup
             const mockTitleEl = document.getElementById('mock-title');
-            if (mockTitleEl) mockTitleEl.textContent = state.title || 'A4 BOOK';
+            if (mockTitleEl) mockTitleEl.textContent = state.title || (state.size === '사용자 정의' || state.size === '직접입력' ? 'CUSTOM BOOK' : state.size + ' BOOK');
 
             const bindName = getBindingName(state.binding);
             const mockBadgeEl = document.getElementById('mock-badge');
