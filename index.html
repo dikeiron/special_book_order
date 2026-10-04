@@ -8671,6 +8671,10 @@
                 it.coverSubmission === "기타(입력)"
                   ? it.coverSubmissionOther || "기타"
                   : it.coverSubmission,
+              "표지 파일":
+                it.coverSubmission === "기타(입력)"
+                  ? it.coverSubmissionOther || "기타"
+                  : it.coverSubmission,
 
               // Customer info is only populated on the first row (idx === 0)
               name: idx === 0 ? custName : "",
