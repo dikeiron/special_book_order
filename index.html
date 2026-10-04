@@ -1721,7 +1721,7 @@
             <div class="sidebar">
 
                 <!-- 3D Book Mockup -->
-                <div class="mockup-viewport" id="mockup-viewport" style="margin-bottom: 1.5rem; display: flex; justify-content: center; align-items: center; min-height: 220px; background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border);">
+                <div class="mockup-viewport" id="mockup-viewport" style="margin-bottom: 1.5rem; display: flex; justify-content: center; align-items: center; min-height: 280px; padding: 2rem 1rem; background: var(--bg-card); border-radius: 20px; border: 1px solid var(--border);">
                     <div class="book-model" id="book-model">
                         <div class="book-cover-front" id="mock-front">
                             <div class="book-cover-crease"></div>
@@ -3249,7 +3249,7 @@
             }
 
             const maxDim = Math.max(physW, physH);
-            const scale = 160 / (maxDim || 297);
+            const scale = 220 / (maxDim || 297);
             const mockW = Math.round(physW * scale);
             const mockH = Math.round(physH * scale);
             
