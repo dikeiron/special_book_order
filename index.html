@@ -1485,6 +1485,15 @@
                         <h2><i class="fas fa-edit"></i> 프로젝트 명칭</h2>
                         <label>책자 제목 (Project Title)</label>
                         <input type="text" id="project-title" placeholder="예: 2024 상반기 기업 보고서">
+                        
+                        <label style="margin-top:1rem;">표지 파일 전달 방식</label>
+                        <select id="cover-submission-type" style="margin-bottom:0.5rem; background: var(--bg-deep); color: white; border: 1px solid var(--border); padding: 0.8rem; border-radius: 8px; width: 100%; font-size: 0.9rem;">
+                            <option value="표지파일 별도파일로 내지와 함께 발송예정">표지파일 별도파일로 내지와 함께 발송예정</option>
+                            <option value="표지파일 내부 페이지에 포함">표지파일 내부 페이지에 포함</option>
+                            <option value="랜덤디자인요청">랜덤디자인요청</option>
+                            <option value="기타(입력)">기타(입력)</option>
+                        </select>
+                        <input type="text" id="cover-submission-other" placeholder="기타 전달 방식을 입력해주세요" style="display:none; margin-bottom: 1rem;">
 
                         <h2 style="margin-top:2.5rem;"><i class="fas fa-hdd"></i> 기본 사양</h2>
                         <label>사이즈 선택</label>
@@ -2901,7 +2910,7 @@
 
         let ORDER_API_URL = 'https://script.google.com/macros/s/AKfycbxheK9BugFup28vMz-alxTMc8p3DrKn3wkxteS6GDfu70OJMqBt4VdB_9xoDODcIDgz/exec';
         let cart = [];
-        let state = { title: '', size: 'A4', customW: '', customH: '', binding: 'perfect', qty: 1, coverPaper: '스노우 250g', coverPrintSide: 'single', finishes: new Set(['무광코팅']), innerPaper: '모조 80g', innerPages: 16, printColor: 'color', printSide: 'both', interleaf: 'none', interleafPages: '', endpaper: 'none' };
+        let state = { title: '', coverSubmission: '표지파일 별도파일로 내지와 함께 발송예정', coverSubmissionOther: '', size: 'A4', customW: '', customH: '', binding: 'perfect', qty: 1, coverPaper: '스노우 250g', coverPrintSide: 'single', finishes: new Set(['무광코팅']), innerPaper: '모조 80g', innerPages: 16, printColor: 'color', printSide: 'both', interleaf: 'none', interleafPages: '', endpaper: 'none' };
 
         function init() {
             if (dynamicConfig && dynamicConfig.ORDER_API_URL) {
@@ -2985,6 +2994,11 @@
             });
 
             document.getElementById('project-title').oninput = e => setS('title', e.target.value);
+            document.getElementById('cover-submission-type').onchange = e => {
+                setS('coverSubmission', e.target.value);
+                document.getElementById('cover-submission-other').style.display = e.target.value === '기타(입력)' ? 'block' : 'none';
+            };
+            document.getElementById('cover-submission-other').oninput = e => setS('coverSubmissionOther', e.target.value);
             document.getElementById('order-quantity').oninput = e => setS('qty', parseInt(e.target.value) || 1);
             document.getElementById('inner-pages').oninput = e => setS('innerPages', parseInt(e.target.value) || 2);
             document.getElementById('cover-paper').onchange = e => setS('coverPaper', e.target.value);
@@ -5152,6 +5166,8 @@
             // Reset state to default settings
             state = {
                 title: '',
+                coverSubmission: '표지파일 별도파일로 내지와 함께 발송예정',
+                coverSubmissionOther: '',
                 size: 'A4',
                 customW: '',
                 customH: '',
@@ -5181,6 +5197,11 @@
             
             const interleafPagesEl = document.getElementById('interleaf-pages');
             if (interleafPagesEl) interleafPagesEl.value = '';
+
+            const coverSubEl = document.getElementById('cover-submission-type');
+            if (coverSubEl) coverSubEl.value = '표지파일 별도파일로 내지와 함께 발송예정';
+            const coverSubOtherEl = document.getElementById('cover-submission-other');
+            if (coverSubOtherEl) { coverSubOtherEl.value = ''; coverSubOtherEl.style.display = 'none'; }
 
             init();
             changeStep(1);
@@ -5244,7 +5265,8 @@
                 d.innerHTML = `
                     <div class="cart-item-info">
                         <strong>${it.title || '제목없음'}</strong><br>
-                        <small>${sizeStr} / ${bindName} / ${it.qty}부 / ${it.innerPages}p / ${printColorStr} / ${printSideStr} / 후가공: ${finishesStr}</small>
+                        <small>${sizeStr} / ${bindName} / ${it.qty}부 / ${it.innerPages}p / ${printColorStr} / ${printSideStr} / 후가공: ${finishesStr}</small><br>
+                        <small style="color:var(--primary-light);">표지 파일: ${it.coverSubmission === '기타(입력)' ? (it.coverSubmissionOther || '기타') : it.coverSubmission}</small>
                     </div>
                     <div style="display:flex;align-items:center;">
                         <span class="cart-item-price">${p.total.toLocaleString()}원</span>
@@ -5967,6 +5989,7 @@
                         title: it.title || '제목없음',
                         bookTitle: it.title || '제목없음',
                         "프로젝트 제목": it.title || '제목없음',
+                        "표지 파일 전달 방식": it.coverSubmission === '기타(입력)' ? (it.coverSubmissionOther || '기타') : it.coverSubmission,
 
                         // Customer info is only populated on the first row (idx === 0)
                         name: idx === 0 ? custName : "",
