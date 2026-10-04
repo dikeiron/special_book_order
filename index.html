@@ -3269,6 +3269,13 @@
                 physH = Number(state.customH) || 297;
             }
 
+            // 가로형 제본일 경우 (사용자 정의가 아닐 때) 폭과 높이 반전
+            if (bindName.includes('가로형') && state.size !== '사용자 정의' && state.size !== '직접입력') {
+                const temp = physW;
+                physW = physH;
+                physH = temp;
+            }
+
             const maxDim = Math.max(physW, physH);
             const scale = 220 / (maxDim || 297);
             const mockW = Math.round(physW * scale);
