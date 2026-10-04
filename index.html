@@ -1823,7 +1823,7 @@
                   style="flex: 1.5"
                   onclick="changeStep(5)"
                 >
-                  주문 및 배송 정보 입력 <i class="fas fa-arrow-right"></i>
+                  주문자 정보 입력 <i class="fas fa-arrow-right"></i>
                 </button>
               </div>
             </div>
@@ -1832,192 +1832,16 @@
           <!-- Step 5 -->
           <div class="step-content" id="step-5">
             <div class="card">
-              <h2><i class="fas fa-truck-loading"></i> 배송 및 최종 정보</h2>
-
-              <!-- Preset Autofill Section -->
-              <div class="preset-select-row">
-                <div style="display: flex; gap: 0.5rem; align-items: flex-end">
-                  <div style="flex: 1">
-                    <label
-                      style="
-                        margin-bottom: 0.3rem;
-                        display: block;
-                        font-weight: 700;
-                        font-size: 0.85rem;
-                      "
-                      >자주 쓰는 배송지 (프리셋)</label
-                    >
-                    <select
-                      id="cust-preset-select"
-                      onchange="applyUserPreset(this.value)"
-                      style="
-                        width: 100%;
-                        height: 42px;
-                        padding: 0 0.5rem;
-                        border-radius: 8px;
-                        background: var(--bg-deep);
-                        border: 1px solid var(--border);
-                        color: white;
-                      "
-                    >
-                      <option value="">-- 직접 입력 (선택 없음) --</option>
-                    </select>
-                  </div>
-                  <button
-                    class="main-btn"
-                    style="
-                      padding: 0 1rem;
-                      height: 42px;
-                      font-size: 0.85rem;
-                      max-width: 130px;
-                      margin-bottom: 0;
-                    "
-                    onclick="openPresetModal()"
-                  >
-                    <i class="fas fa-address-book"></i> 프리셋 관리
-                  </button>
-                </div>
-              </div>
-
-              <!-- 주문자 정보 -->
-              <h4
-                style="
-                  margin: 0.5rem 0 0.8rem 0;
-                  font-size: 0.85rem;
-                  color: var(--primary-light);
-                "
-              >
-                <i class="fas fa-user"></i> 주문자 정보
-              </h4>
-              <label>주문자 성함</label><input type="text" id="cust-name" />
-              <label>주문자 연락처</label
+              <h2><i class="fas fa-user"></i> 주문자 정보 (네이버 스토어 매칭을 위함)</h2>
+              <label>주문자 성함 <span style="color:red">*</span></label><input type="text" id="cust-name" placeholder="네이버 주문자 성함" />
+              <label>주문자 연락처 <span style="color:red">*</span></label
               ><input
                 type="tel"
                 id="cust-phone"
                 placeholder="010-0000-0000"
                 maxlength="13"
               />
-              <label>주문자 주소</label>
-              <div class="addr-search-group">
-                <input
-                  type="text"
-                  id="cust-postcode"
-                  placeholder="우편번호"
-                  onfocus="this.blur()"
-                /><button class="addr-search-btn" onclick="openPostcode()">
-                  <i class="fas fa-search"></i> 검색
-                </button>
-              </div>
-              <input
-                type="text"
-                id="cust-addr1"
-                placeholder="기본 주소 (직접 입력 또는 검색)"
-                onfocus="this.blur()"
-                style="margin-bottom: 0.5rem"
-              />
-              <input
-                type="text"
-                id="cust-addr2"
-                placeholder="상세주소 입력"
-                style="margin-bottom: 0.8rem"
-              />
 
-              <!-- Checkbox for different recipient -->
-              <div
-                style="
-                  display: flex;
-                  align-items: center;
-                  gap: 0.5rem;
-                  margin: 0.8rem 0;
-                  user-select: none;
-                "
-              >
-                <input
-                  type="checkbox"
-                  id="diff-recipient-chk"
-                  onchange="toggleDiffRecipient(this.checked)"
-                  style="width: 16px; height: 16px; cursor: pointer"
-                />
-                <label
-                  for="diff-recipient-chk"
-                  style="
-                    margin: 0;
-                    cursor: pointer;
-                    font-size: 0.85rem;
-                    color: var(--secondary);
-                    font-weight: bold;
-                  "
-                  >배송지 정보(수령인/연락처/주소)가 주문자와 다릅니다</label
-                >
-              </div>
-
-              <!-- Conditional Recipient Fields -->
-              <div
-                id="recipient-fields-group"
-                style="
-                  display: none;
-                  background: rgba(255, 255, 255, 0.02);
-                  border: 1px dashed var(--border);
-                  border-radius: 10px;
-                  padding: 1rem;
-                  margin-bottom: 0.8rem;
-                "
-              >
-                <h4
-                  style="
-                    margin: 0 0 0.8rem 0;
-                    font-size: 0.85rem;
-                    color: var(--secondary);
-                  "
-                >
-                  <i class="fas fa-shipping-fast"></i> 배송지(수령인) 정보
-                </h4>
-                <label style="font-size: 0.75rem">수령인 성함</label
-                ><input
-                  type="text"
-                  id="recv-name"
-                  placeholder="받으실 분 성함"
-                  style="margin-bottom: 0.6rem"
-                />
-                <label style="font-size: 0.75rem">수령인 연락처</label
-                ><input
-                  type="tel"
-                  id="recv-phone"
-                  placeholder="받으실 분 연락처"
-                  maxlength="13"
-                  style="margin-bottom: 0.6rem"
-                />
-
-                <label style="font-size: 0.75rem">배송 주소</label>
-                <div class="addr-search-group" style="margin-bottom: 0.5rem">
-                  <input
-                    type="text"
-                    id="recv-postcode"
-                    placeholder="우편번호"
-                    onfocus="this.blur()"
-                    style="font-size: 0.8rem"
-                  /><button
-                    class="addr-search-btn"
-                    onclick="openRecipientPostcode()"
-                    style="font-size: 0.8rem; height: 38px"
-                  >
-                    <i class="fas fa-search"></i> 검색
-                  </button>
-                </div>
-                <input
-                  type="text"
-                  id="recv-addr1"
-                  placeholder="기본 주소 (직접 입력 또는 검색)"
-                  onfocus="this.blur()"
-                  style="margin-bottom: 0.5rem; font-size: 0.85rem"
-                />
-                <input
-                  type="text"
-                  id="recv-addr2"
-                  placeholder="상세주소 입력"
-                  style="font-size: 0.85rem"
-                />
-              </div>
 
               <button
                 class="action-btn"
@@ -2037,40 +1861,10 @@
                 onmouseout="this.style.background = 'rgba(139, 92, 246, 0.08)'"
                 onclick="saveCurrentShippingAsPreset()"
               >
-                <i class="fas fa-save"></i> 위 배송정보를 프리셋으로 저장하기
+                <i class="fas fa-save"></i> 위 주문자 정보를 프리셋으로 저장하기
               </button>
 
-              <!-- Special Instructions / Memo Field -->
-              <div style="margin-top: 1.2rem">
-                <label
-                  style="
-                    font-size: 0.8rem;
-                    font-weight: bold;
-                    color: var(--text-dim);
-                    display: block;
-                    margin-bottom: 0.4rem;
-                  "
-                  ><i class="fas fa-comment-dots"></i> 주문 및 배송 요청사항
-                  (메모)</label
-                >
-                <textarea
-                  id="cust-memo"
-                  placeholder="예: 배송 시 경비실에 맡겨주세요. / 표지 인쇄 시 백색 광택 처리에 주의해주세요."
-                  style="
-                    padding: 0.7rem;
-                    font-size: 0.85rem;
-                    width: 100%;
-                    height: 70px;
-                    border: 1px solid var(--border);
-                    border-radius: 8px;
-                    background: var(--bg-input);
-                    color: white;
-                    resize: none;
-                    font-family: inherit;
-                    box-sizing: border-box;
-                  "
-                ></textarea>
-              </div>
+              <!-- 주문 및 배송 요청사항 삭제됨 -->
             </div>
 
             <!-- Coupon Input Section -->
@@ -7900,6 +7694,9 @@
           // JSON stringify/parse의 타입 손실 버그를 원천 차단하는 완전 복제 방식
           const i = {
             title: state.title || "",
+            coverSubmission: state.coverSubmission || "별도 파일로 송부",
+            coverSubmissionOther: state.coverSubmissionOther || "",
+            coverPrintSide: state.coverPrintSide || "single",
             size: state.size || "A4",
             customW: state.customW || "",
             customH: state.customH || "",
@@ -8052,8 +7849,8 @@
           const finishesStr =
             finishesArr.length > 0 ? finishesArr.join(", ") : "없음";
           const sizeStr =
-            it.size === "직접입력"
-              ? `직접입력(${it.customW}x${it.customH}mm)`
+            (it.size === "사용자 정의" || it.size === "직접입력")
+              ? `사용자 정의(${it.customW}x${it.customH}mm)`
               : it.size;
 
           const d = document.createElement("div");
@@ -8690,6 +8487,13 @@
         localStorage.setItem("RECENT_ORDERS_HISTORY", JSON.stringify(recent));
       }
 
+      function toggleCustomShipping(checked) {
+        const el = document.getElementById("extra-shipping-info");
+        if (el) {
+          el.style.display = checked ? "block" : "none";
+        }
+      }
+
       function toggleDiffRecipient(checked) {
         const group = document.getElementById("recipient-fields-group");
         if (group) {
@@ -8851,35 +8655,22 @@
           return;
         }
 
-        const isDiff = document.getElementById("diff-recipient-chk").checked;
-        const custName =
-          document.getElementById("cust-name").value.trim() || "미입력";
-        const custPhone =
-          document.getElementById("cust-phone").value.trim() || "미입력";
-        const custAddr =
-          (document.getElementById("cust-postcode").value || "") +
-          " " +
-          (document.getElementById("cust-addr1").value || "") +
-          " " +
-          (document.getElementById("cust-addr2").value || "");
-        const custMemo =
-          document.getElementById("cust-memo").value.trim() || "";
+        const custName = document.getElementById("cust-name").value.trim();
+        const custPhone = document.getElementById("cust-phone").value.trim();
 
-        let recvName = custName;
-        let recvPhone = custPhone;
-        let recvAddr = custAddr;
-        if (isDiff) {
-          recvName =
-            document.getElementById("recv-name").value.trim() || custName;
-          recvPhone =
-            document.getElementById("recv-phone").value.trim() || custPhone;
-          recvAddr =
-            (document.getElementById("recv-postcode").value || "") +
-            " " +
-            (document.getElementById("recv-addr1").value || "") +
-            " " +
-            (document.getElementById("recv-addr2").value || "");
+        if (!custName || !custPhone) {
+          alert("주문자 성함과 연락처는 네이버 스마트스토어 주문 내역과 매칭하기 위해 필수입니다. 꼭 입력해주세요!");
+          return;
         }
+        
+        // 주소 및 수령인 정보는 네이버 스토어 데이터를 기준으로 하므로 생략
+        const custAddr = "네이버 스마트스토어 주소 참조";
+        const recvName = custName;
+        const recvPhone = custPhone;
+        const recvAddr = "네이버 스마트스토어 주소 참조";
+        const isDiff = false;
+        
+        const custMemo = document.getElementById("cust-memo") ? document.getElementById("cust-memo").value.trim() : "";
 
         const submitBtn = document.getElementById("finish-order-btn");
         const originalText = submitBtn.innerHTML;
