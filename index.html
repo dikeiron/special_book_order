@@ -5031,6 +5031,10 @@
               }
             }
           }
+
+          if (v === "saddle") {
+            state.coverPrintSide = "both";
+          }
         } else if (k === "printSide") {
           const checkedPages = checkPageLimit(
             state.innerPages,
@@ -5109,6 +5113,11 @@
               } else {
                 b.style.opacity = "1";
                 b.style.pointerEvents = "auto";
+              }
+              if (state.binding === "saddle") {
+                b.textContent = "양면 인쇄";
+              } else {
+                b.textContent = "양면 인쇄 (+1,000원)";
               }
             }
           });
@@ -5579,7 +5588,7 @@
           );
           if (cPaperObj) coverPrice = cPaperObj.price || 0;
         }
-        if (s.coverPrintSide === "both") {
+        if (s.coverPrintSide === "both" && s.binding !== "saddle") {
           coverPrice += 1000;
         }
 
