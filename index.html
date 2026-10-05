@@ -1678,10 +1678,13 @@
 
               <label>표지 인쇄</label>
               <div id="cover-print-side" class="options-grid">
-                <div class="option-btn active" data-val="single">단면 인쇄</div>
+                <div class="option-btn active" data-val="single">단면 인쇄 (컬러)</div>
                 <div class="option-btn" data-val="both">
-                  양면 인쇄 (+1,000원)
+                  양면 인쇄 (컬러, +1,000원)
                 </div>
+              </div>
+              <div style="font-size: 0.8rem; color: var(--primary); font-weight: bold; margin-top: 0.5rem; margin-bottom: 1rem; background: rgba(139, 92, 246, 0.1); padding: 0.5rem; border-radius: 6px;">
+                <i class="fas fa-info-circle"></i> 흑백책으로 주문하셔도 표지는 컬러로 기본 인쇄해드립니다.
               </div>
 
               <label style="margin-top: 1.5rem">후가공 선택</label>
@@ -5124,9 +5127,9 @@
                 b.style.pointerEvents = "auto";
               }
               if (state.binding === "saddle") {
-                b.textContent = "양면 인쇄";
+                b.textContent = "양면 인쇄 (컬러)";
               } else {
-                b.textContent = "양면 인쇄 (+1,000원)";
+                b.textContent = "양면 인쇄 (컬러, +1,000원)";
               }
             }
           });
