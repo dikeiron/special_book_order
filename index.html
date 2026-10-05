@@ -1835,9 +1835,12 @@
               <h2><i class="fas fa-user"></i> 주문자 정보 (네이버 스토어 매칭을 위함)</h2>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem">
                 <label style="margin:0;">주문자 성함 <span style="color:red">*</span></label>
-                <select id="cust-preset-select" onchange="applyUserPreset(this.value)" style="width: auto; padding: 0.3rem 0.5rem; border-radius: 4px; font-size: 0.85rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg-card); color: var(--text);">
-                  <option value="">-- 직접 입력 (프리셋 선택) --</option>
-                </select>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button onclick="openPresetModal()" type="button" style="padding: 0.3rem 0.5rem; border-radius: 4px; font-size: 0.85rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg-card); color: var(--text);"><i class="fas fa-cog"></i> 관리</button>
+                  <select id="cust-preset-select" onchange="applyUserPreset(this.value)" style="width: auto; padding: 0.3rem 0.5rem; border-radius: 4px; font-size: 0.85rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg-card); color: var(--text);">
+                    <option value="">-- 직접 입력 (프리셋 선택) --</option>
+                  </select>
+                </div>
               </div>
               <input type="text" id="cust-name" placeholder="네이버 주문자 성함" style="margin-top: 0;" />
               <label>주문자 연락처 <span style="color:red">*</span></label
@@ -2507,7 +2510,7 @@
       <div class="preset-modal-wrap" onclick="event.stopPropagation()">
         <div class="preset-modal-header">
           <h3>
-            <i class="fas fa-address-book"></i> 자주 쓰는 주소 프리셋 관리
+            <i class="fas fa-address-book"></i> 자주 쓰는 주문자 정보 프리셋 관리
           </h3>
           <button class="preset-modal-close" onclick="closePresetModal()">
             <i class="fas fa-times"></i>
@@ -8081,6 +8084,11 @@
         if (saved) {
           try {
             userPresets = JSON.parse(saved);
+            userPresets.forEach(p => {
+              if (p.label && p.label.includes("배송지")) {
+                p.label = p.label.replace(/ 배송지/g, " 정보").replace(/배송지/g, "정보");
+              }
+            });
           } catch (e) {
             console.error("프리셋 파싱 에러:", e);
             userPresets = [];
@@ -8347,7 +8355,7 @@
       }
 
       function deleteUserPreset(id) {
-        if (confirm("이 주소 프리셋을 삭제하시겠습니까?")) {
+        if (confirm("이 주문자 정보 프리셋을 삭제하시겠습니까?")) {
           userPresets = userPresets.filter((p) => p.id !== id);
           saveUserPresetsToStorage();
         }
