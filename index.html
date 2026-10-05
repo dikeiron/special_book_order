@@ -1833,7 +1833,13 @@
           <div class="step-content" id="step-5">
             <div class="card">
               <h2><i class="fas fa-user"></i> 주문자 정보 (네이버 스토어 매칭을 위함)</h2>
-              <label>주문자 성함 <span style="color:red">*</span></label><input type="text" id="cust-name" placeholder="네이버 주문자 성함" />
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem">
+                <label style="margin:0;">주문자 성함 <span style="color:red">*</span></label>
+                <select id="cust-preset-select" onchange="applyUserPreset(this.value)" style="width: auto; padding: 0.3rem 0.5rem; border-radius: 4px; font-size: 0.85rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg-card); color: var(--text);">
+                  <option value="">-- 직접 입력 (프리셋 선택) --</option>
+                </select>
+              </div>
+              <input type="text" id="cust-name" placeholder="네이버 주문자 성함" style="margin-top: 0;" />
               <label>주문자 연락처 <span style="color:red">*</span></label
               ><input
                 type="tel"
@@ -2531,7 +2537,7 @@
               </div>
               <div style="flex: 1">
                 <label style="font-size: 0.75rem">주문자 성함</label>
-                <input type="text" id="preset-new-name" placeholder="홍길동" />
+                <input type="text" id="preset-new-name" placeholder="예: 김이름" />
               </div>
               <div style="flex: 1">
                 <label style="font-size: 0.75rem">연락처</label>
