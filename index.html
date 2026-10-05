@@ -8698,6 +8698,10 @@
                 it.coverSubmission === "기타(입력)"
                   ? it.coverSubmissionOther || "기타"
                   : it.coverSubmission,
+              "표지인쇄":
+                it.coverPrintSide === "both" ? "양면인쇄" : "단면인쇄",
+              "표지 인쇄":
+                it.coverPrintSide === "both" ? "양면인쇄" : "단면인쇄",
 
               // Customer info is only populated on the first row (idx === 0)
               name: idx === 0 ? custName : "",
