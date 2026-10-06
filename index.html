@@ -2025,6 +2025,14 @@
             >
               <i class="fas fa-check-double"></i> 최종 주문 완료하기
             </button>
+            <button
+              id="finish-order-quote-btn"
+              class="main-btn"
+              onclick="finalizeOrder(true)"
+              style="margin-top: 0.8rem; background: var(--primary);"
+            >
+              <i class="fas fa-file-invoice-dollar"></i> 공공기관 / 학교 후불결제용 견적요청
+            </button>
             <p class="summary-note" style="margin-top: 0.8rem">
               * 주문완료 메세지가 나오고 나면 우측에 견적 저장 및 주문하기를
               클릭하시면 스토아에서 결재를 하셔야 되십니다.
@@ -2457,6 +2465,48 @@
             <i class="fas fa-external-link-alt"></i> 스마트스토어 결제창으로
             이동하기
           </button>
+
+          <!-- Postpaid Quote Request Button -->
+          <button
+            class="main-btn"
+            onclick="toggleQuoteForm()"
+            style="
+              width: 100%;
+              padding: 0.8rem;
+              font-size: 1rem;
+              border-radius: 10px;
+              margin-top: 0.8rem;
+              background: #3b82f6;
+              box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+            "
+          >
+            <i class="fas fa-file-invoice-dollar"></i> 공공기관 / 학교 후불결제용 견적요청
+          </button>
+
+          <!-- Postpaid Quote Form (Hidden by default) -->
+          <div id="postpaid-quote-form" style="display: none; margin-top: 1.5rem; text-align: left; background: var(--bg-card-alt); padding: 1.2rem; border-radius: 10px; border: 1px solid var(--border);">
+            <h4 style="margin-bottom: 1rem; font-size: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;"><i class="fas fa-building" style="color: #3b82f6;"></i> 후불결제 견적 요청 정보</h4>
+            
+            <label style="margin-top: 0; font-size: 0.85rem; display: block;">단체이름 (관공서/학교명)</label>
+            <input type="text" id="quote-org-name" placeholder="예: 서울대학교" style="margin-bottom: 0.8rem; width: 100%; padding: 0.8rem; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: white;" />
+            
+            <label style="margin-top: 0; font-size: 0.85rem; display: block;">받으실 메일주소</label>
+            <input type="email" id="quote-email" placeholder="예: user@school.ac.kr" style="margin-bottom: 0.8rem; width: 100%; padding: 0.8rem; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: white;" />
+            
+            <label style="margin-top: 0; font-size: 0.85rem; display: block;">담당자 성함</label>
+            <input type="text" id="quote-manager-name" placeholder="예: 홍길동" style="margin-bottom: 0.8rem; width: 100%; padding: 0.8rem; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: white;" />
+            
+            <label style="margin-top: 0; font-size: 0.85rem; display: block;">담당자 연락처</label>
+            <input type="tel" id="quote-manager-phone" placeholder="예: 010-1234-5678" style="margin-bottom: 1.2rem; width: 100%; padding: 0.8rem; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: white;" />
+            
+            <button
+              class="main-btn btn-green"
+              onclick="submitPostpaidQuote()"
+              style="width: 100%; padding: 0.9rem; font-size: 0.95rem; border-radius: 8px;"
+            >
+              <i class="fas fa-paper-plane"></i> 견적서 요청 접수하기
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -8605,7 +8655,7 @@
       }
 
       let storeRedirectUrl = "";
-      function showPayGuidanceModal(totalPrice) {
+      function showPayGuidanceModal(totalPrice, autoOpenQuoteForm = false) {
         const qty = Math.ceil(totalPrice / 100);
 
         document.getElementById("guidance-total-price").textContent =
@@ -8623,6 +8673,19 @@
           dynamicConfig.STORE_URL || "https://smartstore.naver.com/";
 
         document.getElementById("pay-guidance-modal").classList.add("visible");
+
+        if (autoOpenQuoteForm) {
+          const form = document.getElementById("postpaid-quote-form");
+          if (form) {
+            form.style.display = "block";
+            setTimeout(() => {
+              const modalBody = document.querySelector("#pay-guidance-modal .preset-modal-body");
+              if (modalBody) {
+                modalBody.scrollTo({ top: modalBody.scrollHeight, behavior: "smooth" });
+              }
+            }, 100);
+          }
+        }
       }
 
       function closePayGuidanceModal() {
@@ -8636,7 +8699,162 @@
         location.reload();
       }
 
-      async function finalizeOrder() {
+      function toggleQuoteForm() {
+        const form = document.getElementById("postpaid-quote-form");
+        form.style.display = form.style.display === "none" ? "block" : "none";
+      }
+
+      async function submitPostpaidQuote() {
+        const orgName = document.getElementById("quote-org-name").value.trim();
+        const email = document.getElementById("quote-email").value.trim();
+        const managerName = document.getElementById("quote-manager-name").value.trim();
+        const managerPhone = document.getElementById("quote-manager-phone").value.trim();
+
+        if (!orgName || !email || !managerName || !managerPhone) {
+          alert("견적서를 받기 위한 모든 정보를 입력해 주세요.");
+          return;
+        }
+
+        if (cart.length === 0) {
+          alert("장바구니가 비어 있습니다.");
+          return;
+        }
+
+        const btn = document.querySelector("#postpaid-quote-form button");
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 접수 중...';
+
+        const timestamp = new Date().toLocaleString();
+        const url = ORDER_API_URL;
+        
+        let grand = 0;
+        cart.forEach((it) => { grand += calc(it).total; });
+
+        let discountAmt = 0;
+        if (appliedCoupon && grand > 0) {
+          if (appliedCoupon.type === "percent") {
+            discountAmt = Math.round(grand * (appliedCoupon.value / 100));
+          } else if (appliedCoupon.type === "fixed") {
+            discountAmt = appliedCoupon.value;
+          }
+          discountAmt = Math.min(grand, discountAmt);
+        }
+
+        const fetchPromises = [];
+        const combinedMemo = `[공공기관/학교 후불결제 견적요청] 단체명: ${orgName}, 메일: ${email}, 담당자: ${managerName}, 연락처: ${managerPhone}`;
+
+        for (let idx = 0; idx < cart.length; idx++) {
+          const it = cart[idx];
+          const bindName = getBindingName(it.binding);
+          const finishesText = Array.from(it.finishes).join(", ") || "없음";
+          const p = calc(it);
+          
+          const printSideText = it.printSide === "both" ? "양면" : "단면";
+          const printColorText = it.printColor === "color" ? "컬러" : "흑백";
+          
+          const interleafMap = { none: "없음", only: "간지만", print: "간지+인쇄" };
+          const endpaperMap = { none: "없음", front: "앞", back: "뒤", both: "앞뒤" };
+          const interleafText = Math.max(0, it.interleafPages.split(",").length) > 0 && it.interleaf !== "none" 
+            ? `${interleafMap[it.interleaf]} (p.${it.interleafPages})` : interleafMap[it.interleaf];
+          const endpaperText = endpaperMap[it.endpaper] || "없음";
+
+          const baseData = {
+            date: timestamp,
+            "주문 일시": timestamp,
+            title: it.title || "제목없음",
+            bookTitle: it.title || "제목없음",
+            "프로젝트 제목": it.title || "제목없음",
+            "책자제목/파일명": it.title || "제목없음",
+            "표지 파일 전달 방식": it.coverSubmission === "기타(입력)" ? (it.coverSubmissionOther || "기타") : it.coverSubmission,
+            "표지인쇄": it.coverPrintSide === "both" ? "양면인쇄" : "단면인쇄",
+            name: idx === 0 ? managerName : "",
+            "주문자 성함": idx === 0 ? managerName : "",
+            phone: idx === 0 ? managerPhone : "",
+            연락처: idx === 0 ? managerPhone : "",
+            address: "후불결제 견적요청",
+            "주문자 주소": "후불결제 견적요청",
+            size: (it.size === "사용자 정의" || it.size === "직접입력") && it.customW && it.customH ? `${it.customW}x${it.customH}mm` : it.size,
+            규격: (it.size === "사용자 정의" || it.size === "직접입력") && it.customW && it.customH ? `${it.customW}x${it.customH}mm` : it.size,
+            type: bindName,
+            binding: bindName,
+            제본방식: bindName,
+            quantity: it.qty,
+            qty: it.qty,
+            주문수량: it.qty,
+            paper: it.coverPaper,
+            표지사양: it.coverPaper,
+            finishes: finishesText,
+            "표지 후가공": finishesText,
+            innerPaper: it.innerPaper,
+            내지사양: it.innerPaper,
+            pages: it.innerPages,
+            페이지: it.innerPages,
+            printSide: printSideText,
+            "인쇄 방식": printSideText,
+            printColor: printColorText,
+            "인쇄 컬러": printColorText,
+            interleaf: interleafText,
+            "간지 설정": interleafText,
+            endpaper: endpaperText,
+            "면지 설정": endpaperText,
+            supplyPrice: p.total - p.tax,
+            공급가액: p.total - p.tax,
+            tax: p.tax,
+            "세액(10%)": p.tax,
+            totalPrice: p.total,
+            "합계 금액": p.total,
+            couponCode: idx === 0 && appliedCoupon ? appliedCoupon.code : "",
+            couponDiscount: idx === 0 && discountAmt > 0 ? discountAmt : "",
+            finalTotal: idx === 0 ? grand - discountAmt : "",
+            "최종 결제 합계": idx === 0 ? grand - discountAmt : "",
+            status: "견적요청(후불)",
+            상태: "견적요청(후불)",
+            memo: idx === 0 ? combinedMemo : "",
+            요청사항: idx === 0 ? combinedMemo : "",
+            메모: idx === 0 ? combinedMemo : "",
+            
+            // New specific fields (will auto-populate if headers exist)
+            "단체이름": idx === 0 ? orgName : "",
+            "받을메일": idx === 0 ? email : "",
+            "담당자": idx === 0 ? managerName : "",
+            "담당자연락처": idx === 0 ? managerPhone : ""
+          };
+
+          const orderData = {};
+          for (let key in baseData) {
+            orderData[key] = baseData[key];
+            orderData[key + "\t"] = baseData[key];
+          }
+
+          fetchPromises.push(
+            fetch(url, {
+              method: "POST",
+              mode: "no-cors",
+              cache: "no-cache",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(orderData),
+            })
+          );
+        }
+
+        try {
+          await Promise.all(fetchPromises);
+          
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+          
+          alert("견적 요청이 성공적으로 접수되었습니다.\n입력해주신 메일로 담당자가 견적서를 보내드리겠습니다.");
+          closePayGuidanceModal();
+        } catch (error) {
+          console.error("견적요청 에러:", error);
+          alert("요청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+        }
+      }
+
+      async function finalizeOrder(isPostpaidQuote = false) {
         if (cart.length === 0) {
           alert("장바구니가 비어 있습니다.");
           return;
@@ -8886,7 +9104,7 @@
           submitBtn.innerHTML = originalText;
 
           // Show the dynamic visual guide modal with discounted total
-          showPayGuidanceModal(grand - discountAmt);
+          showPayGuidanceModal(grand - discountAmt, isPostpaidQuote);
         } catch (error) {
           console.error("전송 에러:", error);
           alert("주문 전송 중 오류가 발생했습니다. 확인 후 다시 시도해주세요.");
