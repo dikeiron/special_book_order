@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smartorder-v13';
+const CACHE_NAME = 'smartorder-v14';
 const ASSETS = [
   './index.html',
   './manifest.json',
