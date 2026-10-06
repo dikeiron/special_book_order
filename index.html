@@ -2262,17 +2262,48 @@
             "
           >
             <div
+              id="guidance-original-price-row"
+              style="
+                display: none;
+                justify-content: space-between;
+                margin-bottom: 0.6rem;
+                font-size: 0.95rem;
+                color: var(--text-dim);
+              "
+            >
+              <span>할인 전 원래 가격:</span>
+              <strong id="guidance-original-price" style="font-size: 1rem; text-decoration: line-through;">0원</strong>
+            </div>
+            
+            <div
+              id="guidance-discount-row"
+              style="
+                display: none;
+                justify-content: space-between;
+                margin-bottom: 0.6rem;
+                font-size: 0.95rem;
+                color: #22c55e;
+              "
+            >
+              <span>할인 적용 혜택 (수량/쿠폰):</span>
+              <strong id="guidance-discount-amount" style="font-size: 1rem">-0원</strong>
+            </div>
+            
+            <div
               style="
                 display: flex;
                 justify-content: space-between;
                 margin-bottom: 0.6rem;
                 font-size: 0.95rem;
                 color: var(--text);
+                border-top: 1px solid var(--border);
+                padding-top: 0.8rem;
+                margin-top: 0.4rem;
               "
             >
-              <span>총 결제 금액:</span>
+              <span style="font-weight: bold;">최종 결제 금액:</span>
               <strong
-                style="color: #f43f5e; font-size: 1.2rem"
+                style="color: #f43f5e; font-size: 1.3rem"
                 id="guidance-total-price"
                 >0원</strong
               >
@@ -6824,7 +6855,8 @@
         // Calculate totals
         let totalSupply = 0;
         let totalTax = 0;
-        let totalPrice = 0;
+        let totalPrice = 0; // This is the total without coupon discount (volume discount is already deducted per item)
+        let totalDiscount = 0;
         let itemsHtml = "";
 
         group.orders.forEach((ord, i) => {
@@ -6834,9 +6866,13 @@
           const tax = Number(getVal(ord, ["세액(10%)", "세액", "부가세", "tax"]) || 0);
           const total = Number(getVal(ord, ["합계 금액", "total"]) || 0);
           
+          const volDiscount = Number(getVal(ord, ["수량할인금액"]) || 0);
+          const cpDiscount = Number(getVal(ord, ["할인 금액", "쿠폰할인", "할인금액"]) || 0);
+          
           totalSupply += supply;
           totalTax += tax;
           totalPrice += total;
+          totalDiscount += (volDiscount + cpDiscount);
 
           const size = getVal(ord, ["규격", "size"]) || "";
           const binding = getVal(ord, ["제본방식", "binding"]) || "";
@@ -6975,7 +7011,7 @@
                 </table>
 
                 <div class="total-box">
-                    합계금액(공급가+세액): ₩ <span id="total-price" contenteditable="true" style="outline:none;">${totalPrice.toLocaleString()}</span> (VAT 포함)
+                    합계금액(공급가+세액): ₩ <span id="total-price" contenteditable="true" style="outline:none;">${(totalPrice - (getVal(group.orders[0], ["할인 금액", "쿠폰할인", "할인금액"]) || 0)).toLocaleString()}</span> (VAT 포함)
                 </div>
 
                 <table class="items-table">
@@ -7002,6 +7038,12 @@
                         </tr>
                     </tfoot>
                 </table>
+                
+                ${totalDiscount > 0 ? `
+                <div style="text-align:right; margin-top:10px; font-size:0.95rem; color:#d97706; font-weight:bold;">
+                    (적용된 수량/쿠폰 할인 총액: -${totalDiscount.toLocaleString()}원)
+                </div>
+                ` : ""}
 
                 <div style="margin-top:40px; font-size:1rem; text-align:center;">
                     <div contenteditable="true" style="outline:none;">위와 같이 견적합니다.</div>
@@ -9096,8 +9138,25 @@
       }
 
       let storeRedirectUrl = "";
-      function showPayGuidanceModal(totalPrice, autoOpenQuoteForm = false) {
+      function showPayGuidanceModal(totalPrice, autoOpenQuoteForm = false, totalDiscount = 0) {
         const qty = Math.ceil(totalPrice / 100);
+        
+        const originalPriceRow = document.getElementById("guidance-original-price-row");
+        const originalPriceEl = document.getElementById("guidance-original-price");
+        const discountRow = document.getElementById("guidance-discount-row");
+        const discountAmountEl = document.getElementById("guidance-discount-amount");
+        
+        if (totalDiscount > 0) {
+          const originalPrice = totalPrice + totalDiscount;
+          originalPriceRow.style.display = "flex";
+          originalPriceEl.textContent = originalPrice.toLocaleString() + "원";
+          
+          discountRow.style.display = "flex";
+          discountAmountEl.textContent = "-" + totalDiscount.toLocaleString() + "원";
+        } else {
+          originalPriceRow.style.display = "none";
+          discountRow.style.display = "none";
+        }
 
         document.getElementById("guidance-total-price").textContent =
           totalPrice.toLocaleString() + "원";
@@ -9333,21 +9392,26 @@
         const url = ORDER_API_URL;
 
         try {
-          // Calculate coupon discount first
+          // Calculate total price and volume discount
           let grand = 0;
+          let totalVolumeDiscount = 0;
           cart.forEach((it) => {
-            grand += calc(it).total;
+            const p = calc(it);
+            grand += p.total;
+            if (p.discountAmount) totalVolumeDiscount += p.discountAmount;
           });
 
-          let discountAmt = 0;
+          let couponDiscountAmt = 0;
           if (appliedCoupon && grand > 0) {
             if (appliedCoupon.type === "percent") {
-              discountAmt = Math.round(grand * (appliedCoupon.value / 100));
+              couponDiscountAmt = Math.round(grand * (appliedCoupon.value / 100));
             } else if (appliedCoupon.type === "fixed") {
-              discountAmt = appliedCoupon.value;
+              couponDiscountAmt = appliedCoupon.value;
             }
-            discountAmt = Math.min(grand, discountAmt);
+            couponDiscountAmt = Math.min(grand, couponDiscountAmt);
           }
+          
+          const totalDiscount = totalVolumeDiscount + couponDiscountAmt;
 
           // Create an array to hold all network requests so we can run them concurrently
           const fetchPromises = [];
@@ -9498,14 +9562,17 @@
                 totalPrice: p.total,
                 total: p.total,
                 "합계 금액": p.total,
+                
+                "수량할인율": p.discountRate ? p.discountRate + "%" : "",
+                "수량할인금액": p.discountAmount ? p.discountAmount : "",
 
                 // Coupon discount fields
                 couponCode: idx === 0 && appliedCoupon ? appliedCoupon.code : "",
                 "할인 코드": idx === 0 && appliedCoupon ? appliedCoupon.code : "",
-                couponDiscount: idx === 0 && discountAmt > 0 ? discountAmt : "",
-                "할인 금액": idx === 0 && discountAmt > 0 ? discountAmt : "",
-                finalTotal: idx === 0 ? grand - discountAmt : "",
-                "최종 결제 합계": idx === 0 ? grand - discountAmt : "",
+                couponDiscount: idx === 0 && couponDiscountAmt > 0 ? couponDiscountAmt : "",
+                "할인 금액": idx === 0 && couponDiscountAmt > 0 ? couponDiscountAmt : "",
+                finalTotal: idx === 0 ? grand - couponDiscountAmt : "",
+                "최종 결제 합계": idx === 0 ? grand - couponDiscountAmt : "",
                 status: "접수",
                 상태: "접수",
                 memo: idx === 0 ? custMemo : "",
@@ -9535,7 +9602,7 @@
             await Promise.all(fetchPromises);
 
             // Save order details to local history
-            saveOrderToRecentHistory(timestamp, cart, grand - discountAmt, {
+            saveOrderToRecentHistory(timestamp, cart, grand - couponDiscountAmt, {
               name: custName,
               phone: custPhone,
               address: custAddr,
@@ -9551,8 +9618,8 @@
           submitBtn.disabled = false;
           submitBtn.innerHTML = originalText;
 
-          // Show the dynamic visual guide modal with discounted total
-          showPayGuidanceModal(grand - discountAmt, isPostpaidQuote);
+          // Show the dynamic visual guide modal with discounted total and discount info
+          showPayGuidanceModal(grand - couponDiscountAmt, isPostpaidQuote, totalDiscount);
         } catch (error) {
           console.error("전송 에러:", error);
           alert("주문 전송 중 오류가 발생했습니다. 확인 후 다시 시도해주세요.");
