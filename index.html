@@ -8685,7 +8685,10 @@
             discountAmt = Math.min(grand, discountAmt);
           }
 
-          // Send each cart item sequentially as its own row in the spreadsheet
+          // Create an array to hold all network requests so we can run them concurrently
+          const fetchPromises = [];
+
+          // Prepare each cart item as its own row in the spreadsheet
           for (let idx = 0; idx < cart.length; idx++) {
             const it = cart[idx];
             const bindName = getBindingName(it.binding);
@@ -8852,14 +8855,19 @@
               orderData[key + "\t"] = baseData[key];
             }
 
-            await fetch(url, {
-              method: "POST",
-              mode: "no-cors",
-              cache: "no-cache",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(orderData),
-            });
+            fetchPromises.push(
+              fetch(url, {
+                method: "POST",
+                mode: "no-cors",
+                cache: "no-cache",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(orderData),
+              })
+            );
           }
+
+          // Execute all requests concurrently (in parallel) to drastically reduce waiting time
+          await Promise.all(fetchPromises);
 
           // Save order details to local history
           saveOrderToRecentHistory(timestamp, cart, grand - discountAmt, {
