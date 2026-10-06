@@ -4009,8 +4009,8 @@
                       <th style="width: 100px">연락처</th>
                       <th>주문 도서 상세 내역</th>
                       <th style="width: 85px">총 수량</th>
-                      <th style="width: 90px">총 금액</th>
-                      <th style="width: 70px">상태</th>
+                      <th style="width: 100px">총 금액</th>
+                      <th style="width: 90px; text-align: center; white-space: nowrap;">상태</th>
                       <th style="width: 80px">자세히</th>
                     </tr>
                   </thead>
@@ -5782,6 +5782,7 @@
       }
 
       let cachedGroups = [];
+      let lastAdminFetchTime = 0;
 
       // Helper to check multiple key variations in sheet data to prevent "없음" or "0원" errors
       function getVal(ord, keys) {
@@ -5812,6 +5813,11 @@
       }
 
       async function fetchRealtimeOrders() {
+        // 새로고침 버튼을 누르면 강제로 새로 불러옵니다.
+        loadAdminOrders(true);
+      }
+
+      async function loadAdminOrders(forceRefresh = false) {
         const loadingEl = document.getElementById("admin-orders-loading");
         const emptyEl = document.getElementById("admin-orders-empty");
         const tableWrap = document.getElementById("admin-orders-table-wrap");
@@ -5819,14 +5825,43 @@
 
         closeOrderDetail();
 
+        // 강제 새로고침이 아니고, 30초 이내에 다시 탭을 누른 경우 캐시 사용 (체감 속도 대폭 향상)
+        if (!forceRefresh && Date.now() - lastAdminFetchTime < 30000 && cachedGroups.length > 0) {
+          renderAdminOrdersList();
+          return;
+        }
+
         loadingEl.style.display = "block";
         emptyEl.style.display = "none";
         tableWrap.style.display = "none";
         listEl.innerHTML = "";
 
         try {
-          const res = await fetch(ORDER_API_URL);
-          if (!res.ok) throw new Error("API response not OK");
+          let res;
+          let retries = 3;
+          let fetchError = null;
+          
+          for (let i = 0; i < retries; i++) {
+            try {
+              // 브라우저 캐싱 방지 및 Apps Script 간헐적 에러 대비
+              const cacheBusterUrl = ORDER_API_URL + (ORDER_API_URL.includes("?") ? "&" : "?") + "t=" + Date.now();
+              res = await fetch(cacheBusterUrl, { cache: "no-store" });
+              
+              if (res.ok) {
+                fetchError = null;
+                break; // 성공시 루프 탈출
+              } else {
+                fetchError = new Error(`API response not OK (Status: ${res.status})`);
+              }
+            } catch (err) {
+              fetchError = err;
+            }
+            // 실패시 1초 대기 후 재시도
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+          
+          if (fetchError) throw fetchError;
+          
           const data = await res.json();
 
           // Group orders by the exact "주문 일시" (transaction timestamp)
@@ -5915,6 +5950,7 @@
 
           // Convert Map to Array for rendering
           cachedGroups = Array.from(groupedMap.values());
+          lastAdminFetchTime = Date.now(); // 데이터 가져온 시간 기록
 
           loadingEl.style.display = "none";
           renderAdminOrdersList();
@@ -6030,13 +6066,13 @@
 
           let statusBadge = "";
           if (group.status === "접수") {
-            statusBadge = `<span style="background:rgba(59,130,246,0.15); color:#3b82f6; padding:2px 8px; border-radius:12px; font-weight:700; font-size:0.75rem;">접수</span>`;
+            statusBadge = `<span style="background:rgba(59,130,246,0.15); color:#3b82f6; padding:2px 8px; border-radius:12px; font-weight:700; font-size:0.75rem; white-space:nowrap;">접수</span>`;
           } else if (group.status === "견적요청(후불)") {
-            statusBadge = `<span style="background:rgba(239,68,68,0.15); color:#ef4444; padding:2px 8px; border-radius:12px; font-weight:700; font-size:0.75rem;">견적요청</span>`;
+            statusBadge = `<span style="background:rgba(239,68,68,0.15); color:#ef4444; padding:2px 8px; border-radius:12px; font-weight:700; font-size:0.75rem; white-space:nowrap;">견적요청</span>`;
           } else if (group.status === "보관") {
-            statusBadge = `<span style="background:rgba(107,114,128,0.15); color:#9ca3af; padding:2px 8px; border-radius:12px; font-weight:700; font-size:0.75rem;">보관</span>`;
+            statusBadge = `<span style="background:rgba(107,114,128,0.15); color:#9ca3af; padding:2px 8px; border-radius:12px; font-weight:700; font-size:0.75rem; white-space:nowrap;">보관</span>`;
           } else {
-            statusBadge = `<span style="background:rgba(22,163,74,0.15); color:#16a34a; padding:2px 8px; border-radius:12px; font-weight:700; font-size:0.75rem;">${group.status}</span>`;
+            statusBadge = `<span style="background:rgba(22,163,74,0.15); color:#16a34a; padding:2px 8px; border-radius:12px; font-weight:700; font-size:0.75rem; white-space:nowrap;">${group.status}</span>`;
           }
 
           tr.innerHTML = `
@@ -6094,7 +6130,7 @@
           });
 
           alert(`✅ ${chks.length}건이 성공적으로 처리되었습니다.`);
-          fetchRealtimeOrders();
+          loadAdminOrders(true);
         } catch (err) {
           alert("상태 업데이트 실패: " + err.message);
           loadingEl.style.display = "none";
@@ -6192,27 +6228,42 @@
           );
         });
 
+        // 견적요청(후불) 전용 필드 추출
+        const orgName = getVal(group.orders[0], ["단체이름", "단체명"]);
+        const email = getVal(group.orders[0], ["받을메일", "이메일", "메일"]);
+        const managerName = getVal(group.orders[0], ["담당자", "담당자명"]);
+        const managerPhone = getVal(group.orders[0], ["담당자연락처", "담당자 연락처"]);
+
         // Global order/customer fields (shown EXACTLY once)
         const globalFields = [
           { k: "주문 일시", v: group.date },
+          { k: "주문 상태", v: group.status === "견적요청(후불)" ? `<span style="color:#ef4444; font-weight:800;">견적요청(후불)</span>` : group.status },
           { k: "주문자명", v: group.name },
           { k: "연락처", v: group.phone },
-                    {
+        ];
+
+        if (group.status === "견적요청(후불)") {
+          if (orgName) globalFields.push({ k: "단체이름", v: orgName });
+          if (email) globalFields.push({ k: "받을메일", v: email });
+          if (managerName) globalFields.push({ k: "담당자", v: managerName });
+          if (managerPhone) globalFields.push({ k: "담당자연락처", v: managerPhone });
+        }
+
+        globalFields.push({
             k: "요청사항 (메모)",
             v: group.memo
               ? `<span style="color:#ef4444; font-weight:800;">${group.memo}</span>`
               : "없음",
-          },
-          {
+        });
+        globalFields.push({
             k: "총 주문 수량",
             v: `총 ${totalQty}부 (총 ${group.orders.length}개 품목)`,
-          },
-          {
+        });
+        globalFields.push({
             k: "총 공급가액 / 세액",
             v: `${totalSupply.toLocaleString()}원 / ${totalTax.toLocaleString()}원`,
-          },
-          { k: "최종 합계 금액", v: `${totalPrice.toLocaleString()}원` },
-        ];
+        });
+        globalFields.push({ k: "최종 합계 금액", v: `${totalPrice.toLocaleString()}원` });
 
         // Render global fields
         globalFields.forEach((f) => {
