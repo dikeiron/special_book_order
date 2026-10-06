@@ -3686,6 +3686,37 @@
                     </button>
                   </div>
                 </div>
+
+                <div class="backup-card">
+                  <h4><i class="fas fa-building"></i> 사업자 정보 설정 (견적서/세금계산서용)</h4>
+                  <p>견적서 및 세금계산서에 들어갈 공급자 정보를 입력하세요.</p>
+                  <div style="margin-top: 0.8rem; display: flex; flex-direction: column; gap: 0.8rem;">
+                    <div>
+                      <label style="font-size: 0.78rem; font-weight: bold; margin-bottom: 0.3rem; display: block; color: var(--text-dim);">상호(법인명)</label>
+                      <input type="text" id="admin-biz-name" placeholder="예: 포드카페 (POD CAFE)" style="padding: 0.6rem; font-size: 0.9rem; width: 100%; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-input); color: white;" />
+                    </div>
+                    <div>
+                      <label style="font-size: 0.78rem; font-weight: bold; margin-bottom: 0.3rem; display: block; color: var(--text-dim);">대표자명</label>
+                      <input type="text" id="admin-biz-owner" placeholder="예: 홍길동" style="padding: 0.6rem; font-size: 0.9rem; width: 100%; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-input); color: white;" />
+                    </div>
+                    <div>
+                      <label style="font-size: 0.78rem; font-weight: bold; margin-bottom: 0.3rem; display: block; color: var(--text-dim);">사업자 등록번호</label>
+                      <input type="text" id="admin-biz-num" placeholder="예: 123-45-67890" style="padding: 0.6rem; font-size: 0.9rem; width: 100%; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-input); color: white;" />
+                    </div>
+                    <div>
+                      <label style="font-size: 0.78rem; font-weight: bold; margin-bottom: 0.3rem; display: block; color: var(--text-dim);">주소</label>
+                      <input type="text" id="admin-biz-addr" placeholder="예: 서울특별시 어딘가" style="padding: 0.6rem; font-size: 0.9rem; width: 100%; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-input); color: white;" />
+                    </div>
+                    <div>
+                      <label style="font-size: 0.78rem; font-weight: bold; margin-bottom: 0.3rem; display: block; color: var(--text-dim);">전화번호</label>
+                      <input type="text" id="admin-biz-phone" placeholder="예: 02-123-4567" style="padding: 0.6rem; font-size: 0.9rem; width: 100%; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-input); color: white;" />
+                    </div>
+                    <button class="admin-mini-btn" onclick="saveBizInfo()" style="max-width: 120px; align-self: flex-end">
+                      <i class="fas fa-save"></i> 정보 저장
+                    </button>
+                  </div>
+                </div>
+
                 <div class="backup-card">
                   <h4><i class="fas fa-lock"></i> 관리자 비밀번호 변경</h4>
                   <p>대시보드 접속 시 사용하는 비밀번호를 변경합니다.</p>
@@ -4047,6 +4078,14 @@
                   <div style="display: flex; gap: 0.4rem">
                     <button
                       class="admin-mini-btn"
+                      style="background: var(--primary); padding: 4px 10px; display: none;"
+                      id="admin-quote-btn"
+                      onclick="printQuoteForm()"
+                    >
+                      <i class="fas fa-file-invoice-dollar"></i> 견적서 보기
+                    </button>
+                    <button
+                      class="admin-mini-btn"
                       style="background: var(--success); padding: 4px 10px"
                       onclick="printSelectedOrderDetail()"
                     >
@@ -4206,6 +4245,13 @@
         GOOGLE_SHEET_URL: "",
         ORDER_API_URL:
           "https://script.google.com/macros/s/AKfycbxheK9BugFup28vMz-alxTMc8p3DrKn3wkxteS6GDfu70OJMqBt4VdB_9xoDODcIDgz/exec",
+        COMPANY_INFO: {
+          name: "포드카페 (POD CAFE)",
+          owner: "홍길동",
+          bizNum: "123-45-67890",
+          address: "서울특별시 어딘가",
+          phone: "02-123-4567"
+        },
         SIZES: [
           { name: "A4", status: "active" },
           { name: "B5", status: "active" },
@@ -4527,6 +4573,9 @@
         }
         if (!dynamicConfig.EMAIL) {
           dynamicConfig.EMAIL = "likedesign@naver.com";
+        }
+        if (!dynamicConfig.COMPANY_INFO) {
+          dynamicConfig.COMPANY_INFO = Object.assign({}, DEFAULT_DYNAMIC_CONFIG.COMPANY_INFO);
         }
         if (!dynamicConfig.COVER_PAPERS) {
           dynamicConfig.COVER_PAPERS = JSON.parse(
@@ -6199,6 +6248,11 @@
 
         overlay.style.display = "block";
         contentEl.innerHTML = "";
+        
+        const quoteBtn = document.getElementById("admin-quote-btn");
+        if (quoteBtn) {
+            quoteBtn.style.display = group.status === "견적요청(후불)" ? "inline-block" : "none";
+        }
 
         // Calculate aggregated totals
         let totalQty = 0;
@@ -6710,6 +6764,219 @@
                 </body>
                 </html>
             `;
+
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+      }
+
+      function printQuoteForm() {
+        if (selectedOrderDetailIndex === null) {
+          alert("주문이 선택되지 않았습니다.");
+          return;
+        }
+        const group = cachedGroups[selectedOrderDetailIndex];
+        if (!group) return;
+
+        const printWindow = window.open("", "_blank", "width=850,height=900");
+        if (!printWindow) {
+          alert("팝업 차단을 해제해 주세요.");
+          return;
+        }
+
+        const orgName = getVal(group.orders[0], ["단체이름", "단체명"]) || group.name;
+        const email = getVal(group.orders[0], ["받을메일", "이메일", "메일"]) || "";
+
+        // Calculate totals
+        let totalSupply = 0;
+        let totalTax = 0;
+        let totalPrice = 0;
+        let itemsHtml = "";
+
+        group.orders.forEach((ord, i) => {
+          const title = getVal(ord, ["title", "bookTitle", "프로젝트 제목"]) || "제목없음";
+          const qty = getVal(ord, ["주문수량", "주문 수량", "수량", "qty", "quantity"]) || 0;
+          const supply = Number(getVal(ord, ["공급가액", "공급가", "supplyPrice"]) || 0);
+          const tax = Number(getVal(ord, ["세액(10%)", "세액", "부가세", "tax"]) || 0);
+          const total = Number(getVal(ord, ["합계 금액", "total"]) || 0);
+          
+          totalSupply += supply;
+          totalTax += tax;
+          totalPrice += total;
+
+          const size = getVal(ord, ["규격", "size"]) || "";
+          const binding = getVal(ord, ["제본방식", "binding"]) || "";
+          const pages = (getVal(ord, ["페이지", "pages"]) || 0) + "p";
+
+          itemsHtml += `
+            <tr>
+                <td style="text-align:center;">${i+1}</td>
+                <td><div contenteditable="true" style="padding:2px; min-height:1.2em; outline:none;">${title} (${size}, ${binding}, ${pages})</div></td>
+                <td style="text-align:center;"><div contenteditable="true" style="padding:2px; outline:none;">${qty}</div></td>
+                <td style="text-align:right;"><div contenteditable="true" style="padding:2px; outline:none;">${qty ? Math.round(supply / qty).toLocaleString() : 0}</div></td>
+                <td style="text-align:right;"><div contenteditable="true" style="padding:2px; outline:none;">${supply.toLocaleString()}</div></td>
+                <td style="text-align:right;"><div contenteditable="true" style="padding:2px; outline:none;">${tax.toLocaleString()}</div></td>
+                <td style="text-align:right;"><div contenteditable="true" style="padding:2px; outline:none;">${total.toLocaleString()}</div></td>
+            </tr>
+          `;
+        });
+
+        // Add blank rows up to 5 if items are less
+        for(let i = group.orders.length; i < 5; i++) {
+          itemsHtml += `
+            <tr>
+                <td style="text-align:center;">${i+1}</td>
+                <td><div contenteditable="true" style="padding:2px; min-height:1.2em; outline:none;"></div></td>
+                <td><div contenteditable="true" style="padding:2px; outline:none;"></div></td>
+                <td><div contenteditable="true" style="padding:2px; outline:none;"></div></td>
+                <td><div contenteditable="true" style="padding:2px; outline:none;"></div></td>
+                <td><div contenteditable="true" style="padding:2px; outline:none;"></div></td>
+                <td><div contenteditable="true" style="padding:2px; outline:none;"></div></td>
+            </tr>
+          `;
+        }
+
+        const dateStr = new Date().toLocaleDateString('ko-KR');
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <title>견적서 - ${orgName}</title>
+                <style>
+                    body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; padding: 20px; color: #111; max-width: 800px; margin: 0 auto; }
+                    .header-title { text-align: center; font-size: 2.2rem; font-weight: 900; letter-spacing: 15px; margin-bottom: 30px; text-decoration: underline; text-underline-offset: 8px; }
+                    .info-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.9rem; }
+                    .info-table td { border: 1px solid #333; padding: 8px; }
+                    .info-table .bg-gray { background-color: #f3f4f6; font-weight: bold; text-align: center; width: 100px; }
+                    
+                    .items-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; border-top: 2px solid #111; border-bottom: 2px solid #111; }
+                    .items-table th, .items-table td { border: 1px solid #aaa; padding: 8px; }
+                    .items-table th { background-color: #f3f4f6; font-weight: bold; text-align: center; }
+                    
+                    .total-box { margin-top: 10px; border: 2px solid #111; padding: 15px; text-align: center; font-size: 1.2rem; font-weight: bold; }
+                    
+                    .controls { margin-top: 30px; display: flex; justify-content: center; gap: 10px; align-items:center; }
+                    .btn { padding: 10px 20px; font-size: 0.9rem; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; color: white; }
+                    .btn-print { background: #4b5563; }
+                    .btn-email { background: #2563eb; }
+                    
+                    [contenteditable="true"]:hover { background: #fdf8e6; }
+                    [contenteditable="true"]:focus { background: #eff6ff; }
+                    
+                    @media print {
+                        .controls { display: none !important; }
+                        hr { display: none !important; }
+                    }
+                </style>
+                <script>
+                  function sendEmail() {
+                    const to = document.getElementById("email-to").value;
+                    if(!to) {
+                      alert("받을 이메일 주소를 입력해주세요.");
+                      return;
+                    }
+                    
+                    const org = document.getElementById("org-name").innerText.trim();
+                    const total = document.getElementById("total-price").innerText.trim();
+                    
+                    const subject = encodeURIComponent("[견적서] " + org + " 귀하 견적 안내");
+                    
+                    let body = org + " 귀하\\r\\n\\r\\n요청하신 도서 제작에 대한 견적 안내입니다.\\r\\n";
+                    body += "총 결제 예정 금액: " + total + "원 (부가세 포함)\\r\\n\\r\\n";
+                    body += "상세 품목은 이메일에 회신하시거나 첨부된 견적서(PDF 저장본)를 확인해 주시기 바랍니다.\\r\\n\\r\\n";
+                    body += "감사합니다.";
+                    
+                    const mailtoLink = "mailto:" + to + "?subject=" + subject + "&body=" + body;
+                    window.location.href = mailtoLink;
+                  }
+                </script>
+            </head>
+            <body>
+                <div class="controls no-print">
+                    <span style="font-weight:bold;">받을 이메일:</span>
+                    <input type="email" id="email-to" value="\${email}" style="padding:8px; width:220px; border:1px solid #ccc; border-radius:4px;">
+                    <button class="btn btn-email" onclick="sendEmail()"><i class="fas fa-envelope"></i> 이메일(Mail) 앱 열어 발송</button>
+                    <button class="btn btn-print" onclick="window.print()"><i class="fas fa-print"></i> 견적서 인쇄 / PDF 저장</button>
+                </div>
+                <div class="no-print" style="margin-top:10px; font-size:0.85rem; color:#666; text-align:center;">
+                    * 메일 발송 버튼 클릭 시 기본 이메일 앱(아웃룩, 애플 메일 등)이 열립니다.<br>
+                    * 내용과 금액 부분(점선 또는 표 내부)을 클릭하여 자유롭게 <b>수정/편집</b>한 후 인쇄하거나 PDF로 저장할 수 있습니다.
+                </div>
+
+                <hr class="no-print" style="margin:20px 0; border:0; border-top:1px dashed #ccc;">
+
+                <div class="header-title">견 적 서</div>
+                
+                <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                    <div style="font-size:1.2rem; font-weight:bold;">
+                        <span id="org-name" contenteditable="true" style="outline:none;">\${orgName}</span> 귀하
+                    </div>
+                    <div style="font-size:0.9rem;">
+                        <span contenteditable="true" style="outline:none;">견적일자: \${dateStr}</span>
+                    </div>
+                </div>
+
+                <table class="info-table" style="margin-top:15px;">
+                    <tr>
+                        <td class="bg-gray" rowspan="4">공급자</td>
+                        <td class="bg-gray">상호(법인명)</td>
+                        <td><div contenteditable="true" style="outline:none;">\${dynamicConfig.COMPANY_INFO?.name || "포드카페 (POD CAFE)"}</div></td>
+                        <td class="bg-gray">대표자</td>
+                        <td><div contenteditable="true" style="outline:none;">\${dynamicConfig.COMPANY_INFO?.owner || ""}</div></td>
+                    </tr>
+                    <tr>
+                        <td class="bg-gray">사업자번호</td>
+                        <td colspan="3"><div contenteditable="true" style="outline:none;">\${dynamicConfig.COMPANY_INFO?.bizNum || ""}</div></td>
+                    </tr>
+                    <tr>
+                        <td class="bg-gray">주소</td>
+                        <td colspan="3"><div contenteditable="true" style="outline:none;">\${dynamicConfig.COMPANY_INFO?.address || ""}</div></td>
+                    </tr>
+                    <tr>
+                        <td class="bg-gray">전화번호</td>
+                        <td colspan="3"><div contenteditable="true" style="outline:none;">\${dynamicConfig.COMPANY_INFO?.phone || ""}</div></td>
+                    </tr>
+                </table>
+
+                <div class="total-box">
+                    합계금액(공급가+세액): ₩ <span id="total-price" contenteditable="true" style="outline:none;">\${totalPrice.toLocaleString()}</span> (VAT 포함)
+                </div>
+
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th style="width:40px;">No</th>
+                            <th>품명 및 규격</th>
+                            <th style="width:50px;">수량</th>
+                            <th style="width:80px;">단가</th>
+                            <th style="width:90px;">공급가액</th>
+                            <th style="width:80px;">세액</th>
+                            <th style="width:100px;">합계</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        \${itemsHtml}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4" style="text-align:center; font-weight:bold; background-color:#f9fafb;">총 계</td>
+                            <td style="text-align:right; font-weight:bold;"><div contenteditable="true" style="outline:none;">\${totalSupply.toLocaleString()}</div></td>
+                            <td style="text-align:right; font-weight:bold;"><div contenteditable="true" style="outline:none;">\${totalTax.toLocaleString()}</div></td>
+                            <td style="text-align:right; font-weight:bold;"><div contenteditable="true" style="outline:none;">\${totalPrice.toLocaleString()}</div></td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div style="margin-top:40px; font-size:1rem; text-align:center;">
+                    <div contenteditable="true" style="outline:none;">위와 같이 견적합니다.</div>
+                    <div style="margin-top:20px; font-size:1.2rem; font-weight:bold;">
+                        \${dynamicConfig.COMPANY_INFO?.name || "포드카페 (POD CAFE)"} (인)
+                    </div>
+                </div>
+            </body>
+            </html>
+        \`;
 
         printWindow.document.write(htmlContent);
         printWindow.document.close();
@@ -7411,6 +7678,20 @@
             dynamicConfig.ORDER_API_URL ||
             "https://script.google.com/macros/s/AKfycbxheK9BugFup28vMz-alxTMc8p3DrKn3wkxteS6GDfu70OJMqBt4VdB_9xoDODcIDgz/exec";
         }
+        
+        const bizNameInput = document.getElementById("admin-biz-name");
+        const bizOwnerInput = document.getElementById("admin-biz-owner");
+        const bizNumInput = document.getElementById("admin-biz-num");
+        const bizAddrInput = document.getElementById("admin-biz-addr");
+        const bizPhoneInput = document.getElementById("admin-biz-phone");
+        
+        if (dynamicConfig.COMPANY_INFO) {
+          if (bizNameInput) bizNameInput.value = dynamicConfig.COMPANY_INFO.name || "";
+          if (bizOwnerInput) bizOwnerInput.value = dynamicConfig.COMPANY_INFO.owner || "";
+          if (bizNumInput) bizNumInput.value = dynamicConfig.COMPANY_INFO.bizNum || "";
+          if (bizAddrInput) bizAddrInput.value = dynamicConfig.COMPANY_INFO.address || "";
+          if (bizPhoneInput) bizPhoneInput.value = dynamicConfig.COMPANY_INFO.phone || "";
+        }
       }
 
       function saveStoreAndEmail() {
@@ -7441,6 +7722,21 @@
         alert(
           "스토어 연결 URL, 이메일 주소, 시트 URL 및 앱스 스크립트 웹 앱 URL이 성공적으로 저장되었습니다!",
         );
+      }
+
+      function saveBizInfo() {
+        if (!dynamicConfig.COMPANY_INFO) {
+          dynamicConfig.COMPANY_INFO = {};
+        }
+        
+        dynamicConfig.COMPANY_INFO.name = document.getElementById("admin-biz-name").value.trim();
+        dynamicConfig.COMPANY_INFO.owner = document.getElementById("admin-biz-owner").value.trim();
+        dynamicConfig.COMPANY_INFO.bizNum = document.getElementById("admin-biz-num").value.trim();
+        dynamicConfig.COMPANY_INFO.address = document.getElementById("admin-biz-addr").value.trim();
+        dynamicConfig.COMPANY_INFO.phone = document.getElementById("admin-biz-phone").value.trim();
+        
+        saveDynamicConfig();
+        alert("견적서/세금계산서용 사업자 정보가 성공적으로 저장되었습니다!");
       }
 
       function saveAdminPassword() {
