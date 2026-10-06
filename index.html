@@ -8841,11 +8841,16 @@
         try {
           await Promise.all(fetchPromises);
           
-          btn.disabled = false;
-          btn.innerHTML = originalText;
+          // Show success state on the button itself instead of an alert
+          btn.style.background = "#10b981";
+          btn.style.borderColor = "#10b981";
+          btn.style.color = "white";
+          btn.innerHTML = '<i class="fas fa-check-circle"></i> 견적 요청 접수 완료!';
           
-          alert("견적 요청이 성공적으로 접수되었습니다.\n입력해주신 메일로 담당자가 견적서를 보내드리겠습니다.");
-          closePayGuidanceModal();
+          // Wait 2 seconds, then close the modal
+          setTimeout(() => {
+            closePayGuidanceModal();
+          }, 2000);
         } catch (error) {
           console.error("견적요청 에러:", error);
           alert("요청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
