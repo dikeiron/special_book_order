@@ -8911,186 +8911,186 @@
           // Create an array to hold all network requests so we can run them concurrently
           const fetchPromises = [];
 
-          // Prepare each cart item as its own row in the spreadsheet
-          for (let idx = 0; idx < cart.length; idx++) {
-            const it = cart[idx];
-            const bindName = getBindingName(it.binding);
-            const finishesText = Array.from(it.finishes).join(", ") || "없음";
-            const printSideText = it.printSide === "both" ? "양면" : "단면";
-            const printColorText = it.printColor === "color" ? "컬러" : "흑백";
+          if (!isPostpaidQuote) {
+            // Prepare each cart item as its own row in the spreadsheet
+            for (let idx = 0; idx < cart.length; idx++) {
+              const it = cart[idx];
+              const bindName = getBindingName(it.binding);
+              const finishesText = Array.from(it.finishes).join(", ") || "없음";
+              const printSideText = it.printSide === "both" ? "양면" : "단면";
+              const printColorText = it.printColor === "color" ? "컬러" : "흑백";
 
-            const interleafMap = {
-              none: "없음",
-              only: "간지만",
-              print: "간지+인쇄",
-            };
-            const endpaperMap = {
-              none: "없음",
-              front: "앞",
-              back: "뒤",
-              both: "앞뒤",
-            };
-            const interleafText =
-              Math.max(0, it.interleafPages.split(",").length) > 0 &&
-              it.interleaf !== "none"
-                ? `${interleafMap[it.interleaf]} (p.${it.interleafPages})`
-                : interleafMap[it.interleaf];
-            const endpaperText = endpaperMap[it.endpaper] || "없음";
+              const interleafMap = {
+                none: "없음",
+                only: "간지만",
+                print: "간지+인쇄",
+              };
+              const endpaperMap = {
+                none: "없음",
+                front: "앞",
+                back: "뒤",
+                both: "앞뒤",
+              };
+              const interleafText =
+                Math.max(0, it.interleafPages.split(",").length) > 0 &&
+                it.interleaf !== "none"
+                  ? `${interleafMap[it.interleaf]} (p.${it.interleafPages})`
+                  : interleafMap[it.interleaf];
+              const endpaperText = endpaperMap[it.endpaper] || "없음";
 
-            const p = calc(it);
+              const p = calc(it);
 
-            const baseData = {
-              // All rows in the same transaction share the exact same timestamp
-              date: timestamp,
-              "주문 일시": timestamp,
+              const baseData = {
+                // All rows in the same transaction share the exact same timestamp
+                date: timestamp,
+                "주문 일시": timestamp,
 
-              title: it.title || "제목없음",
-              bookTitle: it.title || "제목없음",
-              "프로젝트 제목": it.title || "제목없음",
-              "책자제목": it.title || "제목없음",
-              "책자 제목": it.title || "제목없음",
-              "책자제목/파일명": it.title || "제목없음",
-              "책자 제목 / 파일명": it.title || "제목없음",
-              "파일명": it.title || "제목없음",
-              "표지 파일 전달 방식":
-                it.coverSubmission === "기타(입력)"
-                  ? it.coverSubmissionOther || "기타"
-                  : it.coverSubmission,
-              "표지 파일":
-                it.coverSubmission === "기타(입력)"
-                  ? it.coverSubmissionOther || "기타"
-                  : it.coverSubmission,
-              "표지인쇄":
-                it.coverPrintSide === "both" ? "양면인쇄" : "단면인쇄",
-              "표지 인쇄":
-                it.coverPrintSide === "both" ? "양면인쇄" : "단면인쇄",
+                title: it.title || "제목없음",
+                bookTitle: it.title || "제목없음",
+                "프로젝트 제목": it.title || "제목없음",
+                "책자제목": it.title || "제목없음",
+                "책자 제목": it.title || "제목없음",
+                "책자제목/파일명": it.title || "제목없음",
+                "책자 제목 / 파일명": it.title || "제목없음",
+                "파일명": it.title || "제목없음",
+                "표지 파일 전달 방식":
+                  it.coverSubmission === "기타(입력)"
+                    ? it.coverSubmissionOther || "기타"
+                    : it.coverSubmission,
+                "표지 파일":
+                  it.coverSubmission === "기타(입력)"
+                    ? it.coverSubmissionOther || "기타"
+                    : it.coverSubmission,
+                "표지인쇄":
+                  it.coverPrintSide === "both" ? "양면인쇄" : "단면인쇄",
+                "표지 인쇄":
+                  it.coverPrintSide === "both" ? "양면인쇄" : "단면인쇄",
 
-              // Customer info is only populated on the first row (idx === 0)
-              name: idx === 0 ? custName : "",
-              customerName: idx === 0 ? custName : "",
-              userName: idx === 0 ? custName : "",
-              "주문자 성함": idx === 0 ? custName : "",
+                // Customer info is only populated on the first row (idx === 0)
+                name: idx === 0 ? custName : "",
+                customerName: idx === 0 ? custName : "",
+                userName: idx === 0 ? custName : "",
+                "주문자 성함": idx === 0 ? custName : "",
 
-              phone: idx === 0 ? custPhone : "",
-              userPhone: idx === 0 ? custPhone : "",
-              연락처: idx === 0 ? custPhone : "",
+                phone: idx === 0 ? custPhone : "",
+                userPhone: idx === 0 ? custPhone : "",
+                연락처: idx === 0 ? custPhone : "",
 
-              // Recipient info
-              recipientName: idx === 0 && isDiff ? recvName : "",
-              "수령인 성함": idx === 0 && isDiff ? recvName : "",
-              recipientPhone: idx === 0 && isDiff ? recvPhone : "",
-              "수령인 연락처": idx === 0 && isDiff ? recvPhone : "",
+                // Recipient info
+                recipientName: idx === 0 && isDiff ? recvName : "",
+                "수령인 성함": idx === 0 && isDiff ? recvName : "",
+                recipientPhone: idx === 0 && isDiff ? recvPhone : "",
+                "수령인 연락처": idx === 0 && isDiff ? recvPhone : "",
 
-              address: idx === 0 ? recvAddr : "",
-                            customerAddress: idx === 0 ? custAddr : "",
-              "주문자 주소": idx === 0 ? custAddr : "",
+                address: idx === 0 ? recvAddr : "",
+                              customerAddress: idx === 0 ? custAddr : "",
+                "주문자 주소": idx === 0 ? custAddr : "",
 
-              size:
-                (it.size === "사용자 정의" || it.size === "직접입력") &&
-                it.customW &&
-                it.customH
-                  ? `${it.customW}x${it.customH}mm`
-                  : it.size,
-              규격:
-                (it.size === "사용자 정의" || it.size === "직접입력") &&
-                it.customW &&
-                it.customH
-                  ? `${it.customW}x${it.customH}mm`
-                  : it.size,
+                size:
+                  (it.size === "사용자 정의" || it.size === "직접입력") &&
+                  it.customW &&
+                  it.customH
+                    ? `${it.customW}x${it.customH}mm`
+                    : it.size,
+                규격:
+                  (it.size === "사용자 정의" || it.size === "직접입력") &&
+                  it.customW &&
+                  it.customH
+                    ? `${it.customW}x${it.customH}mm`
+                    : it.size,
 
-              type: bindName,
-              binding: bindName,
-              제본방식: bindName,
+                type: bindName,
+                binding: bindName,
+                제본방식: bindName,
 
-              quantity: it.qty,
-              qty: it.qty,
-              주문수량: it.qty,
+                quantity: it.qty,
+                qty: it.qty,
+                주문수량: it.qty,
 
-              paper: it.coverPaper,
-              coverPaper: it.coverPaper,
-              cover: it.coverPaper,
-              표지: it.coverPaper,
-              "표지 재질": it.coverPaper,
-              "표지 사양": it.coverPaper,
-              표지사양: it.coverPaper,
-              "표지재질 및 두께": it.coverPaper,
-              표지재질및두께: it.coverPaper,
+                paper: it.coverPaper,
+                coverPaper: it.coverPaper,
+                cover: it.coverPaper,
+                표지: it.coverPaper,
+                "표지 재질": it.coverPaper,
+                "표지 사양": it.coverPaper,
+                표지사양: it.coverPaper,
+                "표지재질 및 두께": it.coverPaper,
+                표지재질및두께: it.coverPaper,
 
-              finishes: finishesText,
-              finishing: finishesText,
-              coverFinish: finishesText,
-              "표지 후가공": finishesText,
+                finishes: finishesText,
+                finishing: finishesText,
+                coverFinish: finishesText,
+                "표지 후가공": finishesText,
 
-              innerPaper: it.innerPaper,
-              inner: it.innerPaper,
-              "내지 재질": it.innerPaper,
-              "내지 사양": it.innerPaper,
-              내지사양: it.innerPaper,
+                innerPaper: it.innerPaper,
+                inner: it.innerPaper,
+                "내지 재질": it.innerPaper,
+                "내지 사양": it.innerPaper,
+                내지사양: it.innerPaper,
 
-              pages: it.innerPages,
-              innerPages: it.innerPages,
-              페이지: it.innerPages,
+                pages: it.innerPages,
+                innerPages: it.innerPages,
+                페이지: it.innerPages,
 
-              printSide: printSideText,
-              printType: printSideText,
-              "인쇄 방식": printSideText,
+                printSide: printSideText,
+                printType: printSideText,
+                "인쇄 방식": printSideText,
 
-              printColor: printColorText,
-              colorType: printColorText,
-              color: printColorText,
-              "인쇄 컬러": printColorText,
+                printColor: printColorText,
+                colorType: printColorText,
+                color: printColorText,
+                "인쇄 컬러": printColorText,
 
-              interleaf: interleafText,
-              "간지 설정": interleafText,
+                interleaf: interleafText,
+                "간지 설정": interleafText,
 
-              endpaper: endpaperText,
-              "면지 설정": endpaperText,
+                endpaper: endpaperText,
+                "면지 설정": endpaperText,
 
-              supplyPrice: p.total - p.tax,
-              basePrice: p.total - p.tax,
-              공급가액: p.total - p.tax,
+                supplyPrice: p.total - p.tax,
+                basePrice: p.total - p.tax,
+                공급가액: p.total - p.tax,
 
-              tax: p.tax,
-              "세액(10%)": p.tax,
+                tax: p.tax,
+                "세액(10%)": p.tax,
 
-              totalPrice: p.total,
-              total: p.total,
-              "합계 금액": p.total,
+                totalPrice: p.total,
+                total: p.total,
+                "합계 금액": p.total,
 
-              // Coupon discount fields
-              couponCode: idx === 0 && appliedCoupon ? appliedCoupon.code : "",
-              "할인 코드": idx === 0 && appliedCoupon ? appliedCoupon.code : "",
-              couponDiscount: idx === 0 && discountAmt > 0 ? discountAmt : "",
-              "할인 금액": idx === 0 && discountAmt > 0 ? discountAmt : "",
-              finalTotal: idx === 0 ? grand - discountAmt : "",
-              "최종 결제 합계": idx === 0 ? grand - discountAmt : "",
-              status: "접수",
-              상태: "접수",
-              memo: idx === 0 ? custMemo : "",
-              요청사항: idx === 0 ? custMemo : "",
-              메모: idx === 0 ? custMemo : "",
-            };
+                // Coupon discount fields
+                couponCode: idx === 0 && appliedCoupon ? appliedCoupon.code : "",
+                "할인 코드": idx === 0 && appliedCoupon ? appliedCoupon.code : "",
+                couponDiscount: idx === 0 && discountAmt > 0 ? discountAmt : "",
+                "할인 금액": idx === 0 && discountAmt > 0 ? discountAmt : "",
+                finalTotal: idx === 0 ? grand - discountAmt : "",
+                "최종 결제 합계": idx === 0 ? grand - discountAmt : "",
+                status: "접수",
+                상태: "접수",
+                memo: idx === 0 ? custMemo : "",
+                요청사항: idx === 0 ? custMemo : "",
+                메모: idx === 0 ? custMemo : "",
+              };
 
-            // Duplicate all keys with a trailing tab character to support spreadsheet column headers containing tabs
-            const orderData = {};
-            for (let key in baseData) {
-              orderData[key] = baseData[key];
-              orderData[key + "\t"] = baseData[key];
+              // Duplicate all keys with a trailing tab character to support spreadsheet column headers containing tabs
+              const orderData = {};
+              for (let key in baseData) {
+                orderData[key] = baseData[key];
+                orderData[key + "\t"] = baseData[key];
+              }
+
+              fetchPromises.push(
+                fetch(url, {
+                  method: "POST",
+                  mode: "no-cors",
+                  cache: "no-cache",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(orderData),
+                })
+              );
             }
 
-            fetchPromises.push(
-              fetch(url, {
-                method: "POST",
-                mode: "no-cors",
-                cache: "no-cache",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(orderData),
-              })
-            );
-          }
-
-          // Execute all requests concurrently (in parallel) to drastically reduce waiting time
-          if (!isPostpaidQuote) {
+            // Execute all requests concurrently (in parallel) to drastically reduce waiting time
             await Promise.all(fetchPromises);
 
             // Save order details to local history
