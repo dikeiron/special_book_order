@@ -7076,7 +7076,7 @@
           const tax = Number(getVal(ord, ["세액(10%)", "세액", "부가세", "tax"]) || 0);
           const total = Number(getVal(ord, ["합계 금액", "total"]) || 0);
           
-          const volDiscount = Number(getVal(ord, ["수량할인금액"]) || 0);
+          const volDiscount = Number(getVal(ord, ["복합할인금액", "수량할인금액"]) || 0);
           const cpDiscount = Number(getVal(ord, ["할인 금액", "쿠폰할인", "할인금액"]) || 0);
           
           totalSupply += supply;
@@ -9905,6 +9905,10 @@
                 total: p.total,
                 "합계 금액": p.total,
                 
+                "복합할인율": p.discountRate ? p.discountRate + "%" : "",
+                "복합할인금액": p.discountAmount ? p.discountAmount : "",
+                
+                // 기존 컬럼 호환 유지 (혹시 시트에 '수량할인율'로 남아있는 경우를 대비)
                 "수량할인율": p.discountRate ? p.discountRate + "%" : "",
                 "수량할인금액": p.discountAmount ? p.discountAmount : "",
 
