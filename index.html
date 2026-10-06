@@ -9090,19 +9090,21 @@
           }
 
           // Execute all requests concurrently (in parallel) to drastically reduce waiting time
-          await Promise.all(fetchPromises);
+          if (!isPostpaidQuote) {
+            await Promise.all(fetchPromises);
 
-          // Save order details to local history
-          saveOrderToRecentHistory(timestamp, cart, grand - discountAmt, {
-            name: custName,
-            phone: custPhone,
-            address: custAddr,
-            isDiff: isDiff,
-            recvName: recvName,
-            recvPhone: recvPhone,
-            recvAddr: recvAddr,
-            memo: custMemo,
-          });
+            // Save order details to local history
+            saveOrderToRecentHistory(timestamp, cart, grand - discountAmt, {
+              name: custName,
+              phone: custPhone,
+              address: custAddr,
+              isDiff: isDiff,
+              recvName: recvName,
+              recvPhone: recvPhone,
+              recvAddr: recvAddr,
+              memo: custMemo,
+            });
+          }
 
           // Restore submit button state
           submitBtn.disabled = false;
