@@ -5922,7 +5922,7 @@
           loadingEl.style.display = "none";
           emptyEl.style.display = "block";
           document.querySelector("#admin-orders-empty p").textContent =
-            "데이터를 불러오는 중 에러가 발생했습니다. 구글 스크립트에 doGet 함수가 추가되고 배포되었는지 확인해주세요.";
+            "데이터를 불러오는 중 에러가 발생했습니다: " + err.message;
           console.error("Fetch orders error:", err);
         }
       }
