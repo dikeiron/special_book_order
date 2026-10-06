@@ -7913,13 +7913,24 @@
           .forEach((c) => c.classList.toggle("active", c.id == `step-${n}`));
         window.scrollTo({ top: 0, behavior: "smooth" });
 
-        // Hide "Save Quotation & Order" button in the sidebar during cart (4) and final order (5) steps
+        // Manage "Add to Cart" button in the sidebar depending on the step
         const summaryBtn = document.querySelector(".summary-btn");
         if (summaryBtn) {
           if (n >= 4) {
             summaryBtn.style.display = "none";
           } else {
-            summaryBtn.style.display = "block";
+            summaryBtn.style.display = "flex"; // CSS uses display: flex
+            if (n < 3) {
+              summaryBtn.disabled = true;
+              summaryBtn.style.opacity = "0.5";
+              summaryBtn.style.cursor = "not-allowed";
+              summaryBtn.innerHTML = '<i class="fas fa-lock"></i> 3단계(내지사양)에서 활성화';
+            } else {
+              summaryBtn.disabled = false;
+              summaryBtn.style.opacity = "1";
+              summaryBtn.style.cursor = "pointer";
+              summaryBtn.innerHTML = '<i class="fas fa-shopping-basket"></i> 장바구니 담기';
+            }
           }
         }
 
