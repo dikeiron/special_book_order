@@ -3711,6 +3711,14 @@
                       <label style="font-size: 0.78rem; font-weight: bold; margin-bottom: 0.3rem; display: block; color: var(--text-dim);">전화번호</label>
                       <input type="text" id="admin-biz-phone" placeholder="예: 02-123-4567" style="padding: 0.6rem; font-size: 0.9rem; width: 100%; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-input); color: white;" />
                     </div>
+                    <div>
+                      <label style="font-size: 0.78rem; font-weight: bold; margin-bottom: 0.3rem; display: block; color: var(--text-dim);">도장/직인 이미지 (배경이 투명한 PNG 권장)</label>
+                      <input type="file" id="admin-biz-seal-file" accept="image/png, image/jpeg" style="font-size: 0.85rem; color: #ccc;" onchange="handleSealUpload(event)" />
+                      <div style="margin-top: 10px;">
+                        <img id="admin-biz-seal-preview" style="max-height: 80px; display: none; background: #fff; padding: 5px; border-radius: 4px;" />
+                        <button class="admin-mini-btn" id="admin-biz-seal-remove" style="display: none; background: #dc2626; margin-left: 10px;" onclick="removeBizSeal()">삭제</button>
+                      </div>
+                    </div>
                     <button class="admin-mini-btn" onclick="saveBizInfo()" style="max-width: 120px; align-self: flex-end">
                       <i class="fas fa-save"></i> 정보 저장
                     </button>
@@ -5874,16 +5882,36 @@
 
         closeOrderDetail();
 
-        // 강제 새로고침이 아니고, 30초 이내에 다시 탭을 누른 경우 캐시 사용 (체감 속도 대폭 향상)
+        // 강제 새로고침이 아니고, 30초 이내에 다시 탭을 누른 경우 인메모리 캐시 사용 (체감 속도 대폭 향상)
         if (!forceRefresh && Date.now() - lastAdminFetchTime < 30000 && cachedGroups.length > 0) {
           renderAdminOrdersList();
           return;
         }
 
-        loadingEl.style.display = "block";
-        emptyEl.style.display = "none";
-        tableWrap.style.display = "none";
-        listEl.innerHTML = "";
+        let hasLocalCache = false;
+        if (!forceRefresh) {
+          try {
+            const localCache = localStorage.getItem("adminCachedOrders");
+            if (localCache) {
+              const parsed = JSON.parse(localCache);
+              if (parsed && parsed.length > 0) {
+                cachedGroups = parsed;
+                hasLocalCache = true;
+                renderAdminOrdersList();
+              }
+            }
+          } catch (e) {
+            console.error("Failed to parse local cached orders", e);
+          }
+        }
+
+        // 캐시가 없으면 로딩 화면 표시, 있으면 배경에서 몰래 새로고침
+        if (!hasLocalCache) {
+          loadingEl.style.display = "block";
+          emptyEl.style.display = "none";
+          tableWrap.style.display = "none";
+          listEl.innerHTML = "";
+        }
 
         try {
           let res;
@@ -5999,6 +6027,13 @@
 
           // Convert Map to Array for rendering
           cachedGroups = Array.from(groupedMap.values());
+          
+          try {
+            localStorage.setItem("adminCachedOrders", JSON.stringify(cachedGroups));
+          } catch (e) {
+            console.error("Failed to save local cached orders", e);
+          }
+          
           lastAdminFetchTime = Date.now(); // 데이터 가져온 시간 기록
 
           loadingEl.style.display = "none";
@@ -6890,12 +6925,12 @@
                     const mailtoLink = "mailto:" + to + "?subject=" + subject + "&body=" + body;
                     window.location.href = mailtoLink;
                   }
-                </script>
+                <\/script>
             </head>
             <body>
                 <div class="controls no-print">
                     <span style="font-weight:bold;">받을 이메일:</span>
-                    <input type="email" id="email-to" value="\${email}" style="padding:8px; width:220px; border:1px solid #ccc; border-radius:4px;">
+                    <input type="email" id="email-to" value="${email}" style="padding:8px; width:220px; border:1px solid #ccc; border-radius:4px;">
                     <button class="btn btn-email" onclick="sendEmail()"><i class="fas fa-envelope"></i> 이메일(Mail) 앱 열어 발송</button>
                     <button class="btn btn-print" onclick="window.print()"><i class="fas fa-print"></i> 견적서 인쇄 / PDF 저장</button>
                 </div>
@@ -6910,10 +6945,10 @@
                 
                 <div style="display:flex; justify-content:space-between; align-items:flex-end;">
                     <div style="font-size:1.2rem; font-weight:bold;">
-                        <span id="org-name" contenteditable="true" style="outline:none;">\${orgName}</span> 귀하
+                        <span id="org-name" contenteditable="true" style="outline:none;">${orgName}</span> 귀하
                     </div>
                     <div style="font-size:0.9rem;">
-                        <span contenteditable="true" style="outline:none;">견적일자: \${dateStr}</span>
+                        <span contenteditable="true" style="outline:none;">견적일자: ${dateStr}</span>
                     </div>
                 </div>
 
@@ -6921,26 +6956,26 @@
                     <tr>
                         <td class="bg-gray" rowspan="4">공급자</td>
                         <td class="bg-gray">상호(법인명)</td>
-                        <td><div contenteditable="true" style="outline:none;">\${dynamicConfig.COMPANY_INFO?.name || "포드카페 (POD CAFE)"}</div></td>
+                        <td><div contenteditable="true" style="outline:none;">${dynamicConfig.COMPANY_INFO?.name || "포드카페 (POD CAFE)"}</div></td>
                         <td class="bg-gray">대표자</td>
-                        <td><div contenteditable="true" style="outline:none;">\${dynamicConfig.COMPANY_INFO?.owner || ""}</div></td>
+                        <td><div contenteditable="true" style="outline:none;">${dynamicConfig.COMPANY_INFO?.owner || ""}</div></td>
                     </tr>
                     <tr>
                         <td class="bg-gray">사업자번호</td>
-                        <td colspan="3"><div contenteditable="true" style="outline:none;">\${dynamicConfig.COMPANY_INFO?.bizNum || ""}</div></td>
+                        <td colspan="3"><div contenteditable="true" style="outline:none;">${dynamicConfig.COMPANY_INFO?.bizNum || ""}</div></td>
                     </tr>
                     <tr>
                         <td class="bg-gray">주소</td>
-                        <td colspan="3"><div contenteditable="true" style="outline:none;">\${dynamicConfig.COMPANY_INFO?.address || ""}</div></td>
+                        <td colspan="3"><div contenteditable="true" style="outline:none;">${dynamicConfig.COMPANY_INFO?.address || ""}</div></td>
                     </tr>
                     <tr>
                         <td class="bg-gray">전화번호</td>
-                        <td colspan="3"><div contenteditable="true" style="outline:none;">\${dynamicConfig.COMPANY_INFO?.phone || ""}</div></td>
+                        <td colspan="3"><div contenteditable="true" style="outline:none;">${dynamicConfig.COMPANY_INFO?.phone || ""}</div></td>
                     </tr>
                 </table>
 
                 <div class="total-box">
-                    합계금액(공급가+세액): ₩ <span id="total-price" contenteditable="true" style="outline:none;">\${totalPrice.toLocaleString()}</span> (VAT 포함)
+                    합계금액(공급가+세액): ₩ <span id="total-price" contenteditable="true" style="outline:none;">${totalPrice.toLocaleString()}</span> (VAT 포함)
                 </div>
 
                 <table class="items-table">
@@ -6956,27 +6991,28 @@
                         </tr>
                     </thead>
                     <tbody>
-                        \${itemsHtml}
+                        ${itemsHtml}
                     </tbody>
                     <tfoot>
                         <tr>
                             <td colspan="4" style="text-align:center; font-weight:bold; background-color:#f9fafb;">총 계</td>
-                            <td style="text-align:right; font-weight:bold;"><div contenteditable="true" style="outline:none;">\${totalSupply.toLocaleString()}</div></td>
-                            <td style="text-align:right; font-weight:bold;"><div contenteditable="true" style="outline:none;">\${totalTax.toLocaleString()}</div></td>
-                            <td style="text-align:right; font-weight:bold;"><div contenteditable="true" style="outline:none;">\${totalPrice.toLocaleString()}</div></td>
+                            <td style="text-align:right; font-weight:bold;"><div contenteditable="true" style="outline:none;">${totalSupply.toLocaleString()}</div></td>
+                            <td style="text-align:right; font-weight:bold;"><div contenteditable="true" style="outline:none;">${totalTax.toLocaleString()}</div></td>
+                            <td style="text-align:right; font-weight:bold;"><div contenteditable="true" style="outline:none;">${totalPrice.toLocaleString()}</div></td>
                         </tr>
                     </tfoot>
                 </table>
 
                 <div style="margin-top:40px; font-size:1rem; text-align:center;">
                     <div contenteditable="true" style="outline:none;">위와 같이 견적합니다.</div>
-                    <div style="margin-top:20px; font-size:1.2rem; font-weight:bold;">
-                        \${dynamicConfig.COMPANY_INFO?.name || "포드카페 (POD CAFE)"} (인)
+                    <div style="margin-top:20px; font-size:1.2rem; font-weight:bold; position:relative; display:inline-block;">
+                        ${dynamicConfig.COMPANY_INFO?.name || "포드카페 (POD CAFE)"} (인)
+                        ${dynamicConfig.COMPANY_INFO?.sealImage ? `<img src="${dynamicConfig.COMPANY_INFO.sealImage}" style="position:absolute; top:-15px; right:-40px; width:60px; height:60px; opacity:0.9; pointer-events:none;" />` : ''}
                     </div>
                 </div>
             </body>
             </html>
-        \`;
+        `;
 
         printWindow.document.write(htmlContent);
         printWindow.document.close();
@@ -7691,6 +7727,22 @@
           if (bizNumInput) bizNumInput.value = dynamicConfig.COMPANY_INFO.bizNum || "";
           if (bizAddrInput) bizAddrInput.value = dynamicConfig.COMPANY_INFO.address || "";
           if (bizPhoneInput) bizPhoneInput.value = dynamicConfig.COMPANY_INFO.phone || "";
+          
+          const sealPreview = document.getElementById("admin-biz-seal-preview");
+          const sealRemoveBtn = document.getElementById("admin-biz-seal-remove");
+          if (dynamicConfig.COMPANY_INFO.sealImage) {
+            if (sealPreview) {
+              sealPreview.src = dynamicConfig.COMPANY_INFO.sealImage;
+              sealPreview.style.display = "block";
+            }
+            if (sealRemoveBtn) sealRemoveBtn.style.display = "inline-block";
+          } else {
+            if (sealPreview) {
+              sealPreview.src = "";
+              sealPreview.style.display = "none";
+            }
+            if (sealRemoveBtn) sealRemoveBtn.style.display = "none";
+          }
         }
       }
 
@@ -7722,6 +7774,43 @@
         alert(
           "스토어 연결 URL, 이메일 주소, 시트 URL 및 앱스 스크립트 웹 앱 URL이 성공적으로 저장되었습니다!",
         );
+      }
+
+      function handleSealUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const base64Str = e.target.result;
+          if (!dynamicConfig.COMPANY_INFO) dynamicConfig.COMPANY_INFO = {};
+          dynamicConfig.COMPANY_INFO.sealImage = base64Str;
+          
+          const sealPreview = document.getElementById("admin-biz-seal-preview");
+          const sealRemoveBtn = document.getElementById("admin-biz-seal-remove");
+          if (sealPreview) {
+            sealPreview.src = base64Str;
+            sealPreview.style.display = "block";
+          }
+          if (sealRemoveBtn) sealRemoveBtn.style.display = "inline-block";
+        };
+        reader.readAsDataURL(file);
+      }
+      
+      function removeBizSeal() {
+        if (!dynamicConfig.COMPANY_INFO) return;
+        delete dynamicConfig.COMPANY_INFO.sealImage;
+        
+        const sealPreview = document.getElementById("admin-biz-seal-preview");
+        const sealRemoveBtn = document.getElementById("admin-biz-seal-remove");
+        const sealInput = document.getElementById("admin-biz-seal-file");
+        
+        if (sealPreview) {
+          sealPreview.src = "";
+          sealPreview.style.display = "none";
+        }
+        if (sealRemoveBtn) sealRemoveBtn.style.display = "none";
+        if (sealInput) sealInput.value = "";
       }
 
       function saveBizInfo() {
