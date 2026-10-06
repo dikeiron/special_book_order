@@ -3894,7 +3894,8 @@
                       border: 1px solid var(--border);
                     "
                   >
-                    <option value="접수">접수 주문만 보기 (기본)</option>
+                    <option value="접수">신규 접수 전체 보기 (기본)</option>
+                    <option value="견적요청(후불)">견적요청(후불)만 보기</option>
                     <option value="보관">보관 주문만 보기</option>
                     <option value="전체">전체 주문 보기</option>
                   </select>
@@ -5951,7 +5952,9 @@
         const filterVal = document.getElementById("admin-orders-filter").value;
 
         let filtered = cachedGroups;
-        if (filterVal !== "전체") {
+        if (filterVal === "접수") {
+          filtered = cachedGroups.filter((g) => g.status === "접수" || g.status === "견적요청(후불)");
+        } else if (filterVal !== "전체") {
           filtered = cachedGroups.filter((g) => g.status === filterVal);
         }
 
