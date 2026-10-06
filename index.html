@@ -2169,7 +2169,7 @@
                 style="display: none; color: #f43f5e"
               >
                 <span class="label"
-                  >수량 할인 (<span id="summ-discount-rate">0</span>%)</span
+                  >복합 할인 (대량/두꺼운책/총인쇄량) (<span id="summ-discount-rate">0</span>%)</span
                 ><span class="value" id="summ-discount-price">-0원</span>
               </li>
             </ul>
@@ -2285,7 +2285,7 @@
                 color: #22c55e;
               "
             >
-              <span>할인 적용 혜택 (수량/쿠폰):</span>
+              <span>적용된 할인 혜택 (대량/두꺼운책/총인쇄/쿠폰):</span>
               <strong id="guidance-discount-amount" style="font-size: 1rem">-0원</strong>
             </div>
             
@@ -3464,6 +3464,158 @@
                   </tbody>
                 </table>
               </div>
+
+              <!-- Page Discounts Section -->
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-top: 2rem;
+                  margin-bottom: 0.5rem;
+                "
+              >
+                <h4 style="margin: 0; color: var(--secondary)">
+                  <i class="fas fa-book-open"></i> 두꺼운 책자(페이지 수) 할인율 설정
+                </h4>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1rem; margin-top: 0;">
+                * 두꺼운 책자 기준은 <strong>1권당 내지 페이지 수(두께)</strong>를 의미합니다. (예: 1권이 300페이지인 두꺼운 책)
+              </p>
+              <div class="admin-form-row">
+                <div style="flex: 1">
+                  <label>최소 페이지 (이상)</label>
+                  <input
+                    type="number"
+                    id="admin-page-discount-min"
+                    placeholder="예: 300"
+                    value="300"
+                    min="1"
+                  />
+                </div>
+                <div style="flex: 1">
+                  <label>최대 페이지 (이하)</label>
+                  <input
+                    type="number"
+                    id="admin-page-discount-max"
+                    placeholder="예: 499"
+                    value="499"
+                    min="1"
+                  />
+                </div>
+                <div style="flex: 1">
+                  <label>할인율 (%)</label>
+                  <input
+                    type="number"
+                    id="admin-page-discount-rate"
+                    placeholder="예: 5"
+                    value="5"
+                    min="0"
+                    max="100"
+                  />
+                </div>
+                <button class="admin-mini-btn" onclick="addPageDiscountRule()">
+                  <i class="fas fa-plus"></i> 추가
+                </button>
+              </div>
+              <div
+                style="
+                  max-height: 350px;
+                  overflow-y: auto;
+                  border: 1px solid var(--border);
+                  border-radius: 12px;
+                "
+              >
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>최소 페이지</th>
+                      <th>최대 페이지</th>
+                      <th>할인율 (%)</th>
+                      <th>관리</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-page-discounts-list">
+                    <!-- Dynamic List -->
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Total Pages Discounts Section -->
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-top: 2rem;
+                  margin-bottom: 0.5rem;
+                "
+              >
+                <h4 style="margin: 0; color: var(--secondary)">
+                  <i class="fas fa-layer-group"></i> 총 인쇄 페이지 수 (수량 × 두께) 할인율 설정
+                </h4>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1rem; margin-top: 0;">
+                * 여기서 말하는 '총 인쇄 페이지 수'는 <strong>(1권당 페이지 수 × 주문 부수)</strong>를 의미합니다. (예: 200페이지 10부 = 2,000페이지)
+              </p>
+              <div class="admin-form-row">
+                <div style="flex: 1">
+                  <label>최소 총 인쇄 페이지 (이상)</label>
+                  <input
+                    type="number"
+                    id="admin-total-pages-discount-min"
+                    placeholder="예: 2000"
+                    value="2000"
+                    min="1"
+                  />
+                </div>
+                <div style="flex: 1">
+                  <label>최대 총 인쇄 페이지 (이하)</label>
+                  <input
+                    type="number"
+                    id="admin-total-pages-discount-max"
+                    placeholder="예: 4999"
+                    value="4999"
+                    min="1"
+                  />
+                </div>
+                <div style="flex: 1">
+                  <label>할인율 (%)</label>
+                  <input
+                    type="number"
+                    id="admin-total-pages-discount-rate"
+                    placeholder="예: 5"
+                    value="5"
+                    min="0"
+                    max="100"
+                  />
+                </div>
+                <button class="admin-mini-btn" onclick="addTotalPagesDiscountRule()">
+                  <i class="fas fa-plus"></i> 추가
+                </button>
+              </div>
+              <div
+                style="
+                  max-height: 350px;
+                  overflow-y: auto;
+                  border: 1px solid var(--border);
+                  border-radius: 12px;
+                "
+              >
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>최소 총 인쇄 페이지</th>
+                      <th>최대 총 인쇄 페이지</th>
+                      <th>할인율 (%)</th>
+                      <th>관리</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-total-pages-discounts-list">
+                    <!-- Dynamic List -->
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             <!-- Coupons Tab -->
@@ -4423,6 +4575,16 @@
           { minQty: 50, maxQty: 99, discountRate: 10 },
           { minQty: 100, maxQty: 99999, discountRate: 20 },
         ],
+        PAGE_DISCOUNTS: [
+          { minPages: 100, maxPages: 299, discountRate: 5 },
+          { minPages: 300, maxPages: 499, discountRate: 10 },
+          { minPages: 500, maxPages: 99999, discountRate: 20 },
+        ],
+        TOTAL_PAGES_DISCOUNTS: [
+          { minTotalPages: 5000, maxTotalPages: 9999, discountRate: 5 },
+          { minTotalPages: 10000, maxTotalPages: 29999, discountRate: 10 },
+          { minTotalPages: 30000, maxTotalPages: 999999, discountRate: 20 },
+        ],
       };
 
       // Firebase Configuration & Initialization
@@ -4707,6 +4869,20 @@
             { minQty: 10, maxQty: 49, discountRate: 5 },
             { minQty: 50, maxQty: 99, discountRate: 10 },
             { minQty: 100, maxQty: 99999, discountRate: 20 },
+          ];
+        }
+        if (!dynamicConfig.PAGE_DISCOUNTS) {
+          dynamicConfig.PAGE_DISCOUNTS = [
+            { minPages: 100, maxPages: 299, discountRate: 5 },
+            { minPages: 300, maxPages: 499, discountRate: 10 },
+            { minPages: 500, maxPages: 99999, discountRate: 20 },
+          ];
+        }
+        if (!dynamicConfig.TOTAL_PAGES_DISCOUNTS) {
+          dynamicConfig.TOTAL_PAGES_DISCOUNTS = [
+            { minTotalPages: 5000, maxTotalPages: 9999, discountRate: 5 },
+            { minTotalPages: 10000, maxTotalPages: 29999, discountRate: 10 },
+            { minTotalPages: 30000, maxTotalPages: 999999, discountRate: 20 },
           ];
         }
       }
@@ -5578,6 +5754,22 @@
         return rule ? rule.discountRate : 0;
       }
 
+      function getPageDiscountRate(pages) {
+        if (!CONFIG.PAGE_DISCOUNTS) return 0;
+        const rule = CONFIG.PAGE_DISCOUNTS.find(
+          (r) => pages >= r.minPages && pages <= r.maxPages,
+        );
+        return rule ? rule.discountRate : 0;
+      }
+
+      function getTotalPagesDiscountRate(totalPages) {
+        if (!CONFIG.TOTAL_PAGES_DISCOUNTS) return 0;
+        const rule = CONFIG.TOTAL_PAGES_DISCOUNTS.find(
+          (r) => totalPages >= r.minTotalPages && totalPages <= r.maxTotalPages,
+        );
+        return rule ? rule.discountRate : 0;
+      }
+
       function calc(s) {
         const innerPaperName = s.innerPaper || "";
         let bindingObj = null;
@@ -5768,7 +5960,16 @@
             interleafPrice +
             endpaperPrice) *
           s.qty;
-        const discountRate = getDiscountRate(s.qty);
+        
+        const innerPagesCount = Number(s.innerPages) || 0;
+        const totalPrintedPages = innerPagesCount * s.qty;
+        
+        const volumeDiscountRate = getDiscountRate(s.qty);
+        const pageDiscountRate = getPageDiscountRate(innerPagesCount);
+        const totalPagesDiscountRate = getTotalPagesDiscountRate(totalPrintedPages);
+        
+        // Sum all discount rates up to a maximum (e.g. 100%)
+        const discountRate = Math.min(100, volumeDiscountRate + pageDiscountRate + totalPagesDiscountRate);
         const discountAmount = Math.round(
           subtotalBeforeDiscount * (discountRate / 100),
         );
@@ -5785,6 +5986,9 @@
           finishPrice: finishPrice + interleafPrice + endpaperPrice,
           tax: 0,
           total,
+          volumeDiscountRate,
+          pageDiscountRate,
+          totalPagesDiscountRate,
           discountRate,
           discountAmount,
         };
@@ -7041,7 +7245,7 @@
                 
                 ${totalDiscount > 0 ? `
                 <div style="text-align:right; margin-top:10px; font-size:0.95rem; color:#d97706; font-weight:bold;">
-                    (적용된 수량/쿠폰 할인 총액: -${totalDiscount.toLocaleString()}원)
+                    (적용된 복합 할인 총액 [대량/두꺼운책/총인쇄/쿠폰]: -${totalDiscount.toLocaleString()}원)
                 </div>
                 ` : ""}
 
@@ -7937,28 +8141,70 @@
 
       function renderAdminDiscounts() {
         const listEl = document.getElementById("admin-discounts-list");
-        if (!listEl) return;
-        listEl.innerHTML = "";
+        if (listEl) {
+          listEl.innerHTML = "";
+          dynamicConfig.VOLUME_DISCOUNTS.sort((a, b) => a.minQty - b.minQty);
+          dynamicConfig.VOLUME_DISCOUNTS.forEach((r, idx) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                      <td><strong>${r.minQty.toLocaleString()}부</strong> 이상</td>
+                      <td><strong>${r.maxQty.toLocaleString()}부</strong> 이하</td>
+                      <td>
+                          <input type="number" class="admin-input-inline" style="width: 80px; text-align:right; padding: 4px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-input); color: white;" value="${r.discountRate}" onchange="updateDiscountRate(${idx}, this.value)"> %
+                      </td>
+                      <td>
+                          <button class="action-btn btn-delete" onclick="deleteDiscountRule(${idx})">
+                              <i class="fas fa-trash-alt"></i> 삭제
+                          </button>
+                      </td>
+                  `;
+            listEl.appendChild(tr);
+          });
+        }
 
-        // Sort discounts by minQty
-        dynamicConfig.VOLUME_DISCOUNTS.sort((a, b) => a.minQty - b.minQty);
+        const pageListEl = document.getElementById("admin-page-discounts-list");
+        if (pageListEl && dynamicConfig.PAGE_DISCOUNTS) {
+          pageListEl.innerHTML = "";
+          dynamicConfig.PAGE_DISCOUNTS.sort((a, b) => a.minPages - b.minPages);
+          dynamicConfig.PAGE_DISCOUNTS.forEach((r, idx) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                      <td><strong>${r.minPages.toLocaleString()}p</strong> 이상</td>
+                      <td><strong>${r.maxPages.toLocaleString()}p</strong> 이하</td>
+                      <td>
+                          <input type="number" class="admin-input-inline" style="width: 80px; text-align:right; padding: 4px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-input); color: white;" value="${r.discountRate}" onchange="updatePageDiscountRate(${idx}, this.value)"> %
+                      </td>
+                      <td>
+                          <button class="action-btn btn-delete" onclick="deletePageDiscountRule(${idx})">
+                              <i class="fas fa-trash-alt"></i> 삭제
+                          </button>
+                      </td>
+                  `;
+            pageListEl.appendChild(tr);
+          });
+        }
 
-        dynamicConfig.VOLUME_DISCOUNTS.forEach((r, idx) => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-                    <td><strong>${r.minQty.toLocaleString()}부</strong> 이상</td>
-                    <td><strong>${r.maxQty.toLocaleString()}부</strong> 이하</td>
-                    <td>
-                        <input type="number" class="admin-input-inline" style="width: 80px; text-align:right; padding: 4px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-input); color: white;" value="${r.discountRate}" onchange="updateDiscountRate(${idx}, this.value)"> %
-                    </td>
-                    <td>
-                        <button class="action-btn btn-delete" onclick="deleteDiscountRule(${idx})">
-                            <i class="fas fa-trash-alt"></i> 삭제
-                        </button>
-                    </td>
-                `;
-          listEl.appendChild(tr);
-        });
+        const totalPagesListEl = document.getElementById("admin-total-pages-discounts-list");
+        if (totalPagesListEl && dynamicConfig.TOTAL_PAGES_DISCOUNTS) {
+          totalPagesListEl.innerHTML = "";
+          dynamicConfig.TOTAL_PAGES_DISCOUNTS.sort((a, b) => a.minTotalPages - b.minTotalPages);
+          dynamicConfig.TOTAL_PAGES_DISCOUNTS.forEach((r, idx) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                      <td><strong>${r.minTotalPages.toLocaleString()}p</strong> 이상</td>
+                      <td><strong>${r.maxTotalPages.toLocaleString()}p</strong> 이하</td>
+                      <td>
+                          <input type="number" class="admin-input-inline" style="width: 80px; text-align:right; padding: 4px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-input); color: white;" value="${r.discountRate}" onchange="updateTotalPagesDiscountRate(${idx}, this.value)"> %
+                      </td>
+                      <td>
+                          <button class="action-btn btn-delete" onclick="deleteTotalPagesDiscountRule(${idx})">
+                              <i class="fas fa-trash-alt"></i> 삭제
+                          </button>
+                      </td>
+                  `;
+            totalPagesListEl.appendChild(tr);
+          });
+        }
       }
 
       function updateDiscountRate(idx, val) {
@@ -7999,6 +8245,96 @@
 
         minInput.value = "10";
         maxInput.value = "49";
+        rateInput.value = "5";
+
+        renderAdminDiscounts();
+        init();
+      }
+
+      function updatePageDiscountRate(idx, val) {
+        const rate = Math.max(0, Math.min(100, Number(val) || 0));
+        dynamicConfig.PAGE_DISCOUNTS[idx].discountRate = rate;
+        saveDynamicConfig();
+        init();
+      }
+
+      function deletePageDiscountRule(idx) {
+        if (confirm("해당 두꺼운 책자 할인 규칙을 삭제하시겠습니까?")) {
+          dynamicConfig.PAGE_DISCOUNTS.splice(idx, 1);
+          saveDynamicConfig();
+          renderAdminDiscounts();
+          init();
+        }
+      }
+
+      function addPageDiscountRule() {
+        const minInput = document.getElementById("admin-page-discount-min");
+        const maxInput = document.getElementById("admin-page-discount-max");
+        const rateInput = document.getElementById("admin-page-discount-rate");
+
+        const minPages = Number(minInput.value) || 1;
+        const maxPages = Number(maxInput.value) || 99999;
+        const discountRate = Math.max(
+          0,
+          Math.min(100, Number(rateInput.value) || 0),
+        );
+
+        if (minPages > maxPages) {
+          alert("최소 페이지는 최대 페이지보다 클 수 없습니다.");
+          return;
+        }
+
+        if (!dynamicConfig.PAGE_DISCOUNTS) dynamicConfig.PAGE_DISCOUNTS = [];
+        dynamicConfig.PAGE_DISCOUNTS.push({ minPages, maxPages, discountRate });
+        saveDynamicConfig();
+
+        minInput.value = "300";
+        maxInput.value = "499";
+        rateInput.value = "5";
+
+        renderAdminDiscounts();
+        init();
+      }
+
+      function updateTotalPagesDiscountRate(idx, val) {
+        const rate = Math.max(0, Math.min(100, Number(val) || 0));
+        dynamicConfig.TOTAL_PAGES_DISCOUNTS[idx].discountRate = rate;
+        saveDynamicConfig();
+        init();
+      }
+
+      function deleteTotalPagesDiscountRule(idx) {
+        if (confirm("해당 총 인쇄 페이지 수 할인 규칙을 삭제하시겠습니까?")) {
+          dynamicConfig.TOTAL_PAGES_DISCOUNTS.splice(idx, 1);
+          saveDynamicConfig();
+          renderAdminDiscounts();
+          init();
+        }
+      }
+
+      function addTotalPagesDiscountRule() {
+        const minInput = document.getElementById("admin-total-pages-discount-min");
+        const maxInput = document.getElementById("admin-total-pages-discount-max");
+        const rateInput = document.getElementById("admin-total-pages-discount-rate");
+
+        const minTotalPages = Number(minInput.value) || 1;
+        const maxTotalPages = Number(maxInput.value) || 999999;
+        const discountRate = Math.max(
+          0,
+          Math.min(100, Number(rateInput.value) || 0),
+        );
+
+        if (minTotalPages > maxTotalPages) {
+          alert("최소 인쇄 페이지는 최대 인쇄 페이지보다 클 수 없습니다.");
+          return;
+        }
+
+        if (!dynamicConfig.TOTAL_PAGES_DISCOUNTS) dynamicConfig.TOTAL_PAGES_DISCOUNTS = [];
+        dynamicConfig.TOTAL_PAGES_DISCOUNTS.push({ minTotalPages, maxTotalPages, discountRate });
+        saveDynamicConfig();
+
+        minInput.value = "2000";
+        maxInput.value = "4999";
         rateInput.value = "5";
 
         renderAdminDiscounts();
