@@ -2236,7 +2236,7 @@
                 color: #10b981;
               "
             ></i>
-            주문이 성공적으로 접수되었습니다!
+            이제 스마트스토어에서 결제를 완료해주세요
           </div>
 
           <p
@@ -2483,18 +2483,26 @@
             정상 접수됩니다.
           </div>
 
+          <style>
+            @keyframes blinkBtn {
+              0% { box-shadow: 0 0 5px rgba(34,197,94,0.5); transform: scale(1); filter: brightness(1); }
+              50% { box-shadow: 0 0 25px rgba(34,197,94,1); transform: scale(1.02); filter: brightness(1.2); }
+              100% { box-shadow: 0 0 5px rgba(34,197,94,0.5); transform: scale(1); filter: brightness(1); }
+            }
+          </style>
           <button
             class="main-btn btn-green"
             onclick="goToStoreAndReload()"
             style="
               width: 100%;
               padding: 0.8rem;
-              font-size: 1rem;
+              font-size: 1.05rem;
+              font-weight: 800;
               border-radius: 10px;
+              animation: blinkBtn 1.5s infinite;
             "
           >
-            <i class="fas fa-external-link-alt"></i> 스마트스토어 결제창으로
-            이동하기
+            <i class="fas fa-external-link-alt"></i> 스마트스토어에서 결제하여 주문완료하기
           </button>
 
           <!-- Postpaid Quote Request Button -->
@@ -6110,6 +6118,22 @@
         return "";
       }
 
+      function formatKoreanDate(isoString) {
+        if (!isoString || isoString === "-") return isoString;
+        try {
+          const d = new Date(isoString);
+          if (isNaN(d.getTime())) return isoString;
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          const hours = String(d.getHours()).padStart(2, '0');
+          const mins = String(d.getMinutes()).padStart(2, '0');
+          return `${year}년 ${month}월 ${day}일 ${hours}:${mins}`;
+        } catch (e) {
+          return isoString;
+        }
+      }
+
       async function fetchRealtimeOrders() {
         // 새로고침 버튼을 누르면 강제로 새로 불러옵니다.
         loadAdminOrders(true);
@@ -6402,7 +6426,7 @@
 
           tr.innerHTML = `
                     <td style="text-align:center;"><input type="checkbox" class="admin-order-row-chk" data-date="${group.date}" style="width:14px; height:14px; cursor:pointer;"></td>
-                    <td>${group.date}</td>
+                    <td>${formatKoreanDate(group.date)}</td>
                     <td><strong>${group.name}</strong></td>
                     <td>${group.phone}</td>
                     <td style="text-align:left; font-size:0.75rem; max-width:450px; word-break:break-all; padding: 0.8rem 1rem;">${itemsHtml}</td>
@@ -6797,7 +6821,7 @@
           rowsHtml += `
                     <tr>
                         <td style="text-align:center;">${index + 1}</td>
-                        <td style="text-align:center;">${group.date}</td>
+                        <td style="text-align:center;">${formatKoreanDate(group.date)}</td>
                         <td style="text-align:center;"><strong>${group.name}</strong></td>
                         <td style="text-align:center;">${group.phone}</td>
                         <td>
