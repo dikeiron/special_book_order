@@ -2581,12 +2581,39 @@
           <strong id="copied-huge-quantity" style="font-size: 3.5rem; color: #0f172a; line-height: 1;">0</strong><span style="font-size: 1.2rem; color: #0f172a; font-weight: bold;">개</span>
         </div>
         
-        <p style="color: var(--text-main); font-size: 1.05rem; line-height: 1.6; margin-bottom: 2rem; word-break: keep-all;">
+        <p style="color: var(--text-main); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem; word-break: keep-all;">
           스토어 수량 선택칸에 <strong>붙여넣기</strong>만 하시면 됩니다.
         </p>
+
+        <!-- Naver Smart Store Quantity Selection Mockup (Beautiful HTML/CSS Visual Guidance) -->
+        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem; color: #334155; text-align: left; font-family: sans-serif;">
+          <div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 0.6rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #cbd5e1; padding-bottom: 0.4rem; color: #475569;">
+            <span>스마트스토어 결제 화면 예시</span>
+            <span style="font-size: 0.75rem; color: #ef4444; font-weight: normal">*단가 100원 기준</span>
+          </div>
+
+          <!-- Row 1: Quantity Selection -->
+          <div style="display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.6rem 0.8rem; margin-bottom: 0.5rem;">
+            <span style="font-weight: bold; font-size: 0.85rem; color: #1e293b">수량 선택</span>
+            <div style="display: flex; align-items: center; border: 1px solid #cbd5e1; border-radius: 4px; overflow: hidden; background: #f1f5f9;">
+              <span style="padding: 0.2rem 0.6rem; background: #f8fafc; font-weight: bold; border-right: 1px solid #cbd5e1; color: #94a3b8; user-select: none; font-size: 0.85rem;">-</span>
+              <span id="copy-mockup-quantity-value" style="padding: 0.2rem 1rem; background: white; font-weight: 800; font-size: 0.95rem; color: #2563eb; min-width: 2.5rem; text-align: center; display: inline-block; animation: pulse 1.5s infinite; border-radius: 2px;">0</span>
+              <span style="padding: 0.2rem 0.6rem; background: #f8fafc; font-weight: bold; border-left: 1px solid #cbd5e1; color: #94a3b8; user-select: none; font-size: 0.85rem;">+</span>
+            </div>
+          </div>
+
+          <!-- Row 2: Total Price -->
+          <div style="display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.6rem 0.8rem;">
+            <span id="copy-mockup-qty-label" style="font-weight: bold; font-size: 0.85rem; color: #1e293b">총 0개</span>
+            <div style="font-size: 0.85rem; font-weight: bold; color: #1e293b">
+              <span>총 금액 </span>
+              <strong id="copy-mockup-total-price" style="color: #e11d48; font-size: 1.05rem">0원</strong>
+            </div>
+          </div>
+        </div>
         
-        <button onclick="executeStoreRedirect()" style="width: 100%; background: #10b981; color: white; border: none; padding: 1.1rem; border-radius: 10px; font-weight: 800; font-size: 1.15rem; cursor: pointer; box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4); animation: pulse 2s infinite;">
-          <i class="fas fa-shopping-cart"></i> 스마트스토어로 이동하기
+        <button onclick="executeStoreRedirect()" style="width: 100%; background: #10b981; color: white; border: none; padding: 1.1rem; border-radius: 10px; font-weight: 800; font-size: 1.15rem; cursor: pointer; box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4); animation: blinkBtn 1.5s infinite;">
+          <i class="fas fa-shopping-cart"></i> 스마트스토어로 이동하여 결제하기
         </button>
       </div>
     </div>
@@ -9576,6 +9603,11 @@
         document.getElementById("mockup-total-price").textContent =
           totalPrice.toLocaleString() + "원";
 
+        // DB에 기존 기본값만 저장되어 있을 경우 새로운 링크로 덮어쓰기
+        if (dynamicConfig.STORE_URL === "https://smartstore.naver.com/") {
+          dynamicConfig.STORE_URL = "https://smartstore.naver.com/likedesign/products/12018800953";
+        }
+        
         storeRedirectUrl =
           dynamicConfig.STORE_URL || "https://smartstore.naver.com/likedesign/products/12018800953";
 
@@ -9636,6 +9668,12 @@
           document.body.removeChild(tempInput);
           
           document.getElementById("copied-huge-quantity").textContent = qtyStr;
+          
+          const qtyNum = Number(qtyStr);
+          const totalPrice = qtyNum * 100;
+          document.getElementById("copy-mockup-quantity-value").textContent = qtyStr;
+          document.getElementById("copy-mockup-qty-label").textContent = "총 " + qtyStr + "개";
+          document.getElementById("copy-mockup-total-price").textContent = totalPrice.toLocaleString() + "원";
         }
 
         document.getElementById("pay-guidance-modal").classList.remove("visible");
