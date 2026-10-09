@@ -4480,7 +4480,7 @@
 
       const DEFAULT_DYNAMIC_CONFIG = {
         ADMIN_PASSWORD: "admin1234",
-        STORE_URL: "https://smartstore.naver.com/",
+        STORE_URL: "https://smartstore.naver.com/likedesign/products/12018800953",
         EMAIL: "likedesign@naver.com",
         GOOGLE_SHEET_URL: "",
         ORDER_API_URL:
@@ -4825,7 +4825,7 @@
           dynamicConfig.ADMIN_PASSWORD = "admin1234";
         }
         if (!dynamicConfig.STORE_URL) {
-          dynamicConfig.STORE_URL = "https://smartstore.naver.com/";
+          dynamicConfig.STORE_URL = "https://smartstore.naver.com/likedesign/products/12018800953";
         }
         if (!dynamicConfig.EMAIL) {
           dynamicConfig.EMAIL = "likedesign@naver.com";
@@ -8014,7 +8014,7 @@
         const storeUrlInput = document.getElementById("admin-store-url");
         if (storeUrlInput) {
           storeUrlInput.value =
-            dynamicConfig.STORE_URL || "https://smartstore.naver.com/";
+            dynamicConfig.STORE_URL || "https://smartstore.naver.com/likedesign/products/12018800953";
         }
         const noticeEmailInput = document.getElementById("admin-notice-email");
         if (noticeEmailInput) {
@@ -8071,7 +8071,7 @@
 
         if (storeUrlInput) {
           dynamicConfig.STORE_URL =
-            storeUrlInput.value.trim() || "https://smartstore.naver.com/";
+            storeUrlInput.value.trim() || "https://smartstore.naver.com/likedesign/products/12018800953";
         }
         if (noticeEmailInput) {
           dynamicConfig.EMAIL =
@@ -9577,7 +9577,7 @@
           totalPrice.toLocaleString() + "원";
 
         storeRedirectUrl =
-          dynamicConfig.STORE_URL || "https://smartstore.naver.com/";
+          dynamicConfig.STORE_URL || "https://smartstore.naver.com/likedesign/products/12018800953";
 
         document.getElementById("pay-guidance-modal").classList.add("visible");
 
