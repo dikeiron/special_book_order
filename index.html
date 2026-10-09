@@ -4788,13 +4788,18 @@
           document.getElementById("inner-pages").value = checkedPages;
         }
       }
+      const wasCustomWireSpring = (state.binding === "wire" || state.binding === "spring") && 
+          (state.size === "사용자 정의" || state.size === "직접입력");
+
       state[k] = v;
 
       // 와이어/스프링 제본 & 사용자 정의 사이즈 최소 수량 체크
       if (k === "qty" || k === "binding" || k === "size") {
-        if ((state.binding === "wire" || state.binding === "spring") && 
-            (state.size === "사용자 정의" || state.size === "직접입력")) {
-          const minQ = dynamicConfig.PRINT_PRICES?.minQtyCustomWireSpring || 10;
+        const isCustomWireSpring = (state.binding === "wire" || state.binding === "spring") && 
+            (state.size === "사용자 정의" || state.size === "직접입력");
+        const minQ = dynamicConfig.PRINT_PRICES?.minQtyCustomWireSpring || 10;
+
+        if (isCustomWireSpring) {
           if (state.qty < minQ) {
             if (k === "qty") {
                 alert(`와이어제본과 스프링제본 별사이즈는 ${minQ}부이상만 주문이 가능합니다.`);
@@ -4802,6 +4807,13 @@
             state.qty = minQ;
             const qtyInput = document.getElementById("order-quantity");
             if (qtyInput) qtyInput.value = minQ;
+          }
+        } else if (wasCustomWireSpring && !isCustomWireSpring) {
+          // 와이어/스프링+사용자정의에서 일반 상황으로 빠져나올 때, 강제된 최소수량(minQ)과 동일하면 1로 리셋
+          if (state.qty === minQ) {
+            state.qty = 1;
+            const qtyInput = document.getElementById("order-quantity");
+            if (qtyInput) qtyInput.value = 1;
           }
         }
       }
