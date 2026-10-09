@@ -2031,7 +2031,7 @@
               onclick="finalizeOrder(true)"
               style="margin-top: 0.8rem; background: var(--primary);"
             >
-              <i class="fas fa-file-invoice-dollar"></i> 공공기관 / 학교 후불결제용 견적요청
+              <i class="fas fa-file-invoice-dollar"></i> 공공기관 / 학교 견적서 요청
             </button>
             <p class="summary-note" style="margin-top: 0.8rem">
               * 주문완료 메세지가 나오고 나면 우측에 견적 저장 및 주문하기를
@@ -2236,10 +2236,11 @@
                 color: #10b981;
               "
             ></i>
-            이제 스마트스토어에서 결제를 완료해주세요
+            <span id="modal-success-msg">이제 스마트스토어에서 결제를 완료해주세요</span>
           </div>
 
           <p
+            id="smartstore-guidance-text"
             style="
               font-size: 0.9rem;
               margin-bottom: 1.2rem;
@@ -2318,7 +2319,7 @@
                 color: var(--text);
               "
             >
-              <span>스마트스토어 주문 수량:</span>
+              <span id="guidance-qty-label">스마트스토어 주문 수량:</span>
               <strong
                 style="color: #3b82f6; font-size: 1.2rem"
                 id="guidance-total-qty"
@@ -2328,6 +2329,7 @@
           </div>
 
           <!-- Naver Smart Store Quantity Selection Mockup (Beautiful HTML/CSS Visual Guidance) -->
+          <div id="smartstore-only-content">
           <div
             style="
               background: #f8fafc;
@@ -2504,9 +2506,11 @@
           >
             <i class="fas fa-external-link-alt"></i> 스마트스토어에서 결제하여 주문완료하기
           </button>
+          </div>
 
           <!-- Postpaid Quote Request Button -->
           <button
+            id="modal-quote-toggle-btn"
             class="main-btn"
             onclick="toggleQuoteForm()"
             style="
@@ -2519,7 +2523,7 @@
               box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
             "
           >
-            <i class="fas fa-file-invoice-dollar"></i> 공공기관 / 학교 후불결제용 견적요청
+            <i class="fas fa-file-invoice-dollar"></i> 공공기관 / 학교 견적서 요청
           </button>
 
           <!-- Postpaid Quote Form (Hidden by default) -->
@@ -9540,17 +9544,27 @@
 
         document.getElementById("pay-guidance-modal").classList.add("visible");
 
+        const successMsg = document.getElementById("modal-success-msg");
+        const guidanceText = document.getElementById("smartstore-guidance-text");
+        const qtyLabel = document.getElementById("guidance-qty-label");
+        const smartstoreContent = document.getElementById("smartstore-only-content");
+        const quoteToggleBtn = document.getElementById("modal-quote-toggle-btn");
+        const quoteForm = document.getElementById("postpaid-quote-form");
+
         if (autoOpenQuoteForm) {
-          const form = document.getElementById("postpaid-quote-form");
-          if (form) {
-            form.style.display = "block";
-            setTimeout(() => {
-              const modalBody = document.querySelector("#pay-guidance-modal .preset-modal-body");
-              if (modalBody) {
-                modalBody.scrollTo({ top: modalBody.scrollHeight, behavior: "smooth" });
-              }
-            }, 100);
-          }
+          if (successMsg) successMsg.textContent = "후불결제 견적 요청 정보 입력";
+          if (guidanceText) guidanceText.textContent = "아래에 담당자 정보를 입력하고 견적서를 요청해 주세요.";
+          if (qtyLabel) qtyLabel.textContent = "주문 기준 수량:";
+          if (smartstoreContent) smartstoreContent.style.display = "none";
+          if (quoteToggleBtn) quoteToggleBtn.style.display = "none";
+          if (quoteForm) quoteForm.style.display = "block";
+        } else {
+          if (successMsg) successMsg.textContent = "이제 스마트스토어에서 결제를 완료해주세요";
+          if (guidanceText) guidanceText.textContent = "아래 안내에 따라 스마트스토어에서 결제를 진행해 주세요.";
+          if (qtyLabel) qtyLabel.textContent = "스마트스토어 주문 수량:";
+          if (smartstoreContent) smartstoreContent.style.display = "block";
+          if (quoteToggleBtn) quoteToggleBtn.style.display = "none";
+          if (quoteForm) quoteForm.style.display = "none";
         }
       }
 
