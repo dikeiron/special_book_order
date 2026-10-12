@@ -5650,6 +5650,14 @@
             "프로젝트 제목",
             "title",
             "bookTitle",
+            "책자제목",
+            "책자 제목",
+            "책자제목/파일명",
+            "책자 제목 / 파일명",
+            "파일명",
+            "도서 제목",
+            "도서명",
+            "책제목",
             "장바구니 상세",
             "장바구니상세",
           ]);
@@ -5831,7 +5839,7 @@
             );
           } else {
             const title =
-              getVal(ord, ["프로젝트 제목", "title", "bookTitle"]) ||
+              getVal(ord, ["프로젝트 제목", "title", "bookTitle", "책자제목", "책자 제목", "책자제목/파일명", "책자 제목 / 파일명", "파일명", "도서 제목", "도서명", "책제목"]) ||
               "제목없음";
             const size = getVal(ord, ["규격", "size"]) || "";
             const binding = getVal(ord, ["제본방식", "binding"]) || "";
@@ -6120,6 +6128,11 @@
               "도서 제목",
               "도서명",
               "책제목",
+              "책자제목",
+              "책자 제목",
+              "책자제목/파일명",
+              "책자 제목 / 파일명",
+              "파일명",
               "title",
             ]) || "제목없음";
           const size = getVal(ord, ["규격", "사이즈", "size"]) || "-";
@@ -6235,7 +6248,7 @@
           );
 
           const title =
-            getVal(ord, ["title", "bookTitle", "프로젝트 제목"]) ||
+            getVal(ord, ["title", "bookTitle", "프로젝트 제목", "책자제목", "책자 제목", "책자제목/파일명", "책자 제목 / 파일명", "파일명", "도서 제목", "도서명", "책제목"]) ||
             "제목없음";
           const qty =
             getVal(ord, [
@@ -6358,7 +6371,7 @@
       let itemsHtml = "";
       group.orders.forEach((ord, i) => {
         const title =
-          getVal(ord, ["title", "bookTitle", "프로젝트 제목"]) || "제목없음";
+          getVal(ord, ["title", "bookTitle", "프로젝트 제목", "책자제목", "책자 제목", "책자제목/파일명", "책자 제목 / 파일명", "파일명", "도서 제목", "도서명", "책제목"]) || "제목없음";
         const qty =
           getVal(ord, ["주문수량", "주문 수량", "수량", "qty", "quantity"]) ||
           0;
@@ -6524,7 +6537,7 @@
       let itemsHtml = "";
 
       group.orders.forEach((ord, i) => {
-        const title = getVal(ord, ["title", "bookTitle", "프로젝트 제목"]) || "제목없음";
+        const title = getVal(ord, ["title", "bookTitle", "프로젝트 제목", "책자제목", "책자 제목", "책자제목/파일명", "책자 제목 / 파일명", "파일명", "도서 제목", "도서명", "책제목"]) || "제목없음";
         const qty = getVal(ord, ["주문수량", "주문 수량", "수량", "qty", "quantity"]) || 0;
         const supply = Number(getVal(ord, ["공급가액", "공급가", "supplyPrice"]) || 0);
         const tax = Number(getVal(ord, ["세액(10%)", "세액", "부가세", "tax"]) || 0);
