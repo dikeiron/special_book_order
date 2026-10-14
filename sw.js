@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smartorder-v14';
+const CACHE_NAME = 'smartorder-v15';
 const ASSETS = [
   './index.html',
   './manifest.json',
@@ -28,18 +28,44 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  // Simple network fallback cache strategy
+  const url = new URL(e.request.url);
+
+  // For HTML navigation or index.html requests: Network-First strategy
+  // This guarantees users always get the freshest index.html when online!
+  if (
+    e.request.mode === 'navigate' ||
+    url.pathname.endsWith('index.html') ||
+    url.pathname === '/' ||
+    url.pathname.endsWith('/')
+  ) {
+    e.respondWith(
+      fetch(e.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(e.request, responseClone);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          // Network failed (offline), try cache
+          return caches.match(e.request).then((cached) => {
+            return cached || caches.match('./index.html');
+          });
+        })
+    );
+    return;
+  }
+
+  // For other static assets: Cache-First with network fallback
   e.respondWith(
     caches.match(e.request).then((cachedResponse) => {
       if (cachedResponse) {
         return cachedResponse;
       }
-      return fetch(e.request).catch(() => {
-        // Fallback for offline if page requested
-        if (e.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-      });
+      return fetch(e.request);
     })
   );
 });
