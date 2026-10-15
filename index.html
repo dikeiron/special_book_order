@@ -9175,105 +9175,106 @@
         discountAmt = Math.min(grand, discountAmt);
       }
 
-      const fetchPromises = [];
       const combinedMemo = `[공공기관/학교 후불결제 견적요청] 단체명: ${orgName}, 메일: ${email}, 담당자: ${managerName}, 연락처: ${managerPhone}`;
 
-      for (let idx = 0; idx < cart.length; idx++) {
-        const it = cart[idx];
-        const bindName = getBindingName(it.binding);
-        const finishesText = Array.from(it.finishes).join(", ") || "없음";
-        const p = calc(it);
+      try {
+        for (let idx = 0; idx < cart.length; idx++) {
+          btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> 접수 중... (${idx + 1}/${cart.length})`;
+          const it = cart[idx];
+          const bindName = getBindingName(it.binding);
+          const finishesText = Array.from(it.finishes).join(", ") || "없음";
+          const p = calc(it);
 
-        const printSideText = it.printSide === "both" ? "양면" : "단면";
-        const printColorText = it.printColor === "color" ? "컬러" : "흑백";
+          const printSideText = it.printSide === "both" ? "양면" : "단면";
+          const printColorText = it.printColor === "color" ? "컬러" : "흑백";
 
-        const interleafMap = { none: "없음", only: "간지만", print: "간지+인쇄" };
-        const endpaperMap = { none: "없음", front: "앞", back: "뒤", both: "앞뒤" };
-        const interleafText = Math.max(0, it.interleafPages.split(",").length) > 0 && it.interleaf !== "none"
-          ? `${interleafMap[it.interleaf]} (p.${it.interleafPages})` : interleafMap[it.interleaf];
-        const endpaperText = endpaperMap[it.endpaper] || "없음";
+          const interleafMap = { none: "없음", only: "간지만", print: "간지+인쇄" };
+          const endpaperMap = { none: "없음", front: "앞", back: "뒤", both: "앞뒤" };
+          const interleafText = Math.max(0, it.interleafPages.split(",").length) > 0 && it.interleaf !== "none"
+            ? `${interleafMap[it.interleaf]} (p.${it.interleafPages})` : interleafMap[it.interleaf];
+          const endpaperText = endpaperMap[it.endpaper] || "없음";
 
-        const baseData = {
-          date: timestamp,
-          "주문 일시": timestamp,
-          title: it.title || "제목없음",
-          bookTitle: it.title || "제목없음",
-          "프로젝트 제목": it.title || "제목없음",
-          "책자제목/파일명": it.title || "제목없음",
-          "표지 파일 전달 방식": it.coverSubmission === "기타(입력)" ? (it.coverSubmissionOther || "기타") : it.coverSubmission,
-          "표지인쇄": it.coverPrintSide === "both" ? "양면인쇄" : "단면인쇄",
-          name: idx === 0 ? managerName : "",
-          "주문자 성함": idx === 0 ? managerName : "",
-          phone: idx === 0 ? managerPhone : "",
-          연락처: idx === 0 ? managerPhone : "",
-          address: "후불결제 견적요청",
-          "주문자 주소": "후불결제 견적요청",
-          size: (it.size === "사용자 정의" || it.size === "직접입력") && it.customW && it.customH ? `${it.customW}x${it.customH}mm` : it.size,
-          규격: (it.size === "사용자 정의" || it.size === "직접입력") && it.customW && it.customH ? `${it.customW}x${it.customH}mm` : it.size,
-          type: bindName,
-          binding: bindName,
-          제본방식: bindName,
-          quantity: it.qty,
-          qty: it.qty,
-          주문수량: it.qty,
-          paper: it.coverPaper,
-          표지사양: it.coverPaper,
-          finishes: finishesText,
-          "표지 후가공": finishesText,
-          innerPaper: it.innerPaper,
-          내지사양: it.innerPaper,
-          pages: it.innerPages,
-          페이지: it.innerPages,
-          printSide: printSideText,
-          "인쇄 방식": printSideText,
-          printColor: printColorText,
-          "인쇄 컬러": printColorText,
-          interleaf: interleafText,
-          "간지 설정": interleafText,
-          endpaper: endpaperText,
-          "면지 설정": endpaperText,
-          supplyPrice: p.total - p.tax,
-          공급가액: p.total - p.tax,
-          tax: p.tax,
-          "세액(10%)": p.tax,
-          totalPrice: p.total,
-          "합계 금액": p.total,
-          couponCode: idx === 0 && appliedCoupon ? appliedCoupon.code : "",
-          couponDiscount: idx === 0 && discountAmt > 0 ? discountAmt : "",
-          finalTotal: idx === 0 ? grand - discountAmt : "",
-          "최종 결제 합계": idx === 0 ? grand - discountAmt : "",
-          status: "견적요청(후불)",
-          상태: "견적요청(후불)",
-          memo: idx === 0 ? combinedMemo : "",
-          요청사항: idx === 0 ? combinedMemo : "",
-          메모: idx === 0 ? combinedMemo : "",
+          const baseData = {
+            date: timestamp,
+            "주문 일시": timestamp,
+            title: it.title || "제목없음",
+            bookTitle: it.title || "제목없음",
+            "프로젝트 제목": it.title || "제목없음",
+            "책자제목/파일명": it.title || "제목없음",
+            "표지 파일 전달 방식": it.coverSubmission === "기타(입력)" ? (it.coverSubmissionOther || "기타") : it.coverSubmission,
+            "표지인쇄": it.coverPrintSide === "both" ? "양면인쇄" : "단면인쇄",
+            name: idx === 0 ? managerName : "",
+            "주문자 성함": idx === 0 ? managerName : "",
+            phone: idx === 0 ? managerPhone : "",
+            연락처: idx === 0 ? managerPhone : "",
+            address: "후불결제 견적요청",
+            "주문자 주소": "후불결제 견적요청",
+            size: (it.size === "사용자 정의" || it.size === "직접입력") && it.customW && it.customH ? `${it.customW}x${it.customH}mm` : it.size,
+            규격: (it.size === "사용자 정의" || it.size === "직접입력") && it.customW && it.customH ? `${it.customW}x${it.customH}mm` : it.size,
+            type: bindName,
+            binding: bindName,
+            제본방식: bindName,
+            quantity: it.qty,
+            qty: it.qty,
+            주문수량: it.qty,
+            paper: it.coverPaper,
+            표지사양: it.coverPaper,
+            finishes: finishesText,
+            "표지 후가공": finishesText,
+            innerPaper: it.innerPaper,
+            내지사양: it.innerPaper,
+            pages: it.innerPages,
+            페이지: it.innerPages,
+            printSide: printSideText,
+            "인쇄 방식": printSideText,
+            printColor: printColorText,
+            "인쇄 컬러": printColorText,
+            interleaf: interleafText,
+            "간지 설정": interleafText,
+            endpaper: endpaperText,
+            "면지 설정": endpaperText,
+            supplyPrice: p.total - p.tax,
+            공급가액: p.total - p.tax,
+            tax: p.tax,
+            "세액(10%)": p.tax,
+            totalPrice: p.total,
+            "합계 금액": p.total,
+            couponCode: idx === 0 && appliedCoupon ? appliedCoupon.code : "",
+            couponDiscount: idx === 0 && discountAmt > 0 ? discountAmt : "",
+            finalTotal: idx === 0 ? grand - discountAmt : "",
+            "최종 결제 합계": idx === 0 ? grand - discountAmt : "",
+            status: "견적요청(후불)",
+            상태: "견적요청(후불)",
+            memo: idx === 0 ? combinedMemo : "",
+            요청사항: idx === 0 ? combinedMemo : "",
+            메모: idx === 0 ? combinedMemo : "",
 
-          // New specific fields (will auto-populate if headers exist)
-          "단체이름": idx === 0 ? orgName : "",
-          "받을메일": idx === 0 ? email : "",
-          "담당자": idx === 0 ? managerName : "",
-          "담당자연락처": idx === 0 ? managerPhone : ""
-        };
+            // New specific fields (will auto-populate if headers exist)
+            "단체이름": idx === 0 ? orgName : "",
+            "받을메일": idx === 0 ? email : "",
+            "담당자": idx === 0 ? managerName : "",
+            "담당자연락처": idx === 0 ? managerPhone : ""
+          };
 
-        const orderData = {};
-        for (let key in baseData) {
-          orderData[key] = baseData[key];
-          orderData[key + "\t"] = baseData[key];
-        }
+          const orderData = {};
+          for (let key in baseData) {
+            orderData[key] = baseData[key];
+            orderData[key + "\t"] = baseData[key];
+          }
 
-        fetchPromises.push(
-          fetch(url, {
+          await fetch(url, {
             method: "POST",
             mode: "no-cors",
             cache: "no-cache",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(orderData),
-          })
-        );
-      }
+          });
 
-      try {
-        await Promise.all(fetchPromises);
+          // 구글 앱스 스크립트 시트 동시쓰기 충돌 방지를 위한 안전 간격
+          if (idx < cart.length - 1) {
+            await new Promise((resolve) => setTimeout(resolve, 200));
+          }
+        }
 
         // Show success state on the button itself instead of an alert
         btn.style.background = "#10b981";
@@ -9347,12 +9348,12 @@
 
         const totalDiscount = totalVolumeDiscount + couponDiscountAmt;
 
-        // Create an array to hold all network requests so we can run them concurrently
-        const fetchPromises = [];
-
         if (!isPostpaidQuote) {
-          // Prepare each cart item as its own row in the spreadsheet
+          // Prepare and send each cart item sequentially with progress feedback to avoid Google Apps Script concurrency row loss
           for (let idx = 0; idx < cart.length; idx++) {
+            submitBtn.innerHTML =
+              `<i class="fas fa-spinner fa-spin"></i> 주문 전송 중... (${idx + 1}/${cart.length})`;
+
             const it = cart[idx];
             const bindName = getBindingName(it.binding);
             const finishesText = Array.from(it.finishes).join(", ") || "없음";
@@ -9525,19 +9526,19 @@
               orderData[key + "\t"] = baseData[key];
             }
 
-            fetchPromises.push(
-              fetch(url, {
-                method: "POST",
-                mode: "no-cors",
-                cache: "no-cache",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(orderData),
-              })
-            );
-          }
+            await fetch(url, {
+              method: "POST",
+              mode: "no-cors",
+              cache: "no-cache",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(orderData),
+            });
 
-          // Execute all requests concurrently (in parallel) to drastically reduce waiting time
-          await Promise.all(fetchPromises);
+            // 구글 앱스 스크립트 시트 동시쓰기 충돌 방지를 위한 안전 간격
+            if (idx < cart.length - 1) {
+              await new Promise((resolve) => setTimeout(resolve, 200));
+            }
+          }
 
           // Save order details to local history
           saveOrderToRecentHistory(timestamp, cart, grand - couponDiscountAmt, {
